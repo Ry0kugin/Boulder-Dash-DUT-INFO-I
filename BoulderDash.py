@@ -165,6 +165,23 @@ def trouveCharlie(curMap):
             if curMap[i][j] == "R":
                 return (j,i)
 
+def foundFallable(curMap):
+    fallables = []
+    for i in range(1, len(curMap)):
+        for j in range(len(curMap[i])):
+            if curMap[i][j] == "B" or curMap[i][j] == "D":
+                fallables.append((j,i))
+    print(fallables)
+    return fallables
+
+def updateFallable(lastFa, newFa, fallables):
+    lastFa = lastFa[0], lastFa[1]
+    newFa = newFa[0], newFa[1]
+    for i,fa in enumerate(fallables):
+        if fa == lastFa:
+            fallables[i] = newFa
+            break
+
 def getCell(coord, curMap):
     return curMap[coord[1]][coord[0]]
 
@@ -172,7 +189,7 @@ def setCell(coord, curMap, content):
     curMap[coord[1]][coord[0]] = content
 
 
-def moveRockford(rockford, direction, curMap):
+def moveRockford(rockford, direction, curMap, fallables):
     print(rockford)
     aimCoord = sumTuple(rockford, direction)
 
@@ -196,6 +213,7 @@ def moveRockford(rockford, direction, curMap):
                 setCell(rockford, curMap, ".")   # refectoring à faire
                 setCell(aimCoord, curMap, "R")
                 setCell(behindBoulder, curMap, "B")
+                updateFallable(aimCoord, behindBoulder, fallables)
                 return aimCoord
     elif aimCell == "D":
         print("DIAMOND")
@@ -207,8 +225,17 @@ def moveRockford(rockford, direction, curMap):
         print("Useless...", aimCell, getCell(rockford,curMap))
     return rockford
     
-def setPhysics():
-    pass
+def updatePhysic(fallables, curMap):
+    for i, fa in enumerate(fallables):
+        faX = fa[0]
+        faY = fa[1]
+        if faY < CELL_NBY:
+            if curMap[faY+1][faX] == ".":
+                setCell((faX, faY+1), curMap, curMap[faY][faX])
+                setCell((faX, faY), curMap, ".")
+                fallables[i] = (faX, faY+1)
+
+
 
 def reset():
     pass
@@ -226,8 +253,9 @@ if __name__ == '__main__':
     cree_fenetre(WIDTH_WINDOW,HEIGHT_WINDOW)
     datamap = list(LEVEL_1)
 
-    charlie = trouveCharlie(datamap)
+    charlie = trouveCharlie(datamap)  # refactoring
     charlie = (charlie[0],charlie[1],0)
+    fallables = foundFallable(datamap)
     renderCanvas(datamap)
 
 
@@ -235,7 +263,8 @@ if __name__ == '__main__':
         start = time()
         direction = getDirection()
         if(direction[0] != 0 or direction[1] != 0):
-            charlie = moveRockford(charlie, direction, datamap)
-            renderCanvas(datamap)
+            charlie = moveRockford(charlie, direction, datamap, fallables)
+        updatePhysic(fallables,datamap)
+        renderCanvas(datamap)
         mise_a_jour()
         end = time()
