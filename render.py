@@ -114,29 +114,30 @@ def drawDiamond(coord):
 
 
 
-def drawEnd(coord):
+def drawEnd(coord, finished=False):
     """
     dessine une case fin
+    rouge si open false
+    vert si open true
 
     :param tuple coord: couple (abscisse, ordonnee) de la case
     """
+    colors = (("#0a0", "#0f0") if finished else ("#a00", "#f00"))
     rectangle(
         coord[0],
         coord[1],
         coord[0]+CELL_SIZE,
         coord[1]+CELL_SIZE,
-        '#0a0',
-        '#0a0'
+        colors[0],
+        colors[0]
     )
     cercle(
         coord[0]+HALF_SIZE,
         coord[1]+HALF_SIZE,
         HALF_SIZE//2,
-        '#0f0',
-        '#0f0'
+        colors[1],
+        colors[1]
     )
-
-
 
 def drawRockford(coord):
     """
@@ -171,12 +172,13 @@ renderCase = {
     'B' : (lambda x : drawBoulder(x)),
     'D' : (lambda x : drawDiamond(x)),
     'E' : (lambda x : drawEnd(x)),
-    'R' : (lambda x : drawRockford(x))
+    'R' : (lambda x : drawRockford(x)),
+    'Eo': (lambda x : drawEnd(x, True))
 }
 
 
 
-def renderCanvas(curMap):
+def renderCanvas(curMap, rockford):
     """
     affiche l'ensemble des case de la current Map
 

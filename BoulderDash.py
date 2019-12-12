@@ -93,7 +93,7 @@ WGGG.GG.GGGGEW\nWWWWWWWWWWWWWW"
 
     currentMap = loadLevel(LEVEL_1)
 
-    charlie, fallables, fall = logic.start(currentMap)
+    charlie, fallables, fall, end = logic.start(currentMap)
     render.renderCanvas(currentMap)
     fall = True
     debug = False
@@ -114,14 +114,14 @@ WGGG.GG.GGGGEW\nWWWWWWWWWWWWWW"
             continue
 
         if(direction[0] != 0 or direction[1] != 0):
-            charlie = logic.moveRockford(charlie, direction, currentMap, fallables)
+            charlie = logic.moveRockford(charlie, direction, currentMap, fallables, end)
             fall, charlie = logic.updatePhysic(fallables, False, charlie, currentMap)
 
         if fall:
             fall, charlie = logic.updatePhysic(fallables, fall, charlie, currentMap)
 
-        render.renderCanvas(currentMap)
+        render.renderCanvas(currentMap, rockford)
         mise_a_jour()
-        logic.status(charlie)
+        logic.status(charlie, currentMap[0][0], int(currentMap[0][1]))
 
 ###############################################################################

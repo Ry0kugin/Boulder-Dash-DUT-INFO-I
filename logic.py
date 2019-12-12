@@ -36,7 +36,18 @@ def findRockford(curMap):
             if curMap[i][j] == "R":
                 return [(j,i), 0]
 
+def findEnd(curMap):
+    """
+    trouve et renvoie Rockford, fonction appelé à chaque création de partie
 
+    :param list curMap: map actuel sous forme de liste
+    >>> findRockford([['150s', '1d'], ['B', 'R', 'G'], ['.', 'W', 'E']])
+    [(2, 2), 0]
+    """
+    for i in range(1, len(curMap)):
+        for j in range(len(curMap[i])):
+            if curMap[i][j] == "E":
+                return [(j,i), False]
 
 def findFallable(curMap):
     """
@@ -133,7 +144,7 @@ def changeRockfordPos(newPos, rockford, diamant=False):
 
 
 
-def moveRockford(rockford, direction, curMap, fallables):
+def moveRockford(rockford, direction, curMap, fallables, end):
     """
     deplace rockford
 
@@ -183,8 +194,10 @@ def moveRockford(rockford, direction, curMap, fallables):
 
     elif aimCell == "E":
         setRockfordCell(rockford[0], aimCoord, curMap, aim="E")
-        return "win"
-
+        win = rockford[1]==int(curMap[0][1])
+        if win:
+            setCell(end[0], curMap, "Eo")
+        return ("win" if win else changeRockfordPos(aimCoord, rockford)) 
     return rockford
 
 
@@ -242,10 +255,11 @@ def start(curMap):
 
     rockford = findRockford(curMap)  # refactoring
     fallables = findFallable(curMap)
+    end = findEnd(curMap)
     fall = True
-    return rockford, fallables, fall
+    return rockford, fallables, fall, end
 
-def status(rockford):
+def status(rockford, remainTime, diamonds):
     """
     verifie si la partie de Rockford est gagnée ou perdue
 
