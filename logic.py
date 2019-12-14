@@ -144,7 +144,7 @@ def changeRockfordPos(newPos, rockford, diamant=False):
 
 
 
-def moveRockford(rockford, direction, curMap, fallables, end):
+def moveRockford(rockford, direction, curMap, fallables, endy):
     """
     deplace rockford
 
@@ -165,10 +165,12 @@ def moveRockford(rockford, direction, curMap, fallables, end):
         [['150s', '1d'],['B', 'R', 'G'], ['.', 'E', 'D']], [(0, 1), (2, 2)])
     'win'
     """
-
+    print(endy)
     aimCoord = sumTuple(rockford[0], direction)
 
     aimCell = getCell(aimCoord, curMap)
+
+    enddoor = "Eo" if endy[1] else "E"
 
     if aimCell == ".":
         setRockfordCell(rockford[0], aimCoord, curMap)
@@ -190,15 +192,21 @@ def moveRockford(rockford, direction, curMap, fallables, end):
     elif aimCell == "D":
         setRockfordCell(rockford[0], aimCoord, curMap)
         fallables.remove(aimCoord)
-        return changeRockfordPos(aimCoord, rockford, True)
+        charlie = changeRockfordPos(aimCoord, rockford, True)
+        print(rockford[1], int(curMap[0][1]), rockford[1]==int(curMap[0][1]))
+        if rockford[1]==int(curMap[0][1]):
+            endy[1] = True
+            print("in",endy)
+            enddoor = "Eo"
+            setCell(endy[0], curMap, enddoor)
+        print("out",endy)
+        return charlie
 
-    elif aimCell == "E":
-        setRockfordCell(rockford[0], aimCoord, curMap, aim="E")
-        win = rockford[1]==int(curMap[0][1])
-        if win:
-            setCell(end[0], curMap, "Eo")
-        return ("win" if win else changeRockfordPos(aimCoord, rockford)) 
+    elif aimCell == "Eo":
+        setRockfordCell(rockford[0], aimCoord, curMap, aim=enddoor)
+        return "win" 
     return rockford
+
 
 
 

@@ -13,5 +13,7 @@ def levelLose():
     """
     affiche Défaite
     """
-
     texte(WIDTH_WINDOW/4, HEIGHT_WINDOW/2-12, "PERDU...", "red")
+
+def drawTimeLeft():
+    texte(WIDTH_WINDOW/4, HEIGHT_WINDOW/2-12, "Time left: ", "red")

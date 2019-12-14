@@ -7,7 +7,7 @@ import render, logic
 
 ###### Constants used for this game #######
     # level = [
-    #     ['150s', '1d'],
+    #     ['150s', '2d'],
     #     ["W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W",],
     #     ["W", "G", "G", "G", "G", "G", "G", ".", "G", "G", "D", "G", "B", "W",],
     #     ["W", "G", "B", "R", "B", "G", "G", "G", "G", "G", "G", ".", "G", "W",],
@@ -87,14 +87,14 @@ def getDirection(debug=False):
 if __name__ == '__main__':
     render.initWindow()
 
-    LEVEL_1 = "150s 1d\nWWWWWWWWWWWWWW\nWGGGGGG.GGDGBW\nWGBRBGGGGGG.GW\n\
+    LEVEL_1 = "150s 2\nWWWWWWWWWWWWWW\nWGGGGGG.GGDGBW\nWGBRBGGGGGG.GW\n\
 WGGGGGGGGGG.GW\nWBGBBGGGGGGGGW\nWGG.BGGGGGGGGW\n\
-WGGG.GG.GGGGEW\nWWWWWWWWWWWWWW"
+WGDG.GG.GGGGEW\nWWWWWWWWWWWWWW"
 
     currentMap = loadLevel(LEVEL_1)
 
     charlie, fallables, fall, end = logic.start(currentMap)
-    render.renderCanvas(currentMap)
+    render.renderCanvas(currentMap, charlie)
     fall = True
     debug = False
 
@@ -104,8 +104,8 @@ WGGG.GG.GGGGEW\nWWWWWWWWWWWWWW"
 
         if direction == "reset":
             currentMap = loadLevel(LEVEL_1)
-            charlie, fallables, fall = logic.start(currentMap)
-            render.renderCanvas(currentMap)
+            charlie, fallables, fall, end = logic.start(currentMap)
+            render.renderCanvas(currentMap, charlie)
             continue
 
         if direction == "debug":
@@ -120,8 +120,9 @@ WGGG.GG.GGGGEW\nWWWWWWWWWWWWWW"
         if fall:
             fall, charlie = logic.updatePhysic(fallables, fall, charlie, currentMap)
 
-        render.renderCanvas(currentMap, rockford)
+        render.renderCanvas(currentMap, charlie)
         mise_a_jour()
         logic.status(charlie, currentMap[0][0], int(currentMap[0][1]))
+        
 
 ###############################################################################
