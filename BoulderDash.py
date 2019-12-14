@@ -3,7 +3,7 @@
 from upemtk import *
 from time import *
 from random import randint
-import render, logic
+import render, logic, ui
 
 ###### Constants used for this game #######
     # level = [
@@ -38,7 +38,10 @@ def loadLevel(level):
     level = level.split("\n")
     levelLst = []
     # add option
-    levelLst.append(level[0].split())
+    options = level[0].split()
+    print(options)
+    levelLst.append([options[0][0:-1], options[1][0:-1]])
+    print(levelLst)
     # add map
     for i in range(1,len(level)):
         levelLst.append(list(level[i]))
@@ -87,13 +90,14 @@ def getDirection(debug=False):
 if __name__ == '__main__':
     render.initWindow()
 
-    LEVEL_1 = "150s 2\nWWWWWWWWWWWWWW\nWGGGGGG.GGDGBW\nWGBRBGGGGGG.GW\n\
+    LEVEL_1 = "150s 2s\nWWWWWWWWWWWWWW\nWGGGGGG.GGDGBW\nWGBRBGGGGGG.GW\n\
 WGGGGGGGGGG.GW\nWBGBBGGGGGGGGW\nWGG.BGGGGGGGGW\n\
 WGDG.GG.GGGGEW\nWWWWWWWWWWWWWW"
 
     currentMap = loadLevel(LEVEL_1)
 
-    charlie, fallables, fall, end = logic.start(currentMap)
+    charlie, fallables, fall, end, startTime = logic.start(currentMap)
+    remainTime = startTime
     render.renderCanvas(currentMap, charlie)
     fall = True
     debug = False
@@ -104,7 +108,8 @@ WGDG.GG.GGGGEW\nWWWWWWWWWWWWWW"
 
         if direction == "reset":
             currentMap = loadLevel(LEVEL_1)
-            charlie, fallables, fall, end = logic.start(currentMap)
+            charlie, fallables, fall, end, startTime = logic.start(currentMap)
+            remainTime = startTime
             render.renderCanvas(currentMap, charlie)
             continue
 
@@ -120,9 +125,13 @@ WGDG.GG.GGGGEW\nWWWWWWWWWWWWWW"
         if fall:
             fall, charlie = logic.updatePhysic(fallables, fall, charlie, currentMap)
 
+        remainTime = int(currentMap[0][0]) + int(startTime - logic.getTime())
+        print(remainTime)
+        ui.drawTimeLeft()
+
         render.renderCanvas(currentMap, charlie)
         mise_a_jour()
-        logic.status(charlie, currentMap[0][0], int(currentMap[0][1]))
+        logic.status(charlie, remainTime, currentMap[0][0], int(currentMap[0][1]))
         
 
 ###############################################################################

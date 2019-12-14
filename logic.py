@@ -1,6 +1,8 @@
 from upemtk import *
 from render import WIDTH_WINDOW, HEIGHT_WINDOW
 import ui
+
+import time 
 ############################ Very Useful fonctions ############################
 
 def sumTuple(a,b):
@@ -250,6 +252,8 @@ def updatePhysic(fallables, fall, rockford, curMap):
     return fall, rockford
 
 
+def getTime():
+    return time.time()
 
 def start(curMap):
     """
@@ -265,14 +269,17 @@ def start(curMap):
     fallables = findFallable(curMap)
     end = findEnd(curMap)
     fall = True
-    return rockford, fallables, fall, end
+    startTime = getTime()
+    return rockford, fallables, fall, end, startTime
 
-def status(rockford, remainTime, diamonds):
+def status(rockford, remainTime, gameTime, diamonds):
     """
     verifie si la partie de Rockford est gagnée ou perdue
 
     :param list rockford: rockford
     """
+    if remainTime <= 0:
+        rockford = "lose"
     if rockford == "win":
         ui.levelWin()
         quitter()
