@@ -35,6 +35,7 @@ def loadLevel(level):
     >>> loadLevel("150s 1d\\nabc\\ndef")
     [['150s', '1d'], ['a', 'b', 'c'], ['d', 'e', 'f']]
     """
+
     with open("level/"+level) as lvl:
         level=""
         for line in lvl:
@@ -51,7 +52,14 @@ def loadLevel(level):
         levelLst.append(list(level[i]))
     return levelLst
 
+def randomLevel():
+    widht = 14
+    height = 8
+    nbDiamonds = randint(1, 8)
+    nbBoulder = randint(2, 6)
+    nbVoid = randint(1,12)
 
+    # positions = [(i,j) for i in range(widht)]
 
 def getDirection(debug=False):
     """
@@ -124,7 +132,6 @@ if __name__ == '__main__':
             fall, charlie = logic.updatePhysic(fallables, fall, charlie, currentMap)
 
         remainTime = int(currentMap[0][0]) + int(startTime - logic.getTime())
-        ui.drawTimeLeft(remainTime)
 
         render.renderCanvas(currentMap, charlie)
         mise_a_jour()
