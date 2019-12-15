@@ -124,7 +124,6 @@ if __name__ == '__main__':
             fall, charlie = logic.updatePhysic(fallables, fall, charlie, currentMap)
 
         remainTime = int(currentMap[0][0]) + int(startTime - logic.getTime())
-        print(remainTime)
         ui.drawTimeLeft(remainTime)
 
         render.renderCanvas(currentMap, charlie)

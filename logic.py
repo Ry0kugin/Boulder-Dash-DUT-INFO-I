@@ -64,7 +64,8 @@ def findFallable(curMap):
     for i in range(1, len(curMap)):
         for j in range(len(curMap[i])):
             if curMap[i][j] == "B" or curMap[i][j] == "D":
-                fallables.append((j,i))
+                fallables.append([(j,i),False])
+    print(fallables)
     return fallables
 
 
@@ -78,8 +79,8 @@ def updateFallable(lastFa, newFa, fallables):
     :param list fallables: liste de couple de fallable (abscisse, ordonnee)
     """
     for i,fa in enumerate(fallables):
-        if fa == lastFa:
-            fallables[i] = newFa
+        if fa[0] == lastFa:
+            fallables[i][0] = newFa
             break
 
 
@@ -193,7 +194,7 @@ def moveRockford(rockford, direction, curMap, fallables, endy):
 
     elif aimCell == "D":
         setRockfordCell(rockford[0], aimCoord, curMap)
-        fallables.remove(aimCoord)
+        fallables = [x for x in fallables if aimCoord not in x] 
         charlie = changeRockfordPos(aimCoord, rockford, True)
         print(rockford[1], int(curMap[0][1]), rockford[1]==int(curMap[0][1]))
         if rockford[1]==int(curMap[0][1]):
@@ -229,27 +230,35 @@ def updatePhysic(fallables, fall, rockford, curMap):
         [(1, 1), 0], [['150s', '1d'],['B', 'B', 'G'], ['.', 'R', 'D'], ['W', 'W', 'W']])
     (True, 'lose')
     """
-
-    fallingNb = 0
+    nbFalling = 0
     for i, fa in enumerate(fallables):
-        faX = fa[0]
-        faY = fa[1]
+        faX = fa[0][0]
+        faY = fa[0][1]
         setC = False
-        if fall and curMap[faY+1][faX] == "R":
-            setC = True
-            rockford = "lose"
-        if curMap[faY+1][faX] == ".":
-            setC = True
-            fallables[i] = (faX, faY+1)
-            fallingNb+=1
-
-        if setC:
+        if fa[1] and curMap[faY+1][faX] == "R":
             setCell((faX, faY+1), curMap, curMap[faY][faX])
             setCell((faX, faY), curMap, ".")
+            rockford = "lose"
+        if curMap[faY+1][faX] == ".":
+            setCell((faX, faY+1), curMap, curMap[faY][faX])
+            setCell((faX, faY), curMap, ".")
+            fallables[i] = [(faX, faY+1), True]
+            nbFalling += 1
 
-    fall = (True if fallingNb else False)
+        elif (curMap[faY][faX+1] == "." and curMap[faY+1][faX+1] == ".") and (curMap[faY-1][faX]!="D" and curMap[faY-1][faX]!="B"):
+            setCell((faX+1, faY), curMap, curMap[faY][faX])
+            setCell((faX, faY), curMap, ".")
+            fallables[i] = [(faX+1, faY), True]
+            nbFalling += 1
 
-    return fall, rockford
+        elif (curMap[faY][faX-1] == "." and curMap[faY+1][faX-1] == ".") and (curMap[faY-1][faX]!="D" and curMap[faY-1][faX]!="B"):
+            setCell((faX-1, faY), curMap, curMap[faY][faX])
+            setCell((faX, faY), curMap, ".")
+            fallables[i] = [(faX-1, faY), True]
+            nbFalling += 1
+            
+
+    return (True if nbFalling>0 else False), rockford
 
 
 def getTime():
