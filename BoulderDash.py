@@ -35,6 +35,10 @@ def loadLevel(level):
     >>> loadLevel("150s 1d\\nabc\\ndef")
     [['150s', '1d'], ['a', 'b', 'c'], ['d', 'e', 'f']]
     """
+    with open("level/"+level) as lvl:
+        level=""
+        for line in lvl:
+            level+=line
     level = level.split("\n")
     levelLst = []
     # add option
@@ -59,25 +63,23 @@ def getDirection(debug=False):
     direction = 0
     ev=donne_evenement()
     type_ev=type_evenement(ev)
-    if type_ev=="Touche" or debug:
-        if debug:
-            t=DIRECTIONS[randint(0,3)]
-        else:
-            t=touche(ev)
-        if t==DIRECTIONS[0]:
-            direction=(1,0)
-        elif t==DIRECTIONS[1]:
-            direction=(-1,0)
-        elif t==DIRECTIONS[2]:
-            direction=(0,-1)
-        elif t==DIRECTIONS[3]:
-            direction=(0,1)
-        elif t=="r":
-            direction="reset"
-        elif t=="d":
-            direction="debug"
-        else:
-            direction=(0,0)
+    t=None
+    if type_ev=="Touche":
+        t=touche(ev)
+    elif debug:
+        t=DIRECTIONS[randint(0,3)]
+    if t==DIRECTIONS[0]:
+        direction=(1,0)
+    elif t==DIRECTIONS[1]:
+        direction=(-1,0)
+    elif t==DIRECTIONS[2]:
+        direction=(0,-1)
+    elif t==DIRECTIONS[3]:
+        direction=(0,1)
+    elif t=="r":
+        direction="reset"
+    elif t=="d":
+        direction="debug"
     else:
         direction=(0,0)
     return direction
@@ -90,11 +92,7 @@ def getDirection(debug=False):
 if __name__ == '__main__':
     render.initWindow()
 
-    LEVEL_1 = "150s 2s\nWWWWWWWWWWWWWW\nWGGGGGG.GGDGBW\nWGBRBGGGGGG.GW\n\
-WGGGGGGGGGG.GW\nWBGBBGGGGGGGGW\nWGG.BGGGGGGGGW\n\
-WGDG.GG.GGGGEW\nWWWWWWWWWWWWWW"
-
-    currentMap = loadLevel(LEVEL_1)
+    currentMap = loadLevel("level_1")
 
     charlie, fallables, fall, end, startTime = logic.start(currentMap)
     remainTime = startTime
@@ -107,7 +105,7 @@ WGDG.GG.GGGGEW\nWWWWWWWWWWWWWW"
         direction = getDirection(debug)
 
         if direction == "reset":
-            currentMap = loadLevel(LEVEL_1)
+            currentMap = loadLevel("level_1")
             charlie, fallables, fall, end, startTime = logic.start(currentMap)
             remainTime = startTime
             render.renderCanvas(currentMap, charlie)
@@ -127,7 +125,7 @@ WGDG.GG.GGGGEW\nWWWWWWWWWWWWWW"
 
         remainTime = int(currentMap[0][0]) + int(startTime - logic.getTime())
         print(remainTime)
-        ui.drawTimeLeft()
+        ui.drawTimeLeft(remainTime)
 
         render.renderCanvas(currentMap, charlie)
         mise_a_jour()
