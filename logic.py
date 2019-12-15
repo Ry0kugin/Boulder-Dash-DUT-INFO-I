@@ -194,7 +194,7 @@ def moveRockford(rockford, direction, curMap, fallables, endy):
 
     elif aimCell == "D":
         setRockfordCell(rockford[0], aimCoord, curMap)
-        fallables = [x for x in fallables if aimCoord not in x] 
+        fallables.remove([aimCoord, False])
         charlie = changeRockfordPos(aimCoord, rockford, True)
         print(rockford[1], int(curMap[0][1]), rockford[1]==int(curMap[0][1]))
         if rockford[1]==int(curMap[0][1]):
@@ -202,7 +202,6 @@ def moveRockford(rockford, direction, curMap, fallables, endy):
             print("in",endy)
             enddoor = "Eo"
             setCell(endy[0], curMap, enddoor)
-        print("out",endy)
         return charlie
 
     elif aimCell == "Eo":
@@ -256,6 +255,8 @@ def updatePhysic(fallables, fall, rockford, curMap):
             setCell((faX, faY), curMap, ".")
             fallables[i] = [(faX-1, faY), True]
             nbFalling += 1
+        else: 
+            fallables[i][1] = False
             
 
     return (True if nbFalling>0 else False), rockford
