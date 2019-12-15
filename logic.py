@@ -4,9 +4,10 @@ import ui
 
 import time
 
-################################## CONTSTANT ##################################
+################################## CONTSTANTS ##################################
 
 GAME_STATUS = None
+DIRECTIONS = ["Right", "Left", "Up", "Down"]
 
 ############################ Very Useful fonctions ############################
 
@@ -29,6 +30,40 @@ def sumTuple(a,b):
 ###############################################################################
 
 ############################### Logique de jeu ################################
+
+def getDirection(ev, debug=False):
+    """
+    renvoie la direction de rockford
+
+    :param bool debug: active le mode debug
+
+    """
+    direction = 0
+    type_ev=type_evenement(ev)
+    t=None
+    if type_ev=="Touche":
+        t=touche(ev)
+    elif debug:
+        t=DIRECTIONS[randint(0,3)]
+    if t==DIRECTIONS[0]:
+        direction=(1,0)
+    elif t==DIRECTIONS[1]:
+        direction=(-1,0)
+    elif t==DIRECTIONS[2]:
+        direction=(0,-1)
+    elif t==DIRECTIONS[3]:
+        direction=(0,1)
+    elif t=="r":
+        direction="reset"
+    elif t=="d":
+        direction="debug"
+    elif t=="q":
+        exit("Merci d'avoir joué :D")
+    elif t=="s":
+        direction="save"
+    else:
+        direction=(0,0)
+    return direction
 
 def findRockford(curMap):
     """
@@ -178,7 +213,7 @@ def moveRockford(rockford, direction, curMap, fallables, endy):
 
     aimCell = getCell(aimCoord, curMap)
 
-    enddoor = "Eo" if endy[1] else "E"
+    enddoor = "O" if endy[1] else "E"
 
     if aimCell == ".":
         setRockfordCell(rockford[0], aimCoord, curMap)
@@ -205,11 +240,11 @@ def moveRockford(rockford, direction, curMap, fallables, endy):
         if rockford[1]==int(curMap[0][1]):
             endy[1] = True
             # print("in",endy)
-            enddoor = "Eo"
+            enddoor = "O"
             setCell(endy[0], curMap, enddoor)
         return charlie
 
-    elif aimCell == "Eo":
+    elif aimCell == "O":
         setRockfordCell(rockford[0], aimCoord, curMap, aim=enddoor)
         GAME_STATUS = True 
     return rockford

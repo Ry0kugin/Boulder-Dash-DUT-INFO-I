@@ -173,7 +173,7 @@ renderCase = {
     'D' : (lambda x : drawDiamond(x)),
     'E' : (lambda x : drawEnd(x)),
     'R' : (lambda x : drawRockford(x)),
-    'Eo': (lambda x : drawEnd(x, True))
+    'O': (lambda x : drawEnd(x, True))
 }
 
 def renderCanvas(curMap, rockford):

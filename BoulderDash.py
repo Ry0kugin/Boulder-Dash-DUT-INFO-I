@@ -18,7 +18,6 @@ import render, logic, ui
     #     ["W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W",]
     # ].copy()
 
-DIRECTIONS = ["Right", "Left", "Up", "Down"]
 ###############################################################################
 
 
@@ -58,9 +57,9 @@ def loadLevel(level=None):
 def randomLevel():
     width = randint(6,14)
     height = randint(4,8)
-    nbDiamonds = randint(1, 8)
-    nbBoulder = randint(2, 8)
-    nbVoid = randint(1,8)
+    nbDiamonds = randint(1, (width+height)//3)
+    nbBoulder = randint(1, (width+height)//4)
+    nbVoid = randint(1, (width+height)//8)
     totalTime = randint(30,150)
 
     level = []
@@ -87,37 +86,33 @@ def randomLevel():
     return level
 
 
+def save(curMap, rockford, remainTime):
+    fileName = "save 1"
+    
+    print(curMap)
+    with open("saves/"+fileName, "w") as s:
+        s.write("map :\n")
+        s.write(str(curMap[0][0])+"s "+str(curMap[0][1])+"d\n")
+        for i in range(1, len(curMap)):
+            s.write("".join(curMap[i])+"\n")
+        s.write("\n")
 
-def getDirection(debug=False):
-    """
-    renvoie la direction de rockford
+        s.write("rockford :\n")
+        s.write(str(rockford[0][0])+"-"+str(rockford[0][1])+" "+str(rockford[1])+"\n\n")
+        s.write("time :\n")
+        s.write(str(remainTime)+"\n\n")
+    return fileName
 
-    :param bool debug: active le mode debug
+def loadSave():
+    fileName = "save 1"
+    
 
-    """
-    direction = 0
-    ev=donne_evenement()
-    type_ev=type_evenement(ev)
-    t=None
-    if type_ev=="Touche":
-        t=touche(ev)
-    elif debug:
-        t=DIRECTIONS[randint(0,3)]
-    if t==DIRECTIONS[0]:
-        direction=(1,0)
-    elif t==DIRECTIONS[1]:
-        direction=(-1,0)
-    elif t==DIRECTIONS[2]:
-        direction=(0,-1)
-    elif t==DIRECTIONS[3]:
-        direction=(0,1)
-    elif t=="r":
-        direction="reset"
-    elif t=="d":
-        direction="debug"
-    else:
-        direction=(0,0)
-    return direction
+
+
+
+
+
+
 
 ###############################################################################
 
@@ -126,6 +121,7 @@ def getDirection(debug=False):
 
 if __name__ == '__main__':
     render.initWindow()
+    ui.initUI()
 
     currentMap = loadLevel()
 
@@ -136,8 +132,8 @@ if __name__ == '__main__':
     debug = False
 
     while True:
-
-        direction = getDirection(debug)
+        event=donne_evenement()
+        direction = logic.getDirection(event, debug)
 
         if direction == "reset":
             currentMap = loadLevel()
@@ -151,6 +147,11 @@ if __name__ == '__main__':
             print ("DEBUG ACTIVATED" if debug else "DEBUG DEACTIVATED")
             continue
 
+        if direction == "save":
+            fileName = save(currentMap, charlie, remainTime)
+            print ("saved to : " + fileName)
+            continue
+
         if(direction[0] != 0 or direction[1] != 0):
             charlie = logic.moveRockford(charlie, direction, currentMap, fallables, end)
             fall, charlie = logic.updatePhysic(fallables, False, charlie, currentMap)
@@ -161,8 +162,7 @@ if __name__ == '__main__':
         remainTime = int(currentMap[0][0]) + int(startTime - logic.getTime())
 
         render.renderCanvas(currentMap, charlie)
-        print(charlie)
-        ui.renderUI(remainTime, (charlie[1], int(currentMap[0][1])))
+        ui.renderUI(event, remainTime, (charlie[1], int(currentMap[0][1])))
         mise_a_jour()
         logic.status(remainTime, currentMap[0][0])
         
