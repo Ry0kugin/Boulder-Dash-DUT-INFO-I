@@ -6,7 +6,7 @@ from upemtk import *
 
 CELL_NBX = 20
 CELL_NBY = 10
-CELL_SIZE = 32
+CELL_SIZE = 42
 HALF_SIZE = CELL_SIZE//2
 WIDTH_WINDOW = CELL_SIZE * CELL_NBX
 HEIGHT_WINDOW = CELL_SIZE * CELL_NBY
@@ -175,8 +175,6 @@ renderCase = {
     'R' : (lambda x : drawRockford(x)),
     'Eo': (lambda x : drawEnd(x, True))
 }
-
-
 
 def renderCanvas(curMap, rockford):
     """

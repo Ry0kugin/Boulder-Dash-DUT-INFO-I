@@ -2,7 +2,7 @@
 
 from upemtk import *
 from time import *
-from random import randint
+from random import * 
 import render, logic, ui
 
 ###### Constants used for this game #######
@@ -26,7 +26,7 @@ DIRECTIONS = ["Right", "Left", "Up", "Down"]
 
 ########################### Contrôle et chargement ############################
 
-def loadLevel(level):
+def loadLevel(level=None):
     """
     charge la carte dans un format valide pour boulder dash
 
@@ -35,31 +35,58 @@ def loadLevel(level):
     >>> loadLevel("150s 1d\\nabc\\ndef")
     [['150s', '1d'], ['a', 'b', 'c'], ['d', 'e', 'f']]
     """
-
-    with open("level/"+level) as lvl:
-        level=""
-        for line in lvl:
-            level+=line
-    level = level.split("\n")
     levelLst = []
-    # add option
-    options = level[0].split()
-    print(options)
-    levelLst.append([options[0][0:-1], options[1][0:-1]])
-    print(levelLst)
-    # add map
-    for i in range(1,len(level)):
-        levelLst.append(list(level[i]))
+    if level == None:
+        levelLst = randomLevel()           
+    else:
+        with open("level/"+level) as lvl:
+            level=""
+            for line in lvl:
+                level+=line
+        level = level.split("\n")
+        # add option
+        options = level[0].split()
+        print(options)
+        levelLst.append([options[0][0:-1], options[1][0:-1]])
+        print(levelLst)
+        # add map
+        for i in range(1,len(level)):
+            levelLst.append(list(level[i]))
+    
     return levelLst
 
 def randomLevel():
-    widht = 14
-    height = 8
+    width = randint(6,14)
+    height = randint(4,8)
     nbDiamonds = randint(1, 8)
-    nbBoulder = randint(2, 6)
-    nbVoid = randint(1,12)
+    nbBoulder = randint(2, 8)
+    nbVoid = randint(1,8)
+    totalTime = randint(30,150)
 
-    # positions = [(i,j) for i in range(widht)]
+    level = []
+    level.append([totalTime, nbDiamonds])
+    level.append(["W" for i in range(width)])
+    for i in range(height-2):
+        level.append(["W"]+["G"]*(width-2)+["W"])
+    level.append(["W" for i in range(width)])
+
+    positions = [(i,j) for i in range(1, width-1) for j in range(1, height-1)]
+    shuffle(positions)
+    for i in range(2+nbDiamonds+nbBoulder+nbVoid):
+        x,y = positions[i][0], positions[i][1]
+        if i==0:
+            level[y+1][x] = "R"
+        elif i<2:
+            level[y+1][x] = "E"
+        elif i<2+nbDiamonds:
+            level[y+1][x] = "D"    
+        elif i<2+nbDiamonds+nbBoulder:
+            level[y+1][x] = "B"
+        elif i<2+nbDiamonds+nbBoulder+nbVoid:
+            level[y+1][x] = "."
+    return level
+
+
 
 def getDirection(debug=False):
     """
@@ -100,7 +127,7 @@ def getDirection(debug=False):
 if __name__ == '__main__':
     render.initWindow()
 
-    currentMap = loadLevel("level_1")
+    currentMap = loadLevel()
 
     charlie, fallables, fall, end, startTime = logic.start(currentMap)
     remainTime = startTime
@@ -113,7 +140,7 @@ if __name__ == '__main__':
         direction = getDirection(debug)
 
         if direction == "reset":
-            currentMap = loadLevel("level_1")
+            currentMap = loadLevel()
             charlie, fallables, fall, end, startTime = logic.start(currentMap)
             remainTime = startTime
             render.renderCanvas(currentMap, charlie)
@@ -134,8 +161,10 @@ if __name__ == '__main__':
         remainTime = int(currentMap[0][0]) + int(startTime - logic.getTime())
 
         render.renderCanvas(currentMap, charlie)
+        print(charlie)
+        ui.renderUI(remainTime, (charlie[1], int(currentMap[0][1])))
         mise_a_jour()
-        logic.status(charlie, remainTime, currentMap[0][0], int(currentMap[0][1]))
+        logic.status(remainTime, currentMap[0][0])
         
 
 ###############################################################################

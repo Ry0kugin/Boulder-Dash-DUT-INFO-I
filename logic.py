@@ -2,7 +2,12 @@ from upemtk import *
 from render import WIDTH_WINDOW, HEIGHT_WINDOW
 import ui
 
-import time 
+import time
+
+################################## CONTSTANT ##################################
+
+GAME_STATUS = None
+
 ############################ Very Useful fonctions ############################
 
 def sumTuple(a,b):
@@ -65,7 +70,6 @@ def findFallable(curMap):
         for j in range(len(curMap[i])):
             if curMap[i][j] == "B" or curMap[i][j] == "D":
                 fallables.append([(j,i),False])
-    print(fallables)
     return fallables
 
 
@@ -168,7 +172,8 @@ def moveRockford(rockford, direction, curMap, fallables, endy):
         [['150s', '1d'],['B', 'R', 'G'], ['.', 'E', 'D']], [(0, 1), (2, 2)])
     'win'
     """
-    print(endy)
+    global GAME_STATUS
+    # print(endy)
     aimCoord = sumTuple(rockford[0], direction)
 
     aimCell = getCell(aimCoord, curMap)
@@ -196,17 +201,17 @@ def moveRockford(rockford, direction, curMap, fallables, endy):
         setRockfordCell(rockford[0], aimCoord, curMap)
         fallables.remove([aimCoord, False])
         charlie = changeRockfordPos(aimCoord, rockford, True)
-        print(rockford[1], int(curMap[0][1]), rockford[1]==int(curMap[0][1]))
+        # print(rockford[1], int(curMap[0][1]), rockford[1]==int(curMap[0][1]))
         if rockford[1]==int(curMap[0][1]):
             endy[1] = True
-            print("in",endy)
+            # print("in",endy)
             enddoor = "Eo"
             setCell(endy[0], curMap, enddoor)
         return charlie
 
     elif aimCell == "Eo":
         setRockfordCell(rockford[0], aimCoord, curMap, aim=enddoor)
-        return "win" 
+        GAME_STATUS = True 
     return rockford
 
 
@@ -229,6 +234,7 @@ def updatePhysic(fallables, fall, rockford, curMap):
         [(1, 1), 0], [['150s', '1d'],['B', 'B', 'G'], ['.', 'R', 'D'], ['W', 'W', 'W']])
     (True, 'lose')
     """
+    global GAME_STATUS
     nbFalling = 0
     for i, fa in enumerate(fallables):
         faX = fa[0][0]
@@ -237,12 +243,12 @@ def updatePhysic(fallables, fall, rockford, curMap):
         if fa[1] and curMap[faY+1][faX] == "R":
             setCell((faX, faY+1), curMap, curMap[faY][faX])
             setCell((faX, faY), curMap, ".")
-            rockford = "lose"
+            GAME_STATUS = False
         if curMap[faY+1][faX] == ".":
             setCell((faX, faY+1), curMap, curMap[faY][faX])
             setCell((faX, faY), curMap, ".")
             fallables[i] = [(faX, faY+1), True]
-            nbFalling += 1
+            nbFalling += 1 
 
         elif (curMap[faY][faX+1] == "." and curMap[faY+1][faX+1] == ".") and (curMap[faY-1][faX]!="D" and curMap[faY-1][faX]!="B"):
             setCell((faX+1, faY), curMap, curMap[faY][faX])
@@ -282,18 +288,19 @@ def start(curMap):
     startTime = getTime()
     return rockford, fallables, fall, end, startTime
 
-def status(rockford, remainTime, gameTime, diamonds):
+def status(remainTime, diamonds):
     """
     verifie si la partie de Rockford est gagnée ou perdue
 
     :param list rockford: rockford
     """
+    global GAME_STATUS
     if remainTime <= 0:
-        rockford = "lose"
-    if rockford == "win":
+        GAME_STATUS=False
+    if GAME_STATUS:
         ui.levelWin()
         quitter()
-    elif rockford == "lose":
+    elif GAME_STATUS==False:
         ui.levelLose()
         quitter()
 
