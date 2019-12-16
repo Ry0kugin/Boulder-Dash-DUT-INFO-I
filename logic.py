@@ -1,5 +1,6 @@
 from upemtk import *
 from render import WIDTH_WINDOW, HEIGHT_WINDOW
+from random import *
 import ui
 
 import time
@@ -61,6 +62,8 @@ def getDirection(ev, debug=False):
         exit("Merci d'avoir joué :D")
     elif t=="s":
         direction="save"
+    elif t=="l":
+        direction="load"
     else:
         direction=(0,0)
     return direction
@@ -88,7 +91,7 @@ def findEnd(curMap):
     """
     for i in range(1, len(curMap)):
         for j in range(len(curMap[i])):
-            if curMap[i][j] == "E":
+            if curMap[i][j] == "E" or curMap[i][j] == "O":
                 return [(j,i), False]
 
 def findFallable(curMap):
@@ -134,6 +137,7 @@ def getCell(coord, curMap):
     >>> getCell((2,1),[['150s', '1d'], ['B', 'R', 'G'], ['.', 'W', 'D']])
     'G'
     """
+    print(coord[1], coord[0])
     return curMap[coord[1]][coord[0]]
 
 
@@ -208,7 +212,6 @@ def moveRockford(rockford, direction, curMap, fallables, endy):
     'win'
     """
     global GAME_STATUS
-    # print(endy)
     aimCoord = sumTuple(rockford[0], direction)
 
     aimCell = getCell(aimCoord, curMap)
