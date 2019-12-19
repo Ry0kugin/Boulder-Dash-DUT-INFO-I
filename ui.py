@@ -39,37 +39,7 @@ def initUI():
     addButton(RightXPos, HEIGHT_WINDOW/16*3, action=setUIEvenement, arguments=["debug"], anchorx="c", outlineColor="white", text="Debug", textColor="white")
     addButton(RightXPos, HEIGHT_WINDOW-1, action=quit, anchorx="c", anchory="d", outlineColor="white", text="Quitter", textColor="white")
     addTextField(RightXPos, HEIGHT_WINDOW/2, outlineColor="white", textColor="white")
-
-
     # addButton(RightXPos, HEIGHT_WINDOW/16*6, action=newPrompt, arguments=["Entrez un texte:"], textColor="white", outlineColor="white", text="Prompt")
-
-def raytracePanel(pos, p):
-    global focus
-    if ppositions[p][0][0]<pos[0]<ppositions[p][0][1] and ppositions[p][1][0]<pos[1]<ppositions[p][1][1]:
-        for b in panels[p]["buttonChilds"]:
-            if raytraceButton(pos, b):
-                buttons[b]["action"](*buttons[b]["args"])
-                return True
-        for t in panels[p]["textFieldChilds"]:
-            if raytraceTextField(pos, t):
-                return True
-        focus={"ID":p, "type": "panel"}
-        return True
-    return False
-
-def raytraceButton(pos, b):
-    global focus
-    if bpositions[b][0][0]<pos[0]<bpositions[b][0][1] and bpositions[b][1][0]<pos[1]<bpositions[b][1][1]:
-        focus=None
-        return True
-    return False
-
-def raytraceTextField(pos, t):
-    global focus
-    if tpositions[t][0][0]<pos[0]<tpositions[t][0][1] and tpositions[t][1][0]<pos[1]<tpositions[t][1][1]:
-        focus={"ID":t, "type": "textField"}
-        return True
-    return False
 
 def logicUI(ev):
     global focus
