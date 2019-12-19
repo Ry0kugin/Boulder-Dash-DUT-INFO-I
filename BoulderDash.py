@@ -65,7 +65,8 @@ if __name__ == '__main__':
 
         render.renderCanvas(currentMap, charlie)
         ui.logicUI(event)
-        ui.renderUI(remainTime, (charlie[1], int(currentMap[0][1])))
+        ui.updateStats(remainTime, (charlie[1], int(currentMap[0][1])))
+        ui.renderUI()
         mise_a_jour()
         logic.status(remainTime, currentMap[0][0])
         
