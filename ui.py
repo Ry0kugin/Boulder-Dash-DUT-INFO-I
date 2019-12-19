@@ -26,10 +26,11 @@ def levelLose():
 
 
 ######## Automation ########
-def newPrompt(message, layer=1):
+def newPrompt(message):
+    layer=(len(renderQueue.keys()))
     addTextField(WIDTH_WINDOW/2, HEIGHT_WINDOW*2/4, ID="prompt_1", outlineColor="white", isChild=True, layer=layer)
-    addButton(WIDTH_WINDOW/2, HEIGHT_WINDOW*1.8/4, ID="prompt_2", outlineColor="black", text=message, textAnchor="w", isChild=True, layer=layer)
-    addPanel(WIDTH_WINDOW/2, HEIGHT_WINDOW/2, ID="prompt", width=WIDTH_WINDOW/1.1, height=HEIGHT_WINDOW/1.1, childs=["prompt_1", "prompt_2"])
+    addButton(WIDTH_WINDOW/2, HEIGHT_WINDOW*1.8/4, ID="prompt_2", outlineColor="", text=message, textAnchor="w", isChild=True, layer=layer)
+    addPanel(WIDTH_WINDOW/2, HEIGHT_WINDOW/2, ID="prompt", width=WIDTH_WINDOW/1.1, height=HEIGHT_WINDOW/1.1, childs=["prompt_1", "prompt_2"], layer=layer)
 
 #####################################################################################
 
@@ -39,6 +40,7 @@ def initUI():
     addButton(RightXPos, HEIGHT_WINDOW/16*3, action=setUIEvenement, arguments=["debug"], anchorx="c", outlineColor="white", text="Debug", textColor="white")
     addButton(RightXPos, HEIGHT_WINDOW-1, action=quit, anchorx="c", anchory="d", outlineColor="white", text="Quitter", textColor="white")
     addTextField(RightXPos, HEIGHT_WINDOW/2, outlineColor="white", textColor="white")
+    # newPrompt("hello")
     # addButton(RightXPos, HEIGHT_WINDOW/16*6, action=newPrompt, arguments=["Entrez un texte:"], textColor="white", outlineColor="white", text="Prompt")
 
 def logicUI(ev):
@@ -59,6 +61,7 @@ def logicUI(ev):
                         return
                     elif objects[p]["type"]=="Panel":
                         focus={"ID":p, "type": "Panel"}
+                        return
                 # if raytracePanel(pos, p):
                 #     return
                 # if raytraceButton(pos, b):
@@ -82,7 +85,7 @@ def updateStats(remainTime, diamonds):
 def renderUI():
     global renderQueue
     #à optimiser
-    layers=sorted(list(renderQueue.keys()))
+    layers=sorted(list(renderQueue.keys()), reverse=False)
     for l in layers:
         for ID in renderQueue[l]:
             # if isObject(ID):
