@@ -137,7 +137,7 @@ def getCell(coord, curMap):
     >>> getCell((2,1),[['150s', '1d'], ['B', 'R', 'G'], ['.', 'W', 'D']])
     'G'
     """
-    print(coord[1], coord[0])
+    #print(coord[1], coord[0])
     return curMap[coord[1]][coord[0]]
 
 

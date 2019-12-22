@@ -7,10 +7,11 @@ focus=None
 evenement=None
 buttonCount=0
 textFieldCount=0
+textCount=0
 panelCount=0
 
 ######## Objects ########
-def addObject(x, y, ID, layer, width, height, anchorx, anchory, outlineColor, fill, stroke, hidden, isChild, otype="None"):
+def addObject(x, y, ID, layer, width, height, anchorx, anchory, outlineColor=None, fill=None, stroke=None, hidden=None, isChild=None, otype=None):
     global objects, renderQueue, positions
     objects[ID]={
         "x": (x if anchorx=="c" else (x-width/2 if anchorx=="r" else x+width/2)),
@@ -75,23 +76,25 @@ def setObject(ID, parameters):
 
 def drawObject(ID):
     otype=objects[ID]["type"]
-    if otype=="Button" or otype=="textField":
-        rectangle(
-            objects[ID]["ax"],
-            objects[ID]["ay"],
-            objects[ID]["bx"],
-            objects[ID]["by"],
-            objects[ID]["outlineColor"],
-            objects[ID]["fill"],
-            objects[ID]["stroke"]
-        )
+    if otype=="Button" or otype=="textField" or otype=="Text":
+        if otype!="Text":
+            rectangle(
+                objects[ID]["ax"],
+                objects[ID]["ay"],
+                objects[ID]["bx"],
+                objects[ID]["by"],
+                objects[ID]["outlineColor"],
+                objects[ID]["fill"],
+                objects[ID]["stroke"]
+            )
         texte(
-            (objects[ID]["x"] if otype=="Button" else objects[ID]["ax"]),
-            (objects[ID]["y"] if otype=="Button" else objects[ID]["ay"]+(objects[ID]["by"]-objects[ID]["ay"])/2),
-            objects[ID]["text"],
+            (objects[ID]["x"] if otype!="textField" else objects[ID]["ax"]),
+            (objects[ID]["y"] if otype!="textField" else objects[ID]["ay"]+(objects[ID]["by"]-objects[ID]["ay"])/2),
+            objects[ID]["text"][-(objects[ID]["height"]):],
             objects[ID]["textColor"],
             taille=objects[ID]["textSize"],
-            ancrage=objects[ID]["textAnchor"]
+            ancrage=objects[ID]["textAnchor"],
+            police=objects[ID]["textFont"]
         )
     elif otype=="Panel":
         rectangle(
@@ -128,10 +131,12 @@ def remObject(ID):
 def nullAction():
     print("je suis un bouton")
 
-def addButton(x,y,action=nullAction,arguments=[],ID=None,width=150,height=50,anchorx="c",anchory="c",textAnchor="c",text="",outlineColor="black",textColor="black",textSize=24,fill="",stroke=1,hidden=False,layer=0,isChild=False):
+def addButton(x,y,action=nullAction,arguments=[],ID=None,width=150,height=50,anchorx="c",anchory="c",textAnchor="c",text="",outlineColor="black",textColor="black",textSize=None,textFont="Monospace",fill="",stroke=1,hidden=False,layer=0,isChild=False):
     global objects, buttonCount
     if ID==None:
         ID="Button"+str(buttonCount)
+    if textSize==None:
+        textSize=int(width/len(text))
     buttonCount+=1
     addObject(x, y, ID, layer, width, height, anchorx, anchory, outlineColor, fill, stroke, hidden, isChild, otype="Button")
     objects[ID]["text"]=text
@@ -140,8 +145,9 @@ def addButton(x,y,action=nullAction,arguments=[],ID=None,width=150,height=50,anc
     objects[ID]["textSize"]=textSize
     objects[ID]["action"]=action
     objects[ID]["args"]=arguments
+    objects[ID]["textFont"]=textFont
 ######## textFields ########
-def addTextField(x,y,ID=None,width=150,height=30,anchorx="c",anchory="c",textAnchor="w",text="",outlineColor="black",textColor="black",textSize=18,fill="",stroke=1,hidden=False,layer=0,isChild=False):
+def addTextField(x,y,ID=None,width=150,height=30,anchorx="c",anchory="c",textAnchor="w",text="",outlineColor="black",textColor="black",textSize=18,fill="",textFont="Monospace",stroke=1,hidden=False,layer=0,isChild=False):
     global objects, textFieldCount
     if ID==None:
         ID="textField"+str(textFieldCount)
@@ -151,6 +157,19 @@ def addTextField(x,y,ID=None,width=150,height=30,anchorx="c",anchory="c",textAnc
     objects[ID]["textAnchor"]=textAnchor
     objects[ID]["textColor"]=textColor
     objects[ID]["textSize"]=textSize
+    objects[ID]["textFont"]=textFont
+######## Texts ########
+def addText(x,y,ID=None,width=150,height=30,anchorx="c",anchory="c",textAnchor="w",text="",textColor="black",textSize=18,textFont="Monospace",hidden=False,layer=0,isChild=False):
+    global objects, textCount
+    if ID==None:
+        ID="textField"+str(textCount)
+    textCount+=1
+    addObject(x, y, ID, layer, width, height, anchorx, anchory, hidden, isChild, otype="Text")
+    objects[ID]["text"]=text
+    objects[ID]["textAnchor"]=textAnchor
+    objects[ID]["textColor"]=textColor
+    objects[ID]["textSize"]=textSize
+    objects[ID]["textFont"]=textFont
 ######## Panels ########
 def addPanel(x,y,ID=None,width=100,height=100,anchorx="c",anchory="c",outlineColor="gray",fill="gray",stroke=1,childs=[],hidden=False,layer=0,isChild=False):
     global objects, panelCount

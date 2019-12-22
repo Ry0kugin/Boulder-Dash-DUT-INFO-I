@@ -1,6 +1,12 @@
-from upemtk import texte, type_evenement, clic_x, clic_y, touche
+from upemtk import texte, type_evenement, clic_x, clic_y, touche, donne_evenement
 from render import WIDTH_WINDOW, HEIGHT_WINDOW
 from uiElements import *
+
+######## Private IDs ########
+# prompt_1
+# prompt_2
+# prompt_3
+# prompt_4
 
 def setUIEvenement(ev):
     global evenement
@@ -24,13 +30,30 @@ def levelLose():
     """
     texte(WIDTH_WINDOW/4, HEIGHT_WINDOW/2-12, "GAME OVER", "red")
 
-
 ######## Automation ########
-def newPrompt(message):
+condition=False
+transaction=False
+
+def checkTransaction():
+    condition=transaction
+
+def newPrompt(message, buttonText, cancelable=True, action=None, arguments=None):
     layer=(len(renderQueue.keys()))
-    addTextField(WIDTH_WINDOW/2, HEIGHT_WINDOW*2/4, ID="prompt_1", outlineColor="white", isChild=True, layer=layer)
-    addButton(WIDTH_WINDOW/2, HEIGHT_WINDOW*1.8/4, ID="prompt_2", outlineColor="", text=message, textAnchor="w", isChild=True, layer=layer)
-    addPanel(WIDTH_WINDOW/2, HEIGHT_WINDOW/2, ID="prompt", width=WIDTH_WINDOW/1.1, height=HEIGHT_WINDOW/1.1, childs=["prompt_1", "prompt_2"], layer=layer)
+    addText(WIDTH_WINDOW/2, HEIGHT_WINDOW*1.6/4, ID="prompt_1", text=message, textAnchor="c", isChild=True, layer=layer)
+    addTextField(WIDTH_WINDOW/2, HEIGHT_WINDOW*2/4, ID="prompt_2", outlineColor="white", isChild=True, layer=layer)
+    addButton(WIDTH_WINDOW/2, HEIGHT_WINDOW*2.5/4, ID="prompt_3", outlineColor="white", text=buttonText, textSize=18)
+    childs=["prompt_1", "prompt_2", "prompt_3"]
+    if cancelable:
+        addButton(WIDTH_WINDOW/2, HEIGHT_WINDOW*3/4, ID="prompt_4", outlineColor="white", text="Annuler")
+        childs.append("prompt_4")
+    addPanel(WIDTH_WINDOW/2, HEIGHT_WINDOW/2, ID="prompt", width=WIDTH_WINDOW/1.3, height=HEIGHT_WINDOW/1.3, childs=childs, layer=layer)
+    while not condition:
+        event=donne_evenement()
+        logicUI(event)
+        if action:
+            transaction=action(*arguments)
+            objects["prompt_2"]["outlineColor"]=("Green" if transaction else "Red")
+        renderUI()
 
 #####################################################################################
 
@@ -39,9 +62,7 @@ def initUI():
     addButton(RightXPos, HEIGHT_WINDOW/16, action=setUIEvenement, arguments=["reset"], anchorx="c",outlineColor="white", text="Reset", textColor="white")
     addButton(RightXPos, HEIGHT_WINDOW/16*3, action=setUIEvenement, arguments=["debug"], anchorx="c", outlineColor="white", text="Debug", textColor="white")
     addButton(RightXPos, HEIGHT_WINDOW-1, action=quit, anchorx="c", anchory="d", outlineColor="white", text="Quitter", textColor="white")
-    addTextField(RightXPos, HEIGHT_WINDOW/2, outlineColor="white", textColor="white")
-    # newPrompt("hello")
-    # addButton(RightXPos, HEIGHT_WINDOW/16*6, action=newPrompt, arguments=["Entrez un texte:"], textColor="white", outlineColor="white", text="Prompt")
+    newPrompt("Nom de la sauvegarde:", "Sauvegarder")
 
 def logicUI(ev):
     global focus
