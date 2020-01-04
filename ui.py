@@ -34,19 +34,22 @@ def levelLose():
 condition=False
 transaction=False
 
-def checkTransaction():
-    condition=transaction
+def actionPrompt(action, arguments, check):
+    global condition, transaction
+    condition=transaction if check else True
+    if condition:
+        action(*arguments)
 
-def newPrompt(message, buttonText, cancelable=True, checker=None, arguments=None):
+def newPrompt(message, buttonText, cancelable=True, checker=None, checkerArguments=None, cancel=None, cancelArguments=None, success=None, successArguments=None):
     global condition, transaction
     layer=(len(renderQueue.keys()))
     childs=["prompt_1", "prompt_2", "prompt_3"]
     addText(WIDTH_WINDOW/2, HEIGHT_WINDOW*1.6/4, ID=childs[0], text=message, textAnchor="c", isChild=True, layer=layer)
     addTextField(WIDTH_WINDOW/2, HEIGHT_WINDOW*2/4, ID=childs[1], outlineColor="white", isChild=True, layer=layer)
-    addButton(WIDTH_WINDOW/2, HEIGHT_WINDOW*2.5/4, ID=childs[2], outlineColor="white", text=buttonText, textSize=18, action=checkTransaction)
+    addButton(WIDTH_WINDOW/2, HEIGHT_WINDOW*2.5/4, ID=childs[2], outlineColor="white", text=buttonText, textSize=18, action=actionPrompt, arguments=[success, successArguments, True], layer=layer)
     if cancelable:
         childs.append("prompt_4")
-        addButton(WIDTH_WINDOW/2, HEIGHT_WINDOW*3/4, ID=childs[3], outlineColor="white", text="Annuler")
+        addButton(WIDTH_WINDOW/2, HEIGHT_WINDOW*3/4, ID=childs[3], outlineColor="white", text="Annuler", layer=layer, action=actionPrompt, arguments=[cancel, cancelArguments, False])
     addPanel(WIDTH_WINDOW/2, HEIGHT_WINDOW/2, ID="prompt", width=WIDTH_WINDOW/1.3, height=HEIGHT_WINDOW/1.3, childs=childs, layer=layer)
     if not checker:
         transaction=True
@@ -55,7 +58,7 @@ def newPrompt(message, buttonText, cancelable=True, checker=None, arguments=None
         event=donne_evenement()
         logicUI(event)
         if checker:
-            transaction=checker(*arguments)
+            transaction=checker(*checkerArguments)
             objects["prompt_2"]["outlineColor"]=("Green" if transaction else "Red")
         renderUI()
         mise_a_jour()
