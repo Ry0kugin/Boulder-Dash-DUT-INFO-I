@@ -4,12 +4,20 @@ from upemtk import *
 from time import *
 import render, logic, ui, IO
 
+###############################################################################
+
+def initUI():
+    RightXPos=render.WIDTH_WINDOW*2/3+(render.WIDTH_WINDOW/3/2)
+    ui.addButton(RightXPos, render.HEIGHT_WINDOW/16, action=ui.setUIEvenement, arguments=["reset"], anchorx="c",outlineColor="white", text="Reset", textColor="white")
+    ui.addButton(RightXPos, render.HEIGHT_WINDOW/16*3, action=ui.setUIEvenement, arguments=["debug"], anchorx="c", outlineColor="white", text="Debug", textColor="white", ID="debug")
+    ui.addButton(RightXPos, render.HEIGHT_WINDOW/16*5, action=ui.newPrompt, arguments=["Nom du fichier de sauvegarde", "Sauvegarder", True, IO.checkSaveName], anchorx="c", outlineColor="white", text="Sauvegarder", textColor="white", textSize=18)
+    ui.addButton(RightXPos, render.HEIGHT_WINDOW-1, action=logic.quitter, anchorx="c", anchory="d", outlineColor="white", text="Quitter", textColor="white")
 
 ###############################################################################
 
 if __name__ == '__main__':
     render.initWindow()
-    ui.initUI()
+    initUI()
 
     currentMap = IO.loadLevel()
 
@@ -42,8 +50,9 @@ if __name__ == '__main__':
             continue
 
         if direction == "save":
+            #ui.newPrompt("Nom de la sauvegarde:", "Sauvegarder")
             fileName = IO.save(currentMap, charlie, remainTime)
-            print ("saved to : ", fileName)
+            print ("Game saved to : ", fileName)
             continue
     
         if direction == "load":
@@ -69,7 +78,6 @@ if __name__ == '__main__':
         ui.renderUI()
         mise_a_jour()
         logic.status(remainTime, currentMap[0][0])
-        ui.newPrompt("Nom de la sauvegarde:", "Sauvegarder")
         
 
 ###############################################################################

@@ -1,5 +1,5 @@
 from random import randint, shuffle
-import logic, render
+import logic, render, ui
 
 def loadLevel(level=None, fromData=False):
     """
@@ -79,6 +79,15 @@ def save(curMap, rockford, remainTime):
         fos.write("-time-\n")
         fos.write(str(remainTime))
     return fileName
+
+def checkSaveName():
+    # JE SAIS C'EST DEGUEULASSE MAIS ON EST OBLIGES
+    # PAS LE DROIT AUX IMPORTS
+    try:
+        with open("saves/"+ui.objects["prompt_2"]["text"]) as f:
+            return False
+    except:
+        return True
 
 def loadSave():
     fileName = "save 1" 

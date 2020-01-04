@@ -337,14 +337,15 @@ def status(remainTime, diamonds):
         GAME_STATUS=False
     if GAME_STATUS:
         ui.levelWin()
+        attente_clic_ou_touche()
         quitter()
     elif GAME_STATUS==False:
         ui.levelLose()
+        attente_clic_ou_touche()
         quitter()
 
 def quitter():
     """
     quitte la partie
     """
-    attente_clic_ou_touche()
-    exit("Merci")
+    exit("Merci d'avoir joué à notre jeu.\nRioven Studios")

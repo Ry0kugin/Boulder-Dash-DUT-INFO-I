@@ -121,11 +121,16 @@ def isObject(ID):
         return False
 
 def remObject(ID):
-    if objects[ID]["type"]=="Panel":
-        if objects[ID]["childs"]!=[]:
-            for o in objects[ID]["childs"]:
-                remObject(o)
-    objects.pop(ID, None)
+    try:
+        if objects[ID]["type"]=="Panel":
+            if objects[ID]["childs"]!=[]:
+                for o in objects[ID]["childs"]:
+                    remObject(o)
+        positions[objects[ID]["layer"]].pop(ID, None)
+        renderQueue[objects[ID]["layer"]].remove(ID)
+        objects.pop(ID, None)
+    except KeyError as e:
+        print("UI Warning: cannot remove unknown object", e)
 
 ######## Buttons ########
 def nullAction():

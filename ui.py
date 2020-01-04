@@ -36,12 +36,12 @@ transaction=False
 
 def actionPrompt(action, arguments, check):
     global condition, transaction
-    condition=transaction if check else True
+    condition=(transaction if check else True)
     if condition:
         if action:
             action(*arguments)
 
-def newPrompt(message, buttonText, cancelable=True, checker=None, checkerArguments=None, cancel=None, cancelArguments=None, success=None, successArguments=None):
+def newPrompt(message, buttonText, cancelable=True, checker=None, checkerArguments=[], cancel=None, cancelArguments=[], success=None, successArguments=[]):
     global condition, transaction
     layer=(len(renderQueue.keys()))
     childs=["prompt_1", "prompt_2", "prompt_3"]
@@ -63,20 +63,13 @@ def newPrompt(message, buttonText, cancelable=True, checker=None, checkerArgumen
             objects["prompt_2"]["outlineColor"]=("Green" if transaction else "Red")
         renderUI()
         mise_a_jour()
-        
+
     condition=False
     transaction=False
     remObject("prompt")
     
 
 #####################################################################################
-
-def initUI():
-    RightXPos=WIDTH_WINDOW*2/3+(WIDTH_WINDOW/3/2)
-    addButton(RightXPos, HEIGHT_WINDOW/16, action=setUIEvenement, arguments=["reset"], anchorx="c",outlineColor="white", text="Reset", textColor="white")
-    addButton(RightXPos, HEIGHT_WINDOW/16*3, action=setUIEvenement, arguments=["debug"], anchorx="c", outlineColor="white", text="Debug", textColor="white")
-    addButton(RightXPos, HEIGHT_WINDOW/16*6, action=newPrompt, arguments=["Nom du fichier de sauvegarde", "Sauvegarder", True], anchorx="c", outlineColor="white", text="Debug", textColor="white")
-    addButton(RightXPos, HEIGHT_WINDOW-1, action=quit, anchorx="c", anchory="d", outlineColor="white", text="Quitter", textColor="white")
 
 def logicUI(ev):
     global focus
