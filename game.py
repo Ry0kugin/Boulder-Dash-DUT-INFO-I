@@ -42,9 +42,9 @@ def play():
     ui.reset()
     initGameUI()
     currentMap = IO.loadLevel(data)
-    charlie, fallables, fall, end, startTime = start(data["Map"])
+    charlie, fallables, fall, end, startTime = start(data["map"])
     remainTime = startTime
-    render.renderCanvas(data["Map"], charlie)
+    render.renderCanvas(data["map"], charlie)
     debug = False
 
     while True:
@@ -56,9 +56,9 @@ def play():
 
         if direction == "reset" or ui.evenement == "reset":
             currentMap = IO.loadLevel()
-            charlie, fallables, fall, end, startTime = start(data["Map"])
+            charlie, fallables, fall, end, startTime = start(data["map"])
             remainTime = startTime
-            render.renderCanvas(data["Map"], charlie)
+            render.renderCanvas(data["map"], charlie)
 
             ui.evenement = None
             continue
@@ -72,34 +72,34 @@ def play():
 
         if direction == "save":
             # ui.newPrompt("Nom de la sauvegarde:", "Sauvegarder")
-            fileName = IO.save(data["Map"], charlie, remainTime)
+            fileName = IO.save(data["map"], charlie, remainTime)
             print("Game saved to : ", fileName)
             continue
 
         if direction == "load":
-            fileName, data["Map"], charlie, remainTime = IO.loadSave()
-            fallables = logic.findFallable(data["Map"])
+            fileName, data["map"], charlie, remainTime = IO.loadSave()
+            fallables = logic.findFallable(data["map"])
             fall = True
-            end = logic.findEnd(data["Map"])
+            end = logic.findEnd(data["map"])
             print("load from : ", fileName)
             continue
 
         if direction[0] != 0 or direction[1] != 0:
-            charlie = logic.moveRockford(charlie, direction, data["Map"], fallables, end)
-            fall, charlie = logic.updatePhysic(fallables, False, charlie, data["Map"])
+            charlie = logic.moveRockford(charlie, direction, data["map"], fallables, end)
+            fall, charlie = logic.updatePhysic(fallables, False, charlie, data["map"])
 
         if fall:
-            fall, charlie = logic.updatePhysic(fallables, fall, charlie, data["Map"])
+            fall, charlie = logic.updatePhysic(fallables, fall, charlie, data["map"])
 
-        remainTime = int(data["Map"][0][0]) + int(startTime - logic.getTime())
+        remainTime = int(data["map"][0][0]) + int(startTime - logic.getTime())
 
-        render.renderCanvas(data["Map"], charlie)
+        render.renderCanvas(data["map"], charlie)
         ui.logic(event)
-        ui.updateStats(remainTime, (charlie["diamonds"], int(data["Map"][0][1])))
+        ui.updateStats(remainTime, (charlie["diamonds"], int(data["map"][0][1])))
         ui.render()
         #print(ui)
         mise_a_jour()
-        logic.status(remainTime, data["Map"][0][0])
+        logic.status(remainTime, data["map"][0][0])
 
 
 def start(curMap):
@@ -122,7 +122,7 @@ def start(curMap):
 
 def initData():
     global data
-    data["Map"] = None
+    data["map"] = None
     data["rockford"] = None
     data["diamonds"] = {}
     data["diamonds"]["onwed"] = None
