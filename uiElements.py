@@ -4,6 +4,7 @@ objects={}
 positions={0:{}}
 renderQueue={0:set()}
 focus=None
+exclusiveLayer=None
 evenement=None
 buttonCount=0
 textFieldCount=0

@@ -3,6 +3,7 @@ from render import WIDTH_WINDOW, HEIGHT_WINDOW
 from uiElements import *
 
 ######## Private IDs ########
+# prompt
 # prompt_1
 # prompt_2
 # prompt_3
@@ -42,7 +43,7 @@ def actionPrompt(action, arguments, check):
             action(*arguments)
 
 def newPrompt(message, buttonText, cancelable=True, checker=None, checkerArguments=[], cancel=None, cancelArguments=[], success=None, successArguments=[]):
-    global condition, transaction
+    global condition, transaction, exclusiveLayer
     layer=(len(renderQueue.keys()))
     childs=["prompt_1", "prompt_2", "prompt_3"]
     addText(WIDTH_WINDOW/2, HEIGHT_WINDOW*1.6/4, ID=childs[0], text=message, textAnchor="c", isChild=True, layer=layer)
@@ -54,7 +55,8 @@ def newPrompt(message, buttonText, cancelable=True, checker=None, checkerArgumen
     addPanel(WIDTH_WINDOW/2, HEIGHT_WINDOW/2, ID="prompt", width=WIDTH_WINDOW/1.3, height=HEIGHT_WINDOW/1.3, childs=childs, layer=layer)
     if not checker:
         transaction=True
-    
+    exclusiveLayer=layer
+
     while not condition:
         event=donne_evenement()
         logicUI(event)
@@ -67,35 +69,46 @@ def newPrompt(message, buttonText, cancelable=True, checker=None, checkerArgumen
     condition=False
     transaction=False
     remObject("prompt")
+    exclusiveLayer=None
     
 
 #####################################################################################
 
-def logicUI(ev):
+def checkClick(p, pos):
     global focus
+    if objects[p]["ax"]<pos[0]<objects[p]["bx"] and objects[p]["ay"]<pos[1]<objects[p]["by"]:
+        if objects[p]["type"]=="Button":
+            focus=None
+            objects[p]["action"](*objects[p]["args"])
+            return True
+        elif objects[p]["type"]=="textField":
+            focus={"ID":p, "type": "textField"}
+            return True
+        elif objects[p]["type"]=="Panel":
+            focus={"ID":p, "type": "Panel"}
+            return True
+    return False
+
+def logicUI(ev):
+    global focus, exclusiveLayer
     type_ev=type_evenement(ev)
     if type_ev=="ClicGauche":
         pos=(clic_x(ev), clic_y(ev))
         layers=sorted(list(renderQueue.keys()), reverse=True)
-        for l in layers:
-            for p in positions[l]:
-                #print(objects[p]["ax"], objects[p]["bx"], objects[p]["ay"], objects[p]["by"])
-                if objects[p]["ax"]<pos[0]<objects[p]["bx"] and objects[p]["ay"]<pos[1]<objects[p]["by"]:
-                    if objects[p]["type"]=="Button":
-                        focus=None
-                        return objects[p]["action"](*objects[p]["args"])
-                    elif objects[p]["type"]=="textField":
-                        focus={"ID":p, "type": "textField"}
+        if exclusiveLayer==None:
+            for l in layers:
+                for p in positions[l]:
+                    if checkClick(p, pos):
+                        return    
+        else:
+            try:
+                for p in positions[exclusiveLayer]:
+                    if checkClick(p, pos):
                         return
-                    elif objects[p]["type"]=="Panel":
-                        focus={"ID":p, "type": "Panel"}
-                        return
-                # if raytracePanel(pos, p):
-                #     return
-                # if raytraceButton(pos, b):
-                #     return buttons[b]["action"](*buttons[b]["args"])
-                # if raytraceTextField(pos, t):
-                #     return
+            except KeyError as e:
+                print("UI Warning: exclusive layer", e, "is non existent, defaulting to None")
+                exclusiveLayer=None
+                return
         focus=None
     if focus!=None and type_ev=="Touche":
         if focus["type"]=="textField":
