@@ -17,7 +17,7 @@ data = {}
 def menu():
     ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW *1/3, text="Jouer", textSize=18, textColor="white", outlineColor="white", action=play)
     ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW *1.5/3, text="Jouer", textSize=18, textColor="white", outlineColor="white")
-    # ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW *2/3, text="Jouer", textSize=18, textColor="white", outlineColor="white")
+    ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW *2/3, text="Jouer", textSize=18, textColor="white", outlineColor="white")
     while True:
         event = donne_evenement()
         ui.clearCanvas("black")
@@ -41,10 +41,10 @@ def play():
     efface_tout()
     ui.reset()
     initGameUI()
-    currentMap = IO.loadLevel()
-    charlie, fallables, fall, end, startTime = start(currentMap)
+    currentMap = IO.loadLevel(data)
+    charlie, fallables, fall, end, startTime = start(data["Map"])
     remainTime = startTime
-    render.renderCanvas(currentMap, charlie)
+    render.renderCanvas(data["Map"], charlie)
     debug = False
 
     while True:
@@ -56,9 +56,9 @@ def play():
 
         if direction == "reset" or ui.evenement == "reset":
             currentMap = IO.loadLevel()
-            charlie, fallables, fall, end, startTime = start(currentMap)
+            charlie, fallables, fall, end, startTime = start(data["Map"])
             remainTime = startTime
-            render.renderCanvas(currentMap, charlie)
+            render.renderCanvas(data["Map"], charlie)
 
             ui.evenement = None
             continue
@@ -72,34 +72,34 @@ def play():
 
         if direction == "save":
             # ui.newPrompt("Nom de la sauvegarde:", "Sauvegarder")
-            fileName = IO.save(currentMap, charlie, remainTime)
+            fileName = IO.save(data["Map"], charlie, remainTime)
             print("Game saved to : ", fileName)
             continue
 
         if direction == "load":
-            fileName, currentMap, charlie, remainTime = IO.loadSave()
-            fallables = logic.findFallable(currentMap)
+            fileName, data["Map"], charlie, remainTime = IO.loadSave()
+            fallables = logic.findFallable(data["Map"])
             fall = True
-            end = logic.findEnd(currentMap)
+            end = logic.findEnd(data["Map"])
             print("load from : ", fileName)
             continue
 
         if direction[0] != 0 or direction[1] != 0:
-            charlie = logic.moveRockford(charlie, direction, currentMap, fallables, end)
-            fall, charlie = logic.updatePhysic(fallables, False, charlie, currentMap)
+            charlie = logic.moveRockford(charlie, direction, data["Map"], fallables, end)
+            fall, charlie = logic.updatePhysic(fallables, False, charlie, data["Map"])
 
         if fall:
-            fall, charlie = logic.updatePhysic(fallables, fall, charlie, currentMap)
+            fall, charlie = logic.updatePhysic(fallables, fall, charlie, data["Map"])
 
-        remainTime = int(currentMap[0][0]) + int(startTime - logic.getTime())
+        remainTime = int(data["Map"][0][0]) + int(startTime - logic.getTime())
 
-        render.renderCanvas(currentMap, charlie)
+        render.renderCanvas(data["Map"], charlie)
         ui.logic(event)
-        ui.updateStats(remainTime, (charlie["diamonds"], int(currentMap[0][1])))
+        ui.updateStats(remainTime, (charlie["diamonds"], int(data["Map"][0][1])))
         ui.render()
         #print(ui)
         mise_a_jour()
-        logic.status(remainTime, currentMap[0][0])
+        logic.status(remainTime, data["Map"][0][0])
 
 
 def start(curMap):
@@ -119,28 +119,6 @@ def start(curMap):
     startTime = logic.getTime()
     return rockford, fallables, fall, end, startTime
 
-
-# data = {
-#   "map" : [][]
-#   "rockford" : (x,y)
-#   "diamonds" : {
-#       "owned" : int 
-#       "total" : int
-#   }
-#   "fall" : {
-#       "fallables" : {
-#           "pos" : (x,y)
-#           "falling" : bool 
-#        }
-#       "fallings" : bool
-#   }
-#   "time" : {
-#       "start" : int
-#       "remain" : int
-#   }
-#   "end" : bool
-#   "debug" : bool
-# }
 
 def initData():
     global data
@@ -162,6 +140,3 @@ def initData():
     print(data)
 
 
-def getData(key):
-    
-    pass

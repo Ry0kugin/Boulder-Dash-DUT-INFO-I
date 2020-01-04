@@ -3,7 +3,8 @@ import logic, render, ui
 from os.path import isfile
 
 
-def loadLevel(level=None, fromData=False):
+
+def loadLevel(data, level=None, fromData=False):
     """
     charge la carte dans un format valide pour boulder dash
 
@@ -13,8 +14,10 @@ def loadLevel(level=None, fromData=False):
     [['150s', '1d'], ['a', 'b', 'c'], ['d', 'e', 'f']]
     """
     levelLst = []
+    data["map"] = []
     if level == None:
-        levelLst = randomLevel()
+        data["map"] = randomLevel(data)
+        levelLst = randomLevel(data)
     else:
         if not fromData:
             with open("level/" + level) as lvl:
@@ -27,14 +30,18 @@ def loadLevel(level=None, fromData=False):
         # add option
         options = level[0].split()
         levelLst.append([options[0][0:-1], options[1][0:-1]])
+        data["map"].append([options[0][0:-1], options[1][0:-1]])
         # add map
+        data["Map"] = []
         for i in range(1, len(level)):
             levelLst.append(list(level[i]))
+            data["map"].append(list(level[i]))
         print(levelLst)
+        print(data["map"])
     return levelLst
 
 
-def randomLevel():
+def randomLevel(data):
     width = randint(6, 14)
     height = randint(4, 8)
     nbDiamonds = randint(1, (width + height) // 3)
@@ -43,9 +50,12 @@ def randomLevel():
     totalTime = randint(30, 150)
 
     level = [[totalTime, nbDiamonds], ["W" for i in range(width)]]
+    data["map"] = [[totalTime, nbDiamonds], ["W" for i in range(width)]]
     for i in range(height - 2):
         level.append(["W"] + ["G"] * (width - 2) + ["W"])
+        data["map"].append(["W"] + ["G"] * (width - 2) + ["W"])
     level.append(["W" for i in range(width)])
+    data["map"].append(["W" for i in range(width)])
 
     positions = [(i, j) for i in range(1, width - 1) for j in range(1, height - 1)]
     shuffle(positions)
@@ -53,14 +63,21 @@ def randomLevel():
         x, y = positions[i][0], positions[i][1]
         if i == 0:
             level[y + 1][x] = "R"
+            data["map"][y + 1][x] = "R"
         elif i < 2:
             level[y + 1][x] = "E"
+            data["map"][y + 1][x] = "E"
         elif i < 2 + nbDiamonds:
             level[y + 1][x] = "D"
+            data["map"][y + 1][x] = "D"
         elif i < 2 + nbDiamonds + nbBoulder:
             level[y + 1][x] = "B"
+            data["map"][y + 1][x] = "B"
         elif i < 2 + nbDiamonds + nbBoulder + nbVoid:
             level[y + 1][x] = "."
+            data["map"][y + 1][x] = "."
+    print(level)
+    print(data["map"])
     return level
 
 
