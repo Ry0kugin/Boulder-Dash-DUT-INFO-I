@@ -1,4 +1,4 @@
-from upemtk import texte, type_evenement, clic_x, clic_y, touche, donne_evenement
+from upemtk import texte, type_evenement, clic_x, clic_y, touche, donne_evenement, mise_a_jour
 from render import WIDTH_WINDOW, HEIGHT_WINDOW
 from uiElements import *
 
@@ -37,23 +37,33 @@ transaction=False
 def checkTransaction():
     condition=transaction
 
-def newPrompt(message, buttonText, cancelable=True, action=None, arguments=None):
+def newPrompt(message, buttonText, cancelable=True, checker=None, arguments=None):
+    global condition, transaction
     layer=(len(renderQueue.keys()))
-    addText(WIDTH_WINDOW/2, HEIGHT_WINDOW*1.6/4, ID="prompt_1", text=message, textAnchor="c", isChild=True, layer=layer)
-    addTextField(WIDTH_WINDOW/2, HEIGHT_WINDOW*2/4, ID="prompt_2", outlineColor="white", isChild=True, layer=layer)
-    addButton(WIDTH_WINDOW/2, HEIGHT_WINDOW*2.5/4, ID="prompt_3", outlineColor="white", text=buttonText, textSize=18)
     childs=["prompt_1", "prompt_2", "prompt_3"]
+    addText(WIDTH_WINDOW/2, HEIGHT_WINDOW*1.6/4, ID=childs[0], text=message, textAnchor="c", isChild=True, layer=layer)
+    addTextField(WIDTH_WINDOW/2, HEIGHT_WINDOW*2/4, ID=childs[1], outlineColor="white", isChild=True, layer=layer)
+    addButton(WIDTH_WINDOW/2, HEIGHT_WINDOW*2.5/4, ID=childs[2], outlineColor="white", text=buttonText, textSize=18, action=checkTransaction)
     if cancelable:
-        addButton(WIDTH_WINDOW/2, HEIGHT_WINDOW*3/4, ID="prompt_4", outlineColor="white", text="Annuler")
         childs.append("prompt_4")
+        addButton(WIDTH_WINDOW/2, HEIGHT_WINDOW*3/4, ID=childs[3], outlineColor="white", text="Annuler")
     addPanel(WIDTH_WINDOW/2, HEIGHT_WINDOW/2, ID="prompt", width=WIDTH_WINDOW/1.3, height=HEIGHT_WINDOW/1.3, childs=childs, layer=layer)
+    if not checker:
+        transaction=True
+    
     while not condition:
         event=donne_evenement()
         logicUI(event)
-        if action:
-            transaction=action(*arguments)
+        if checker:
+            transaction=checker(*arguments)
             objects["prompt_2"]["outlineColor"]=("Green" if transaction else "Red")
         renderUI()
+        mise_a_jour()
+        
+    condition=False
+    transaction=False
+    remObject("prompt")
+    
 
 #####################################################################################
 
@@ -61,8 +71,8 @@ def initUI():
     RightXPos=WIDTH_WINDOW*2/3+(WIDTH_WINDOW/3/2)
     addButton(RightXPos, HEIGHT_WINDOW/16, action=setUIEvenement, arguments=["reset"], anchorx="c",outlineColor="white", text="Reset", textColor="white")
     addButton(RightXPos, HEIGHT_WINDOW/16*3, action=setUIEvenement, arguments=["debug"], anchorx="c", outlineColor="white", text="Debug", textColor="white")
+    addButton(RightXPos, HEIGHT_WINDOW/16*6, action=newPrompt, arguments=["Nom du fichier de sauvegarde", "Sauvegarder", True], anchorx="c", outlineColor="white", text="Debug", textColor="white")
     addButton(RightXPos, HEIGHT_WINDOW-1, action=quit, anchorx="c", anchory="d", outlineColor="white", text="Quitter", textColor="white")
-    newPrompt("Nom de la sauvegarde:", "Sauvegarder")
 
 def logicUI(ev):
     global focus

@@ -69,6 +69,7 @@ if __name__ == '__main__':
         ui.renderUI()
         mise_a_jour()
         logic.status(remainTime, currentMap[0][0])
+        ui.newPrompt("Nom de la sauvegarde:", "Sauvegarder")
         
 
 ###############################################################################
