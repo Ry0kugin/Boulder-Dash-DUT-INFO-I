@@ -1,5 +1,6 @@
 from random import randint, shuffle
 import logic, render, ui
+from os.path import isfile
 
 
 def loadLevel(level=None, fromData=False):
@@ -82,12 +83,9 @@ def save(curMap, rockford, remainTime):
 
 
 def checkSaveName():
-    # JE SAIS C'EST DEGUEULASSE MAIS ON EST OBLIGES
-    # PAS LE DROIT AUX IMPORTS
-    try:
-        with open("saves/" + ui.objects["prompt_2"]["text"]) as f:
-            return False
-    except:
+    if isfile("saves/" + ui.objects["prompt_2"]["text"]):
+        return False
+    else:
         return True
 
 

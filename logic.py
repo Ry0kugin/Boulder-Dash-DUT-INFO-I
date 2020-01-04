@@ -308,24 +308,6 @@ def getTime():
     return time.time()
 
 
-def start(curMap):
-    """
-    initialise une partie
-
-    :param list curMap: map actuel sous forme de liste
-
-    >>> start([['150s', '1d'],['B', 'R', 'G'], ['.', 'E', 'D'], ['W', 'W', 'W']])
-    ([(1, 1), 0], [(0, 1), (2, 2)], True)
-    """
-
-    rockford = findRockford(curMap)  # refactoring
-    fallables = findFallable(curMap)
-    end = findEnd(curMap)
-    fall = True
-    startTime = getTime()
-    return rockford, fallables, fall, end, startTime
-
-
 def status(remainTime, diamonds):
     """
     verifie si la partie de Rockford est gagnée ou perdue

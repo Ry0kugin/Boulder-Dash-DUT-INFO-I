@@ -1,4 +1,4 @@
-from upemtk import texte, type_evenement, clic_x, clic_y, touche, donne_evenement, mise_a_jour
+from upemtk import texte, type_evenement, clic_x, clic_y, touche, donne_evenement, mise_a_jour, efface_tout
 from render import WIDTH_WINDOW, HEIGHT_WINDOW
 from uiElements import *
 
@@ -70,6 +70,7 @@ def newPrompt(message, buttonText, cancelable=True, checker=None, checkerArgumen
     exclusiveLayer = layer
 
     while not condition:
+        efface_tout()
         event = donne_evenement()
         logic(event)
         if checker:
@@ -82,6 +83,12 @@ def newPrompt(message, buttonText, cancelable=True, checker=None, checkerArgumen
     transaction = False
     remObject("prompt")
     exclusiveLayer = None
+
+
+def clearCanvas(color=None):
+    efface_tout()
+    if color is not None:
+        rectangle(0, 0, WIDTH_WINDOW, HEIGHT_WINDOW, couleur=color, remplissage=color)
 
 
 #####################################################################################

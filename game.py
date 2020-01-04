@@ -4,15 +4,35 @@ import render
 import ui
 from upemtk import *
 
+data = {}
+# map
+# rockford
+# diamonds_Onwed - diamonds_total 
+# fallables - fall
+# end
+# startTime - remainTime
+# debug 
+
+# data = {
+#   "map" : 
+#   "rockford"
+# }
 
 def menu():
+    ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW *1/3, text="Jouer", textSize=18, textColor="white", outlineColor="white")
+    ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW *1.5/3, text="Jouer", textSize=18, textColor="white", outlineColor="white")
+    ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW *2/3, text="Jouer", textSize=18, textColor="white", outlineColor="white")
     while True:
         event = donne_evenement()
-        ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW / 2, text="Jouer", textSize=18)
+        efface_tout()
+        ui.clearCanvas("black")
+
+
+
         ui.logic(event)
         ui.render()
         mise_a_jour()
-
+        
 
 def initGameUI():
     RightXPos = render.WIDTH_WINDOW * 2 / 3 + (render.WIDTH_WINDOW / 3 / 2)
@@ -30,7 +50,7 @@ def initGameUI():
 def startGame():
     initGameUI()
     currentMap = IO.loadLevel()
-    charlie, fallables, fall, end, startTime = logic.start(currentMap)
+    charlie, fallables, fall, end, startTime = start(currentMap)
     remainTime = startTime
     render.renderCanvas(currentMap, charlie)
     debug = False
@@ -44,7 +64,7 @@ def startGame():
 
         if direction == "reset" or ui.evenement == "reset":
             currentMap = IO.loadLevel()
-            charlie, fallables, fall, end, startTime = logic.start(currentMap)
+            charlie, fallables, fall, end, startTime = start(currentMap)
             remainTime = startTime
             render.renderCanvas(currentMap, charlie)
 
@@ -87,3 +107,21 @@ def startGame():
         ui.render()
         mise_a_jour()
         logic.status(remainTime, currentMap[0][0])
+
+
+def start(curMap):
+    """
+    initialise une partie
+
+    :param list curMap: map actuel sous forme de liste
+
+    >>> start([['150s', '1d'],['B', 'R', 'G'], ['.', 'E', 'D'], ['W', 'W', 'W']])
+    ([(1, 1), 0], [(0, 1), (2, 2)], True)
+    """
+
+    rockford = logic.findRockford(curMap)  # refactoring
+    fallables = logic.findFallable(curMap)
+    end = logic.findEnd(curMap)
+    fall = True
+    startTime = logic.getTime()
+    return rockford, fallables, fall, end, startTime

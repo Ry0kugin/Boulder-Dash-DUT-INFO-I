@@ -11,7 +11,7 @@ import render, logic, ui, IO, game
 
 if __name__ == '__main__':
     render.initWindow()
-    game.menu()
+    game.startGame()
     
         
 
