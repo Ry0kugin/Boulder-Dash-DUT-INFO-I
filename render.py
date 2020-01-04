@@ -1,4 +1,5 @@
 from upemtk import *
+
 ###############################################################################
 
 
@@ -7,12 +8,14 @@ from upemtk import *
 CELL_NBX = 20
 CELL_NBY = 10
 CELL_SIZE = 42
-HALF_SIZE = CELL_SIZE//2
+HALF_SIZE = CELL_SIZE // 2
 WIDTH_WINDOW = CELL_SIZE * CELL_NBX
 HEIGHT_WINDOW = CELL_SIZE * CELL_NBY
 
+
 def initWindow():
-    cree_fenetre(WIDTH_WINDOW,HEIGHT_WINDOW)
+    cree_fenetre(WIDTH_WINDOW, HEIGHT_WINDOW)
+
 
 def drawBackground():
     """
@@ -28,7 +31,6 @@ def drawBackground():
     )
 
 
-
 def drawVoid(coord):
     """
     dessine une case vide
@@ -38,12 +40,11 @@ def drawVoid(coord):
     rectangle(
         coord[0],
         coord[1],
-        coord[0]+CELL_SIZE,
-        coord[1]+CELL_SIZE,
+        coord[0] + CELL_SIZE,
+        coord[1] + CELL_SIZE,
         '#000',
         '#000'
     )
-
 
 
 def drawWall(coord):
@@ -55,12 +56,11 @@ def drawWall(coord):
     rectangle(
         coord[0],
         coord[1],
-        coord[0]+CELL_SIZE,
-        coord[1]+CELL_SIZE,
+        coord[0] + CELL_SIZE,
+        coord[1] + CELL_SIZE,
         '#666',
         '#666'
     )
-
 
 
 def drawGrass(coord):
@@ -72,12 +72,11 @@ def drawGrass(coord):
     rectangle(
         coord[0],
         coord[1],
-        coord[0]+CELL_SIZE,
-        coord[1]+CELL_SIZE,
+        coord[0] + CELL_SIZE,
+        coord[1] + CELL_SIZE,
         '#850',
         '#850'
     )
-
 
 
 def drawBoulder(coord):
@@ -88,13 +87,12 @@ def drawBoulder(coord):
     """
     drawVoid(coord)
     cercle(
-        coord[0]+HALF_SIZE,
-        coord[1]+HALF_SIZE,
+        coord[0] + HALF_SIZE,
+        coord[1] + HALF_SIZE,
         HALF_SIZE,
         '#888',
         '#aaa'
     )
-
 
 
 def drawDiamond(coord):
@@ -105,13 +103,12 @@ def drawDiamond(coord):
     """
     drawVoid(coord)
     points = [
-        (coord[0]+HALF_SIZE, coord[1]),
-        (coord[0], coord[1]+HALF_SIZE),
-        (coord[0]+HALF_SIZE, coord[1]+CELL_SIZE),
-        (coord[0]+CELL_SIZE, coord[1]+HALF_SIZE)
+        (coord[0] + HALF_SIZE, coord[1]),
+        (coord[0], coord[1] + HALF_SIZE),
+        (coord[0] + HALF_SIZE, coord[1] + CELL_SIZE),
+        (coord[0] + CELL_SIZE, coord[1] + HALF_SIZE)
     ]
-    polygone(points,'#09f','#0ff')
-
+    polygone(points, '#09f', '#0ff')
 
 
 def drawEnd(coord, finished=False):
@@ -126,18 +123,19 @@ def drawEnd(coord, finished=False):
     rectangle(
         coord[0],
         coord[1],
-        coord[0]+CELL_SIZE,
-        coord[1]+CELL_SIZE,
+        coord[0] + CELL_SIZE,
+        coord[1] + CELL_SIZE,
         colors[0],
         colors[0]
     )
     cercle(
-        coord[0]+HALF_SIZE,
-        coord[1]+HALF_SIZE,
-        HALF_SIZE//2,
+        coord[0] + HALF_SIZE,
+        coord[1] + HALF_SIZE,
+        HALF_SIZE // 2,
         colors[1],
         colors[1]
     )
+
 
 def drawRockford(coord):
     """
@@ -147,34 +145,35 @@ def drawRockford(coord):
     """
     drawVoid(coord)
     cercle(
-        coord[0]+HALF_SIZE,
-        coord[1]+HALF_SIZE//2,
-        HALF_SIZE//2,
+        coord[0] + HALF_SIZE,
+        coord[1] + HALF_SIZE // 2,
+        HALF_SIZE // 2,
         '#c80',
         '#f41'
     )
     rectangle(
-        coord[0]+HALF_SIZE//2,
-        coord[1]+HALF_SIZE,
-        coord[0]+HALF_SIZE*1.5,
-        coord[1]+CELL_SIZE,
+        coord[0] + HALF_SIZE // 2,
+        coord[1] + HALF_SIZE,
+        coord[0] + HALF_SIZE * 1.5,
+        coord[1] + CELL_SIZE,
         '#c80',
         '#f41'
     )
 
 
-# dictionnaire permettant d'appeler les fonctions de dessins
-# à partir du code issu de la génération d'une carte
+#  dictionnaire permettant d'appeler les fonctions de dessins
+#  à partir du code issu de la génération d'une carte
 renderCase = {
-    '.' : (lambda x : drawVoid(x)),
-    'W' : (lambda x : drawWall(x)),
-    'G' : (lambda x : drawGrass(x)),
-    'B' : (lambda x : drawBoulder(x)),
-    'D' : (lambda x : drawDiamond(x)),
-    'E' : (lambda x : drawEnd(x)),
-    'R' : (lambda x : drawRockford(x)),
-    'O': (lambda x : drawEnd(x, True))
+    '.': (lambda x: drawVoid(x)),
+    'W': (lambda x: drawWall(x)),
+    'G': (lambda x: drawGrass(x)),
+    'B': (lambda x: drawBoulder(x)),
+    'D': (lambda x: drawDiamond(x)),
+    'E': (lambda x: drawEnd(x)),
+    'R': (lambda x: drawRockford(x)),
+    'O': (lambda x: drawEnd(x, True))
 }
+
 
 def renderCanvas(curMap, rockford):
     """
@@ -184,8 +183,8 @@ def renderCanvas(curMap, rockford):
     """
     efface_tout()
     drawBackground()
-    for y in range(1,len(curMap)):
+    for y in range(1, len(curMap)):
         for x in range(0, len(curMap[y])):
-            x1 = x*CELL_SIZE
-            y1 = y*CELL_SIZE
-            renderCase[curMap[y][x]]((x1,y1))
+            x1 = x * CELL_SIZE
+            y1 = y * CELL_SIZE
+            renderCase[curMap[y][x]]((x1, y1))
