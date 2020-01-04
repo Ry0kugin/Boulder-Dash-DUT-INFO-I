@@ -38,7 +38,8 @@ def actionPrompt(action, arguments, check):
     global condition, transaction
     condition=transaction if check else True
     if condition:
-        action(*arguments)
+        if action:
+            action(*arguments)
 
 def newPrompt(message, buttonText, cancelable=True, checker=None, checkerArguments=None, cancel=None, cancelArguments=None, success=None, successArguments=None):
     global condition, transaction
