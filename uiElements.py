@@ -1,8 +1,9 @@
 from upemtk import rectangle, texte
 
 objects = {}
-positions = {0: {}}
-renderQueue = {0: set()}
+positions = {}
+renderQueue = {}
+renderRoutines = {}
 focus = None
 exclusiveLayer = None
 evenement = None
@@ -11,6 +12,32 @@ textFieldCount = 0
 textCount = 0
 panelCount = 0
 
+def reset():
+    global objects, positions, renderQueue, focus, exclusiveLayer, evenement, buttonCount, textFieldCount, textCount, panelCount, routines
+    objects.clear()
+    positions.clear()
+    renderQueue.clear()
+    renderRoutines.clear()
+    focus = None
+    exclusiveLayer = None
+    evenement = None
+    buttonCount = 0
+    textFieldCount = 0
+    textCount = 0
+    panelCount = 0
+
+######## Routines ########
+
+def addRenderRoutine(ID, action, arguments=[]):
+    global renderRoutines
+    renderRoutines[ID]=(action, arguments)
+
+def remRenderRoutine(ID):
+    global renderRoutines
+    try:
+        renderRoutines.pop(ID)
+    except KeyError as e:
+        print("UI Warning: cannot remove unknown routine", e)
 
 ######## Objects ########
 def addObject(x, y, ID, layer, width, height, anchorx, anchory, outlineColor=None, fill=None, stroke=None, hidden=None,
@@ -35,15 +62,11 @@ def addObject(x, y, ID, layer, width, height, anchorx, anchory, outlineColor=Non
         "type": otype,
         "isChild": isChild
     }
-    try:
-        renderQueue[layer]
-    except KeyError:
+    if not renderQueue.__contains__(layer):
         renderQueue[layer] = set()
     renderQueue[layer].add(ID)
 
-    try:
-        positions[layer]
-    except KeyError:
+    if not positions.__contains__(layer):
         positions[layer] = {}
     positions[layer][ID] = [
         [objects[ID]["ax"], objects[ID]["bx"]],

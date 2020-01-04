@@ -26,8 +26,8 @@ def drawBackground():
         0,
         WIDTH_WINDOW,
         HEIGHT_WINDOW,
-        'black',
-        'black'
+        'red',
+        'red'
     )
 
 
@@ -181,8 +181,6 @@ def renderCanvas(curMap, rockford):
 
     :param list curMap: map actuel sous forme de liste
     """
-    efface_tout()
-    drawBackground()
     for y in range(1, len(curMap)):
         for x in range(0, len(curMap[y])):
             x1 = x * CELL_SIZE

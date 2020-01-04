@@ -10,10 +10,9 @@ import time
 GAME_STATUS = None
 DIRECTIONS = ["Right", "Left", "Up", "Down"]
 
-
 ############################ Very Useful fonctions ############################
 
-def sumTuple(a, b):
+def sumTuple(a,b):
     """
     renvoie la somme des tuples a et b
 
@@ -29,7 +28,6 @@ def sumTuple(a, b):
         tmp.append(a[i] + b[i])
     return tuple(tmp)
 
-
 ###############################################################################
 
 ############################### Logique de jeu ################################
@@ -42,34 +40,33 @@ def getDirection(ev, debug=False):
 
     """
     direction = 0
-    type_ev = type_evenement(ev)
-    t = None
-    if type_ev == "Touche":
-        t = touche(ev)
+    type_ev=type_evenement(ev)
+    t=None
+    if type_ev=="Touche":
+        t=touche(ev)
     elif debug:
-        t = DIRECTIONS[randint(0, 3)]
-    if t == DIRECTIONS[0]:
-        direction = (1, 0)
-    elif t == DIRECTIONS[1]:
-        direction = (-1, 0)
-    elif t == DIRECTIONS[2]:
-        direction = (0, -1)
-    elif t == DIRECTIONS[3]:
-        direction = (0, 1)
-    elif t == "r":
-        direction = "reset"
-    elif t == "d":
-        direction = "debug"
-    elif t == "q":
+        t=DIRECTIONS[randint(0,3)]
+    if t==DIRECTIONS[0]:
+        direction=(1,0)
+    elif t==DIRECTIONS[1]:
+        direction=(-1,0)
+    elif t==DIRECTIONS[2]:
+        direction=(0,-1)
+    elif t==DIRECTIONS[3]:
+        direction=(0,1)
+    elif t=="r":
+        direction="reset"
+    elif t=="d":
+        direction="debug"
+    elif t=="q":
         exit("Merci d'avoir joué :D")
-    elif t == "s":
-        direction = "save"
-    elif t == "l":
-        direction = "load"
+    elif t=="s":
+        direction="save"
+    elif t=="l":
+        direction="load"
     else:
-        direction = (0, 0)
+        direction=(0,0)
     return direction
-
 
 def findRockford(curMap):
     """
@@ -82,8 +79,7 @@ def findRockford(curMap):
     for i in range(1, len(curMap)):
         for j in range(len(curMap[i])):
             if curMap[i][j] == "R":
-                return [(j, i), 0]
-
+                return {"pos": (j,i),"diamonds": 0}
 
 def findEnd(curMap):
     """
@@ -96,8 +92,7 @@ def findEnd(curMap):
     for i in range(1, len(curMap)):
         for j in range(len(curMap[i])):
             if curMap[i][j] == "E" or curMap[i][j] == "O":
-                return [(j, i), False]
-
+                return {"pos": (j,i), "open": False}
 
 def findFallable(curMap):
     """
@@ -112,8 +107,9 @@ def findFallable(curMap):
     for i in range(1, len(curMap)):
         for j in range(len(curMap[i])):
             if curMap[i][j] == "B" or curMap[i][j] == "D":
-                fallables.append([(j, i), False])
-    return fallables
+                fallables.append({"pos": (j,i), "falling": False})
+    return fallables 
+
 
 
 def updateFallable(lastFa, newFa, fallables):
@@ -124,10 +120,11 @@ def updateFallable(lastFa, newFa, fallables):
     :param tuple newFa: nouvelle Position du Fallable
     :param list fallables: liste de couple de fallable (abscisse, ordonnee)
     """
-    for i, fa in enumerate(fallables):
-        if fa[0] == lastFa:
-            fallables[i][0] = newFa
+    for i,fa in enumerate(fallables):
+        if fa["pos"] == lastFa:
+            fallables[i]["pos"] = newFa
             break
+
 
 
 def getCell(coord, curMap):
@@ -140,8 +137,9 @@ def getCell(coord, curMap):
     >>> getCell((2,1),[['150s', '1d'], ['B', 'R', 'G'], ['.', 'W', 'D']])
     'G'
     """
-    # print(coord[1], coord[0])
+    #print(coord[1], coord[0])
     return curMap[coord[1]][coord[0]]
+
 
 
 def setCell(coord, curMap, content):
@@ -155,6 +153,7 @@ def setCell(coord, curMap, content):
     'G'
     """
     curMap[coord[1]][coord[0]] = content
+
 
 
 def setRockfordCell(lastPos, newPos, curMap, aim="R"):
@@ -171,6 +170,7 @@ def setRockfordCell(lastPos, newPos, curMap, aim="R"):
     setCell(newPos, curMap, aim)
 
 
+
 def changeRockfordPos(newPos, rockford, diamant=False):
     """
     change les positions de Rockford
@@ -183,10 +183,11 @@ def changeRockfordPos(newPos, rockford, diamant=False):
     [(2, 3), 1]
     """
 
-    rockford[0] = newPos
+    rockford["pos"] = newPos
     if diamant:
-        rockford[1] += 1
+        rockford["diamonds"] += 1
     return rockford
+
 
 
 def moveRockford(rockford, direction, curMap, fallables, endy):
@@ -211,48 +212,48 @@ def moveRockford(rockford, direction, curMap, fallables, endy):
     'win'
     """
     global GAME_STATUS
-    aimCoord = sumTuple(rockford[0], direction)
+    aimCoord = sumTuple(rockford["pos"], direction)
 
     aimCell = getCell(aimCoord, curMap)
 
-    enddoor = "O" if endy[1] else "E"
+    enddoor = "O" if endy["open"] else "E"
 
     if aimCell == ".":
-        setRockfordCell(rockford[0], aimCoord, curMap)
+        setRockfordCell(rockford["pos"], aimCoord, curMap)
         return changeRockfordPos(aimCoord, rockford)
 
     elif aimCell == "G":
-        setRockfordCell(rockford[0], aimCoord, curMap)
+        setRockfordCell(rockford["pos"], aimCoord, curMap)
         return changeRockfordPos(aimCoord, rockford)
 
     elif aimCell == "B":
-        if direction[1] == 0:  # deplacer boulet uniquement si direction lateral
-            behindBoulder = sumTuple(aimCoord, direction)
-            if getCell(behindBoulder, curMap) == ".":
-                setRockfordCell(rockford[0], aimCoord, curMap)
+        if direction[1] == 0: # deplacer boulet uniquement si direction lateral
+            behindBoulder = sumTuple(aimCoord,direction)
+            if(getCell(behindBoulder, curMap) == "."):
+                setRockfordCell(rockford["pos"], aimCoord, curMap)
                 setCell(behindBoulder, curMap, "B")
                 updateFallable(aimCoord, behindBoulder, fallables)
                 return changeRockfordPos(aimCoord, rockford)
 
     elif aimCell == "D":
-        setRockfordCell(rockford[0], aimCoord, curMap)
-        fallables.remove([aimCoord, False])
+        setRockfordCell(rockford["pos"], aimCoord, curMap)
+        fallables.remove({"pos": aimCoord, "falling": False})
         charlie = changeRockfordPos(aimCoord, rockford, True)
-        # print(rockford[1], int(curMap[0][1]), rockford[1]==int(curMap[0][1]))
-        if rockford[1] == int(curMap[0][1]):
-            endy[1] = True
-            # print("in",endy)
+        if rockford["diamonds"]==int(curMap[0][1]):
+            endy["open"] = True
             enddoor = "O"
-            setCell(endy[0], curMap, enddoor)
+            setCell(endy["pos"], curMap, enddoor)
         return charlie
 
     elif aimCell == "O":
-        setRockfordCell(rockford[0], aimCoord, curMap, aim=enddoor)
-        GAME_STATUS = True
+        setRockfordCell(rockford["pos"], aimCoord, curMap, aim=enddoor)
+        GAME_STATUS = True 
     return rockford
 
 
-def updatePhysic(fallables, fall, rockford, curMap):
+
+
+def updatePhysic(fallables, fall, rockford, curMap): # Retirer rockford
     """
     met a jour la physique et return vrai
     si les fallables peuvent encore tomber
@@ -272,36 +273,35 @@ def updatePhysic(fallables, fall, rockford, curMap):
     global GAME_STATUS
     nbFalling = 0
     for i, fa in enumerate(fallables):
-        faX = fa[0][0]
-        faY = fa[0][1]
+        faX = fa["pos"][0]
+        faY = fa["pos"][1]
         setC = False
-        if fa[1] and curMap[faY + 1][faX] == "R":
-            setCell((faX, faY + 1), curMap, curMap[faY][faX])
+        if fa["falling"] and curMap[faY+1][faX] == "R":
+            setCell((faX, faY+1), curMap, curMap[faY][faX])
             setCell((faX, faY), curMap, ".")
             GAME_STATUS = False
-        if curMap[faY + 1][faX] == ".":
-            setCell((faX, faY + 1), curMap, curMap[faY][faX])
+        if curMap[faY+1][faX] == ".":
+            setCell((faX, faY+1), curMap, curMap[faY][faX])
             setCell((faX, faY), curMap, ".")
-            fallables[i] = [(faX, faY + 1), True]
+            fallables[i] = {"pos": (faX, faY+1), "falling": True}
+            nbFalling += 1 
+
+        elif (curMap[faY][faX+1] == "." and curMap[faY+1][faX+1] == ".") and (curMap[faY-1][faX]!="D" and curMap[faY-1][faX]!="B"):
+            setCell((faX+1, faY), curMap, curMap[faY][faX])
+            setCell((faX, faY), curMap, ".")
+            fallables[i] = {"pos": (faX+1, faY), "falling": True}
             nbFalling += 1
 
-        elif (curMap[faY][faX + 1] == "." and curMap[faY + 1][faX + 1] == ".") and (
-                curMap[faY - 1][faX] != "D" and curMap[faY - 1][faX] != "B"):
-            setCell((faX + 1, faY), curMap, curMap[faY][faX])
+        elif (curMap[faY][faX-1] == "." and curMap[faY+1][faX-1] == ".") and (curMap[faY-1][faX]!="D" and curMap[faY-1][faX]!="B"):
+            setCell((faX-1, faY), curMap, curMap[faY][faX])
             setCell((faX, faY), curMap, ".")
-            fallables[i] = [(faX + 1, faY), True]
+            fallables[i] = {"pos": (faX-1, faY), "falling": True}
             nbFalling += 1
+        else: 
+            fallables[i]["falling"] = False
+            
 
-        elif (curMap[faY][faX - 1] == "." and curMap[faY + 1][faX - 1] == ".") and (
-                curMap[faY - 1][faX] != "D" and curMap[faY - 1][faX] != "B"):
-            setCell((faX - 1, faY), curMap, curMap[faY][faX])
-            setCell((faX, faY), curMap, ".")
-            fallables[i] = [(faX - 1, faY), True]
-            nbFalling += 1
-        else:
-            fallables[i][1] = False
-
-    return (True if nbFalling > 0 else False), rockford
+    return (True if nbFalling>0 else False), rockford
 
 
 def getTime():
@@ -317,14 +317,15 @@ def status(remainTime, diamonds):
     global GAME_STATUS
     if remainTime <= 0:
         GAME_STATUS = False
-    if GAME_STATUS:
-        ui.levelWin()
-        attente_clic_ou_touche()
-        quitter()
-    elif not GAME_STATUS:
-        ui.levelLose()
-        attente_clic_ou_touche()
-        quitter()
+    if GAME_STATUS is not None:
+        if GAME_STATUS:
+            ui.levelWin()
+            attente_clic_ou_touche()
+            quitter()
+        else:
+            ui.levelLose()
+            attente_clic_ou_touche()
+            quitter()
 
 
 def quitter():

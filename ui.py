@@ -42,47 +42,39 @@ transaction = False
 
 
 def actionPrompt(action, arguments, check):
-    global condition, transaction
+    global condition, transaction, exclusiveLayer
     condition = (transaction if check else True)
     if condition:
         if action:
             action(*arguments)
+        remRenderRoutine("promptRoutine")
+        exclusiveLayer=None
+        remObject("prompt")
+        condition=False
+        transaction=False
 
+def checkPrompt(checker, checkerArguments):
+    global transaction
+    transaction = checker(*checkerArguments)
+    objects["prompt_2"]["outlineColor"] = ("Green" if transaction else "Red")
 
 def newPrompt(message, buttonText, cancelable=True, checker=None, checkerArguments=[], cancel=None, cancelArguments=[],
               success=None, successArguments=[]):
     global condition, transaction, exclusiveLayer
     layer = (len(renderQueue.keys()))
     childs = ["prompt_1", "prompt_2", "prompt_3"]
-    addText(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 1.6 / 4, ID=childs[0], text=message, textAnchor="c", isChild=True,
-            layer=layer)
+    addText(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 1.6 / 4, ID=childs[0], text=message, textAnchor="c", isChild=True, layer=layer)
     addTextField(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 2 / 4, ID=childs[1], outlineColor="white", isChild=True, layer=layer)
-    addButton(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 2.5 / 4, ID=childs[2], outlineColor="white", text=buttonText,
-              textSize=18, action=actionPrompt, arguments=[success, successArguments, True], layer=layer)
+    addButton(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 2.5 / 4, ID=childs[2], outlineColor="white", text=buttonText, textSize=18, action=actionPrompt, arguments=[success, successArguments, True], layer=layer)
     if cancelable:
         childs.append("prompt_4")
-        addButton(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 3 / 4, ID=childs[3], outlineColor="white", text="Annuler",
-                  layer=layer, action=actionPrompt, arguments=[cancel, cancelArguments, False])
-    addPanel(WIDTH_WINDOW / 2, HEIGHT_WINDOW / 2, ID="prompt", width=WIDTH_WINDOW / 1.3, height=HEIGHT_WINDOW / 1.3,
-             childs=childs, layer=layer)
+        addButton(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 3 / 4, ID=childs[3], outlineColor="white", text="Annuler", layer=layer, action=actionPrompt, arguments=[cancel, cancelArguments, False])
+    addPanel(WIDTH_WINDOW / 2, HEIGHT_WINDOW / 2, ID="prompt", width=WIDTH_WINDOW / 1.3, height=HEIGHT_WINDOW / 1.3, childs=childs, layer=layer)
     if not checker:
         transaction = True
+    else:
+        addRenderRoutine("promptRoutine", checkPrompt, [checker, checkerArguments])
     exclusiveLayer = layer
-
-    while not condition:
-        efface_tout()
-        event = donne_evenement()
-        logic(event)
-        if checker:
-            transaction = checker(*checkerArguments)
-            objects["prompt_2"]["outlineColor"] = ("Green" if transaction else "Red")
-        render()
-        mise_a_jour()
-
-    condition = False
-    transaction = False
-    remObject("prompt")
-    exclusiveLayer = None
 
 
 def clearCanvas(color=None):
@@ -148,6 +140,7 @@ def updateStats(remainTime, diamonds):
 
 def render():
     global renderQueue
+    toDeleteObjects=dict()
     # à optimiser
     layers = sorted(list(renderQueue.keys()), reverse=False)
     for l in layers:
@@ -160,23 +153,17 @@ def render():
                 if not (objects[ID]["hidden"] and objects[ID]["isChild"]):
                     drawObject(ID)
             except KeyError as e:
-                print("UI Warning: cannot render unknown object", e)
+                print("UI Warning: cannot render unknown object", e, "object flagged for deletion")
+                if not toDeleteObjects.__contains__(l):
+                    toDeleteObjects[l]=set()
+                toDeleteObjects[l].add(ID)
+    for i in toDeleteObjects.items():
+        for ID in i[1]:
+            renderQueue[i[0]].remove(ID)
+    for r in renderRoutines.values():
+        r[0](*r[1])
 
     # delete ID from renderQueue if non existent
     # if toRemove!=[]:
     #    for e in toRemove:
     #        renderQueue[e[0]].pop(e[1])
-
-
-def reset():
-    global objects, positions, renderQueue, focus, exclusiveLayer, evenement, buttonCount, textFieldCount, textCount, panelCount
-    objects = {}
-    positions = {0: {}}
-    renderQueue = {0: set()}
-    focus = None
-    exclusiveLayer = None
-    evenement = None
-    buttonCount = 0
-    textFieldCount = 0
-    textCount = 0
-    panelCount = 0
