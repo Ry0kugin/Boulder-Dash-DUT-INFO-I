@@ -1,8 +1,10 @@
 from upemtk import rectangle, texte
 
+EMPTY_LAYER_ABOVE_LIMIT=2
 objects = {}
 positions = {}
-renderQueue = {}
+#renderQueue = {}
+renderQueue = [set()]
 renderRoutines = {}
 focus = None
 exclusiveLayer = None
@@ -13,10 +15,13 @@ textCount = 0
 panelCount = 0
 
 def reset():
-    global objects, positions, renderQueue, focus, exclusiveLayer, evenement, buttonCount, textFieldCount, textCount, panelCount, routines
+    global objects, positions, renderQueue, focus, exclusiveLayer, evenement, buttonCount, textFieldCount, textCount, panelCount, routines, EMPTY_LAYER_ABOVE_LIMIT
+    EMPTY_LAYER_ABOVE_LIMIT=2
     objects.clear()
     positions.clear()
+    #renderQueue.clear()
     renderQueue.clear()
+    renderQueue.append(set())
     renderRoutines.clear()
     focus = None
     exclusiveLayer = None
@@ -58,12 +63,21 @@ def addObject(x, y, ID, layer, width, height, anchorx, anchory, outlineColor=Non
         "fill": fill,
         "stroke": stroke,
         "hidden": hidden,
-        "layer": layer,
         "type": otype,
         "isChild": isChild
     }
-    if not renderQueue.__contains__(layer):
-        renderQueue[layer] = set()
+    # if not renderQueue.__contains__(layer):
+    #    renderQueue[layer] = set()
+    # renderQueue[layer].add(ID)
+
+    lastLayer=len(renderQueue)-1
+    if lastLayer<layer:
+        if layer-lastLayer>EMPTY_LAYER_ABOVE_LIMIT:
+            print("UI Warning: layer", layer, "is more than", EMPTY_LAYER_ABOVE_LIMIT, "layer above the last layer", "("+lastLayer+"), defaulting to", lastLayer+1)
+            layer=lastLayer+1
+        for i in range(layer-lastLayer):
+            renderqueue.append(set())
+    objects[ID]["layer"]=layer
     renderQueue[layer].add(ID)
 
     if not positions.__contains__(layer):

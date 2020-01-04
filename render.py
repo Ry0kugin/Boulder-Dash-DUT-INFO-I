@@ -175,14 +175,14 @@ renderCase = {
 }
 
 
-def renderCanvas(curMap, rockford):
+def renderCanvas(data):
     """
     affiche l'ensemble des case de la current Map
 
     :param list curMap: map actuel sous forme de liste
     """
-    for y in range(1, len(curMap)):
-        for x in range(0, len(curMap[y])):
+    for y in range(1, len(data["map"])):
+        for x in range(0, len(data["map"][y])):
             x1 = x * CELL_SIZE
             y1 = y * CELL_SIZE
-            renderCase[curMap[y][x]]((x1, y1))
+            renderCase[data["map"][y][x]]((x1, y1))

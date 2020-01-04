@@ -36,9 +36,6 @@ def loadLevel(data, level=None, fromData=False):
         for i in range(1, len(level)):
             levelLst.append(list(level[i]))
             data["map"].append(list(level[i]))
-        print(levelLst)
-        print(data["map"])
-    return levelLst
 
 
 def randomLevel(data):
@@ -76,26 +73,24 @@ def randomLevel(data):
         elif i < 2 + nbDiamonds + nbBoulder + nbVoid:
             level[y + 1][x] = "."
             data["map"][y + 1][x] = "."
-    print(level)
-    print(data["map"])
     return level
 
 
-def save(curMap, rockford, remainTime):
+def save(data):
     fileName = "save 1"
 
-    print(curMap)
+    print(data["map"])
     with open("saves/" + fileName, "w") as fos:
         fos.write("-map-\n")
-        fos.write(str(curMap[0][0]) + "s " + str(curMap[0][1]) + "d\n")
-        for i in range(1, len(curMap)):
-            fos.write("".join(curMap[i]) + "\n")
+        fos.write(str(data["map"][0][0]) + "s " + str(data["map"][0][1]) + "d\n")
+        for i in range(1, len(data["map"])):
+            fos.write("".join(data["map"][i]) + "\n")
         fos.write("\n")
 
         fos.write("-rockford-\n")
-        fos.write(str(rockford[0][0]) + "-" + str(rockford[0][1]) + " " + str(rockford[1]) + "\n\n")
+        fos.write(str(data["rockford"][0]) + "-" + str(data["rockford"][1]) + " " + str(data["diamonds"]["owned"]) + "\n\n")
         fos.write("-time-\n")
-        fos.write(str(remainTime))
+        fos.write(str(data["time"]["remain"]))
     return fileName
 
 
@@ -106,12 +101,12 @@ def checkSaveName():
         return True
 
 
-def loadSave():
+def loadSave(data):
     fileName = "save 1"
 
     with open("saves/" + fileName, "r") as fis:
         currentData = ""
-        curMap, rockford, time = "", [], 0
+        curMap= ""
         for line in fis:
             if line == "\n":
                 currentData = ""
@@ -120,11 +115,13 @@ def loadSave():
             elif currentData == "-rockford-":
                 pos, diamonds = line.strip().split()
                 x, y = pos.split("-")
-                rockford = [(int(x), int(y)), int(diamonds)]
+                data["rockford"] = (int(x), int(y))
+                data["diamonds"]["owned"] = int(diamonds)
             elif currentData == "-time-":
-                time = int(line.strip())
+                data["time"]["remain"] = int(line.strip())
             line = line.strip()
             if line == "-map-" or line == "-rockford-" or line == "-time-":
                 currentData = line
 
-    return fileName, loadLevel(curMap.strip(), fromData=True), rockford, time
+    data["map"] = loadLevel(curMap.strip(), fromData=True)
+    return fileName
