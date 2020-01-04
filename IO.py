@@ -36,9 +36,6 @@ def loadLevel(data, level=None, fromData=False):
         for i in range(1, len(level)):
             levelLst.append(list(level[i]))
             data["map"].append(list(level[i]))
-        print(levelLst)
-        print(data["map"])
-    return levelLst
 
 
 def randomLevel(data):
@@ -76,8 +73,6 @@ def randomLevel(data):
         elif i < 2 + nbDiamonds + nbBoulder + nbVoid:
             level[y + 1][x] = "."
             data["map"][y + 1][x] = "."
-    print(level)
-    print(data["map"])
     return level
 
 

@@ -61,7 +61,7 @@ def checkPrompt(checker, checkerArguments):
 def newPrompt(message, buttonText, cancelable=True, checker=None, checkerArguments=[], cancel=None, cancelArguments=[],
               success=None, successArguments=[]):
     global condition, transaction, exclusiveLayer
-    layer = (len(renderQueue.keys()))
+    layer = len(renderQueue)
     childs = ["prompt_1", "prompt_2", "prompt_3"]
     addText(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 1.6 / 4, ID=childs[0], text=message, textAnchor="c", isChild=True, layer=layer)
     addTextField(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 2 / 4, ID=childs[1], outlineColor="white", isChild=True, layer=layer)
@@ -106,7 +106,9 @@ def logic(ev):
     type_ev = type_evenement(ev)
     if type_ev == "ClicGauche":
         pos = (clic_x(ev), clic_y(ev))
-        layers = sorted(list(renderQueue.keys()), reverse=True)
+        layers = set(range(len(renderQueue)-1, 0, -1))#sorted(list(renderQueue.keys()), reverse=True)
+        layers.add(0)
+        print(layers)
         if exclusiveLayer is None:
             for l in layers:
                 for p in positions[l]:
@@ -140,28 +142,33 @@ def updateStats(remainTime, diamonds):
 
 def render():
     global renderQueue
+    for r in renderRoutines.values():
+        r[0](*r[1])
     toDeleteObjects=dict()
     # à optimiser
-    layers = sorted(list(renderQueue.keys()), reverse=False)
-    for l in layers:
-        for ID in renderQueue[l]:
-            # if isObject(ID):
-            #     drawObject(ID)
-            # else:
-            #     renderQueue[l].remove(ID)
+    #layers = sorted(list(renderQueue.keys()), reverse=False)
+    # for l in layers:
+    #     for ID in renderQueue[l]:
+    #         # if isObject(ID):
+    #         #     drawObject(ID)
+    #         # else:
+    #         #     renderQueue[l].remove(ID)
+            
+
+    for layer in range(0, len(renderQueue)):
+        for ID in renderQueue[layer]:
             try:
                 if not (objects[ID]["hidden"] and objects[ID]["isChild"]):
                     drawObject(ID)
             except KeyError as e:
                 print("UI Warning: cannot render unknown object", e, "object flagged for deletion")
-                if not toDeleteObjects.__contains__(l):
-                    toDeleteObjects[l]=set()
-                toDeleteObjects[l].add(ID)
+                if not toDeleteObjects.__contains__(layer):
+                    toDeleteObjects[layer]=set()
+                toDeleteObjects[layer].add(ID)
     for i in toDeleteObjects.items():
         for ID in i[1]:
             renderQueue[i[0]].remove(ID)
-    for r in renderRoutines.values():
-        r[0](*r[1])
+
 
     # delete ID from renderQueue if non existent
     # if toRemove!=[]:

@@ -68,33 +68,35 @@ def getDirection(ev, debug=False):
         direction=(0,0)
     return direction
 
-def findRockford(curMap):
+def findRockford(data):
     """
-    trouve et renvoie Rockford, fonction appelé à chaque création de partie
+    trouve et renvoie Rockford, fonction appelée à chaque création de partie
 
     :param list curMap: map actuel sous forme de liste
     >>> findRockford([['150s', '1d'], ['B', 'R', 'G'], ['.', 'W', 'D']])
     [(1, 1), 0]
     """
-    for i in range(1, len(curMap)):
-        for j in range(len(curMap[i])):
-            if curMap[i][j] == "R":
-                return {"pos": (j,i),"diamonds": 0}
+    for i in range(1, len(data["map"])):
+        for j in range(len(data["map"][i])):
+            if data["map"][i][j] == "R":
+                data["rockford"] = (j,i)
+                data["diamonds"]["owned"] = 0
 
-def findEnd(curMap):
+def findEnd(data):
     """
-    trouve et renvoie Rockford, fonction appelé à chaque création de partie
+    trouve et renvoie Rockford, fonction appelée à chaque création de partie
 
     :param list curMap: map actuel sous forme de liste
     >>> findRockford([['150s', '1d'], ['B', 'R', 'G'], ['.', 'W', 'E']])
     [(2, 2), 0]
     """
-    for i in range(1, len(curMap)):
-        for j in range(len(curMap[i])):
-            if curMap[i][j] == "E" or curMap[i][j] == "O":
-                return {"pos": (j,i), "open": False}
+    for i in range(1, len(data["map"])):
+        for j in range(len(data["map"][i])):
+            if data["map"][i][j] == "E" or data["map"][i][j] == "O":
+                data["end"]["pos"] = (j,i)
+                data["end"]["open"] = False
 
-def findFallable(curMap):
+def findFallable(data):
     """
     Trouve et renvoie les fallables,
     fonction appelé à chaque création de partie
@@ -103,16 +105,16 @@ def findFallable(curMap):
     >>> findFallable([['150s', '1d'], ['B', 'R', 'G'], ['.', 'W', 'D']])
     [(0, 1), (2, 2)]
     """
-    fallables = []
-    for i in range(1, len(curMap)):
-        for j in range(len(curMap[i])):
-            if curMap[i][j] == "B" or curMap[i][j] == "D":
-                fallables.append({"pos": (j,i), "falling": False})
-    return fallables 
+    data["fall"]["fallables"] = []
+    for i in range(1, len(data["map"])):
+        for j in range(len(data["map"][i])):
+            if data["map"][i][j] == "B" or data["map"][i][j] == "D":
+                data["fall"]["fallables"].append({"pos": (j,i), "falling": False})
+    return data["fall"]["fallables"] 
 
 
 
-def updateFallable(lastFa, newFa, fallables):
+def updateFallable(data, lastFa, newFa):
     """
     met à jour les fallables
 
@@ -120,14 +122,14 @@ def updateFallable(lastFa, newFa, fallables):
     :param tuple newFa: nouvelle Position du Fallable
     :param list fallables: liste de couple de fallable (abscisse, ordonnee)
     """
-    for i,fa in enumerate(fallables):
+    for i,fa in enumerate(data["fall"]["fallables"]):
         if fa["pos"] == lastFa:
-            fallables[i]["pos"] = newFa
+            data["fall"]["fallables"][i]["pos"] = newFa
             break
 
 
 
-def getCell(coord, curMap):
+def getCell(data, coord):
     """
     Recupère la valeur de la cellule au ``coord`` spécifié
 
@@ -138,11 +140,11 @@ def getCell(coord, curMap):
     'G'
     """
     #print(coord[1], coord[0])
-    return curMap[coord[1]][coord[0]]
+    return data["map"][coord[1]][coord[0]]
 
 
 
-def setCell(coord, curMap, content):
+def setCell(data, coord, content):
     """
     met à jour la valeur de la cellule au ``coord`` spécifié par le ``content``
 
@@ -152,11 +154,11 @@ def setCell(coord, curMap, content):
     >>> getCell((2,1),[['150s', '1d'], ['B', 'R', 'G'], ['.', 'W', 'D']])
     'G'
     """
-    curMap[coord[1]][coord[0]] = content
+    data["map"][coord[1]][coord[0]] = content
 
 
 
-def setRockfordCell(lastPos, newPos, curMap, aim="R"):
+def setRockfordCell(data, lastPos, newPos, aim="R"):
     """
     met à jour la cellule de Rockford
 
@@ -166,12 +168,12 @@ def setRockfordCell(lastPos, newPos, curMap, aim="R"):
     :param str aim: contenu de la cellule à remplacer
     """
 
-    setCell(lastPos, curMap, ".")
-    setCell(newPos, curMap, aim)
+    setCell(data["map"], lastPos, ".")
+    setCell(data["map"], newPos, aim)
 
 
 
-def changeRockfordPos(newPos, rockford, diamant=False):
+def changeRockfordPos(data, newPos, diamant=False):
     """
     change les positions de Rockford
 
@@ -183,14 +185,13 @@ def changeRockfordPos(newPos, rockford, diamant=False):
     [(2, 3), 1]
     """
 
-    rockford["pos"] = newPos
+    data["rockford"] = newPos
     if diamant:
-        rockford["diamonds"] += 1
-    return rockford
+        data["diamonds"]["owned"] += 1
 
 
 
-def moveRockford(rockford, direction, curMap, fallables, endy):
+def moveRockford(data, rockford, direction, curMap, fallables, endy):
     """
     deplace rockford
 
@@ -210,45 +211,50 @@ def moveRockford(rockford, direction, curMap, fallables, endy):
     >>> moveRockford([(1, 1), 0], (0,1), \
         [['150s', '1d'],['B', 'R', 'G'], ['.', 'E', 'D']], [(0, 1), (2, 2)])
     'win'
+
+
+
+    (rockford), direction, (curMap), (fallables), endy
     """
+
     global GAME_STATUS
-    aimCoord = sumTuple(rockford["pos"], direction)
 
-    aimCell = getCell(aimCoord, curMap)
+    aimCoord = sumTuple(data["rockford"], direction)
 
-    enddoor = "O" if endy["open"] else "E"
+    aimCell = getCell(aimCoord, data["map"])
+
+    enddoor = "O" if data["end"]["open"] else "E"
 
     if aimCell == ".":
-        setRockfordCell(rockford["pos"], aimCoord, curMap)
-        return changeRockfordPos(aimCoord, rockford)
+        setRockfordCell(data["rockford"], aimCoord, data["map"])
+        changeRockfordPos(aimCoord, rockford)
 
     elif aimCell == "G":
-        setRockfordCell(rockford["pos"], aimCoord, curMap)
-        return changeRockfordPos(aimCoord, rockford)
+        setRockfordCell(data["rockford"], aimCoord, data["map"])
+        changeRockfordPos(aimCoord, rockford)
 
     elif aimCell == "B":
         if direction[1] == 0: # deplacer boulet uniquement si direction lateral
             behindBoulder = sumTuple(aimCoord,direction)
-            if(getCell(behindBoulder, curMap) == "."):
-                setRockfordCell(rockford["pos"], aimCoord, curMap)
-                setCell(behindBoulder, curMap, "B")
-                updateFallable(aimCoord, behindBoulder, fallables)
-                return changeRockfordPos(aimCoord, rockford)
+            if(getCell(behindBoulder, data["map"]) == "."):
+                setRockfordCell(data["rockford"], aimCoord, data["map"])
+                setCell(behindBoulder, data["map"], "B")
+                updateFallable(aimCoord, behindBoulder, data["fall"]["fallables"])
+                changeRockfordPos(aimCoord, rockford)
 
     elif aimCell == "D":
-        setRockfordCell(rockford["pos"], aimCoord, curMap)
-        fallables.remove({"pos": aimCoord, "falling": False})
-        charlie = changeRockfordPos(aimCoord, rockford, True)
-        if rockford["diamonds"]==int(curMap[0][1]):
-            endy["open"] = True
+        setRockfordCell(data["rockford"], aimCoord, data["map"])
+        data["fall"]["fallables"].remove({"pos": aimCoord, "falling": False})
+        changeRockfordPos(aimCoord, rockford, True)
+        if rockford["diamonds"]==int(data["map"][0][1]):
+            data["end"]["open"] = True
             enddoor = "O"
-            setCell(endy["pos"], curMap, enddoor)
-        return charlie
+            setCell(data["end"]["pos"], data["map"], enddoor)
 
     elif aimCell == "O":
-        setRockfordCell(rockford["pos"], aimCoord, curMap, aim=enddoor)
+        setRockfordCell(data["rockford"], aimCoord, data["map"], aim=enddoor)
         GAME_STATUS = True 
-    return rockford
+    
 
 
 
