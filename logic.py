@@ -323,7 +323,6 @@ def status(data):
                 data["score"] += 10
                 data["time"]["remain"] -= 1 
                 
-                render.renderCanvas(data, "gameCanvas")
                 ui.updateStats(data["time"]["remain"], (data["diamonds"]["owned"], int(data["map"][0][1])), data["score"])
                 ui.render(getFps())
                 mise_a_jour()

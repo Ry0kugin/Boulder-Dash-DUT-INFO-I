@@ -11,7 +11,6 @@ def new(size, ID=None, paused=False):
     if ID==None:
         ID="timer"+str(timerCount)
     timerCount+=1
-    currentTimestamp=time.time()
     timers[ID] = {
     "size":size,
     "progression":0.0,
@@ -91,3 +90,10 @@ def reset():
 def setFactor(value):
     global factor
     factor = value
+
+def exists(ID):
+    try:
+        timers[ID]
+        return True
+    except KeyError:
+        return False

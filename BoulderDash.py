@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from upemtk import *
-from time import *
 import render, logic, ui, IO, game
 
 ###############################################################################

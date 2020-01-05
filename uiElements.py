@@ -18,10 +18,10 @@ panelCount = 0
 gameCanvasCount = 0
 
 def reset():
-    global objects, positions, renderQueue, focus, exclusiveLayer, evenement, buttonCount, textFieldCount, textCount, panelCount, routines, EMPTY_LAYER_ABOVE_LIMIT, gameCanvasCount
+    global objects, positions, renderQueue, focus, exclusiveLayer, evenement, buttonCount, textFieldCount, textCount, panelCount, EMPTY_LAYER_ABOVE_LIMIT, gameCanvasCount
     EMPTY_LAYER_ABOVE_LIMIT=2
     objects.clear()
-    todelete=set()
+    #todelete=set()
     # for ID in objects.keys():
     #     if not objects[ID]["permanent"]:
     #         todelete.add(ID)
@@ -42,7 +42,7 @@ def reset():
     textFieldCount = 0
     textCount = 0
     panelCount = 0
-    gameCanevasCount = 0
+    gameCanvasCount = 0
 
 ######## Routines ########
 
@@ -176,7 +176,6 @@ def drawObject(ID):
             objects[ID]["stroke"]
         )
 
-        print(objects[ID]["squaresMap"])
         for y in range(len(objects[ID]["squaresMap"])):
             for x in range(len(objects[ID]["squaresMap"][y])):
                 x1 = x * CELL_SIZE + objects[ID]["ax"]

@@ -11,9 +11,12 @@ data = {}
 fps = 0
 
 def menu():
-    ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW *1/3, text="Jouer", textSize=18, textColor="white", outlineColor="white", action=play, permanent=True)
-    ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW *1.5/3, text="Editeur", textSize=18, textColor="white", outlineColor="white", action=timer.new, arguments=[5.0])
-    ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW *2/3, text="Quitter", textSize=18, textColor="white", outlineColor="white", action=timer.reset)
+    ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW *0.8/3, width=render.WIDTH_WINDOW / 3, height=int(render.HEIGHT_WINDOW / 3), text="JOUER", textSize=42, textColor="white", outlineColor="white", action=play)
+    ui.addButton(render.WIDTH_WINDOW / 4, render.HEIGHT_WINDOW *1.8/3, width=render.WIDTH_WINDOW / 4, height=int(render.HEIGHT_WINDOW / 4), text="Score", textSize=28, textColor="white", outlineColor="white")
+    ui.addButton(3*render.WIDTH_WINDOW / 4, render.HEIGHT_WINDOW *1.8/3, width=render.WIDTH_WINDOW / 4, height=int(render.HEIGHT_WINDOW / 4), text="Editeur", textSize=28, textColor="white", outlineColor="white")
+    ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW - 30, width=150, height=50 ,text="quitter", textSize=18, textColor="white", outlineColor="white", anchory="s", action=logic.quitter)
+    ui.addText(render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/2, ID="innocentText", text="Bonjour !", textColor="white")
+    ui.addButton(render.WIDTH_WINDOW - 85, render.HEIGHT_WINDOW - 10, text="settings", textSize=18, textColor="white", outlineColor="white", anchory="s", action=render.animate, arguments=["innocentText", 1.0, {"x":render.WIDTH_WINDOW/3, "y":render.HEIGHT_WINDOW/3}])
     
     while True:
         evenement.compute()
@@ -22,16 +25,17 @@ def menu():
         ui.logic(evenement.event["tk"])
         delta = timer.update()
         computeFps(delta)
+        render.updateAnimations() # /!\ render.updateAnimations before ui.render
         ui.render(getFps())
         mise_a_jour()
         
 
 def initGameUI():
     RightXPos = render.WIDTH_WINDOW * 2 / 3 + (render.WIDTH_WINDOW / 3 / 2)
-    ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16, action=evenement.setGameEvent, arguments=["reset"], anchorx="c", outlineColor="white", text="Reset", textColor="white")
-    ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16 * 4, action=ui.setUIEvenement, arguments=["debug"], anchorx="c", outlineColor="white", text="Debug", textColor="white", ID="debug")
-    ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16 * 7, action=evenement.setGameEvent, arguments=["save"], anchorx="c", outlineColor="white", text="Sauvegarder", textColor="white", textSize=18)
-    ui.addButton(RightXPos, render.HEIGHT_WINDOW - 1, action=logic.quitter, anchorx="c", anchory="d", outlineColor="white", text="Quitter", textColor="white")
+    ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16, action=evenement.setGameEvent, arguments=["reset"], anchorx="c", outlineColor="white", text="Reset", textColor="white", layer=1)
+    ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16 * 4, action=ui.setUIEvenement, arguments=["debug"], anchorx="c", outlineColor="white", text="Debug", textColor="white", ID="debug", layer=1)
+    ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16 * 7, action=evenement.setGameEvent, arguments=["save"], anchorx="c", outlineColor="white", text="Sauvegarder", textColor="white", textSize=18, layer=1)
+    ui.addButton(RightXPos, render.HEIGHT_WINDOW - 1, action=logic.quitter, anchorx="c", anchory="d", outlineColor="white", text="Quitter", textColor="white", layer=1)
     ui.addGameCanvas(0, render.HEIGHT_WINDOW/2, ID="gameCanvas", width=render.CELL_NBX*render.CELL_SIZE, height=render.CELL_NBY*render.CELL_SIZE, anchorx="l")
 
 
@@ -43,7 +47,7 @@ def play():
     initData()
     IO.loadLevel(data)
     start(data)
-    render.renderCanvas(data, "gameCanvas")
+    render.update(data, "gameCanvas")
 
     while True:
         render.clearCanvas("black")
@@ -58,7 +62,7 @@ def play():
                 initData()
                 IO.loadLevel(data)
                 start(data)
-                render.renderCanvas(data, "gameCanvas")
+                render.update(data, "gameCanvas")
 
                 ui.evenement = None
                 continue
@@ -66,9 +70,11 @@ def play():
             if evenement.event["game"] == "move":
                 logic.moveRockford(data, direction)
                 logic.updatePhysic(data)
+                render.update(data, "gameCanvas")
 
             if data["fall"]["fallings"]:
                 logic.updatePhysic(data)
+                render.update(data, "gameCanvas")
 
             if evenement.event["game"] == "save":
                 timer.factor = 0
@@ -92,8 +98,6 @@ def play():
         #     ui.evenement = None
         #     continue
 
-
-        render.renderCanvas(data, "gameCanvas")
         ui.updateStats(data["time"]["remain"], (data["diamonds"]["owned"], int(data["map"][0][1])), data["score"])
         delta = timer.update()
         computeFps(delta)
@@ -155,7 +159,6 @@ def initData():
 
 def computeFps(delta):
     global fps
-    print(delta)
     fps = int(1/(delta+0.00000001))
 
 def getFps():
