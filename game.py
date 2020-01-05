@@ -15,8 +15,7 @@ def menu():
     ui.addButton(render.WIDTH_WINDOW / 4, render.HEIGHT_WINDOW *1.8/3, width=render.WIDTH_WINDOW / 4, height=int(render.HEIGHT_WINDOW / 4), text="Score", textSize=28, textColor="white", outlineColor="white")
     ui.addButton(3*render.WIDTH_WINDOW / 4, render.HEIGHT_WINDOW *1.8/3, width=render.WIDTH_WINDOW / 4, height=int(render.HEIGHT_WINDOW / 4), text="Editeur", textSize=28, textColor="white", outlineColor="white")
     ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW - 30, width=150, height=50 ,text="quitter", textSize=18, textColor="white", outlineColor="white", anchory="s", action=logic.quitter)
-    ui.addText(render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/2, ID="innocentText", text="Bonjour !", textColor="white")
-    ui.addButton(render.WIDTH_WINDOW - 85, render.HEIGHT_WINDOW - 10, text="settings", textSize=18, textColor="white", outlineColor="white", anchory="s", action=render.animate, arguments=["innocentText", 1.0, {"x":render.WIDTH_WINDOW/3, "y":render.HEIGHT_WINDOW/3}])
+    ui.addButton(render.WIDTH_WINDOW - 85, render.HEIGHT_WINDOW - 10, text="settings", textSize=18, textColor="white", outlineColor="white", anchory="s")
     
     while True:
         evenement.compute()
@@ -31,7 +30,7 @@ def menu():
         
 
 def initGameUI():
-    RightXPos = render.WIDTH_WINDOW * 2 / 3 + (render.WIDTH_WINDOW / 3 / 2)
+    RightXPos = render.WIDTH_WINDOW * 2 / 2.2
     ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16, action=evenement.setGameEvent, arguments=["reset"], anchorx="c", outlineColor="white", text="Reset", textColor="white", layer=1)
     ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16 * 4, action=ui.setUIEvenement, arguments=["debug"], anchorx="c", outlineColor="white", text="Debug", textColor="white", ID="debug", layer=1)
     ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16 * 7, action=evenement.setGameEvent, arguments=["save"], anchorx="c", outlineColor="white", text="Sauvegarder", textColor="white", textSize=18, layer=1)
@@ -106,11 +105,10 @@ def play():
         mise_a_jour()
         data["time"]["remain"] = timer.getTimer("game", int, remain=True)
         print(timer.timers["game"]["progression"])
-        win = logic.status(data)
-        if win:
+        if logic.status(data):
+            logic.updateGameStatus()
             IO.loadLevel(data)
             start(data, keepScore=True)
-
 
 def start(data, keepScore=False):
     """

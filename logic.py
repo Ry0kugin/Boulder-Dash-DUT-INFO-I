@@ -234,7 +234,7 @@ def moveRockford(data, direction):
             if(getCell(data["map"], behindBoulder) == "."):
                 setRockfordCell(data["map"], data["rockford"], aimCoord)
                 setCell(data["map"], behindBoulder, "B")
-                updateFallable(aimCoord, behindBoulder, data["fall"]["fallables"])
+                updateFallable(data, aimCoord, behindBoulder)
                 changeRockfordPos(data, aimCoord)
 
     elif aimCell == "D":
@@ -334,7 +334,10 @@ def status(data):
             ui.levelLose()
             attente_clic_ou_touche()
             quitter()
-            
+
+def updateGameStatus():
+    global GAME_STATUS
+    GAME_STATUS = None      
 
 
 def quitter():
