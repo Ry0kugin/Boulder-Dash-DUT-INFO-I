@@ -2,6 +2,9 @@ from upemtk import *
 from render import WIDTH_WINDOW, HEIGHT_WINDOW
 from random import *
 import ui
+import render
+import timer
+from game import getFps
 
 import time
 
@@ -238,6 +241,8 @@ def moveRockford(data, direction):
         setRockfordCell(data["map"], data["rockford"], aimCoord)
         data["fall"]["fallables"].remove({"pos": aimCoord, "falling": False})
         changeRockfordPos(data, aimCoord, True)
+        timer.setTimer("game", -10)
+        data["score"] += 100
         if data["diamonds"]["owned"]==int(data["map"][0][1]):
             data["end"]["open"] = True
             enddoor = "O"
@@ -245,7 +250,7 @@ def moveRockford(data, direction):
 
     elif aimCell == "O":
         setRockfordCell(data["map"], data["rockford"], aimCoord, aim=enddoor)
-        GAME_STATUS = True 
+        GAME_STATUS = True
     
 
 
@@ -300,11 +305,6 @@ def updatePhysic(data): # Retirer rockford
     data["fall"]["fallings"] = (True if nbFalling>0 else False)
 
 
-def getTime():
-    return time.time()
-
-def computeRemainTime(data):
-    data["time"]["remain"] = int(data["map"][0][0]) + int(data["time"]["start"] - getTime())
 
 def status(data):
     """
@@ -317,6 +317,17 @@ def status(data):
         GAME_STATUS = False
     if GAME_STATUS is not None:
         if GAME_STATUS:
+            for s in range(data["time"]["remain"]):
+                render.clearCanvas("black")
+
+                data["score"] += 10
+                data["time"]["remain"] -= 1 
+                
+                render.renderCanvas(data)
+                ui.updateStats(data["time"]["remain"], (data["diamonds"]["owned"], int(data["map"][0][1])), data["score"])
+                ui.render(getFps())
+                mise_a_jour()
+                time.sleep(0.005)
             ui.levelWin()
             attente_clic_ou_touche()
             quitter()

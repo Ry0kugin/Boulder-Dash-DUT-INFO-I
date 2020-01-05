@@ -2,6 +2,7 @@ from upemtk import rectangle, texte
 
 EMPTY_LAYER_ABOVE_LIMIT=2
 objects = {}
+permanentObjects = {} #/!\ *chuckles* I'm in danger
 positions = {}
 #renderQueue = {}
 renderQueue = [set()]
@@ -13,13 +14,23 @@ buttonCount = 0
 textFieldCount = 0
 textCount = 0
 panelCount = 0
+gameCanvasCount = 0
 
 def reset():
-    global objects, positions, renderQueue, focus, exclusiveLayer, evenement, buttonCount, textFieldCount, textCount, panelCount, routines, EMPTY_LAYER_ABOVE_LIMIT
+    global objects, positions, renderQueue, focus, exclusiveLayer, evenement, buttonCount, textFieldCount, textCount, panelCount, routines, EMPTY_LAYER_ABOVE_LIMIT, gameCanvasCount
     EMPTY_LAYER_ABOVE_LIMIT=2
     objects.clear()
+    todelete=set()
+    # for ID in objects.keys():
+    #     if not objects[ID]["permanent"]:
+    #         todelete.add(ID)
+    # for ID in todelete:
+    #     objects.pop(ID, None)
+    #     for l in positions.keys():
+    #         positions[l].pop(ID, None)
+    #     for l in renderQueue:
+    #         l.remove(ID)
     positions.clear()
-    #renderQueue.clear()
     renderQueue.clear()
     renderQueue.append(set())
     renderRoutines.clear()
@@ -30,6 +41,7 @@ def reset():
     textFieldCount = 0
     textCount = 0
     panelCount = 0
+    gameCanevasCount = 0
 
 ######## Routines ########
 
@@ -46,7 +58,7 @@ def remRenderRoutine(ID):
 
 ######## Objects ########
 def addObject(x, y, ID, layer, width, height, anchorx, anchory, outlineColor=None, fill=None, stroke=None, hidden=None,
-              isChild=None, otype=None):
+              isChild=None, otype=None, permanent=False):
     global objects, renderQueue, positions
     objects[ID] = {
         "x": (x if anchorx == "c" else (x - width / 2 if anchorx == "r" else x + width / 2)),
@@ -64,7 +76,8 @@ def addObject(x, y, ID, layer, width, height, anchorx, anchory, outlineColor=Non
         "stroke": stroke,
         "hidden": hidden,
         "type": otype,
-        "isChild": isChild
+        "isChild": isChild,
+        "permanent": permanent
     }
     # if not renderQueue.__contains__(layer):
     #    renderQueue[layer] = set()
@@ -76,7 +89,7 @@ def addObject(x, y, ID, layer, width, height, anchorx, anchory, outlineColor=Non
             print("UI Warning: layer", layer, "is more than", EMPTY_LAYER_ABOVE_LIMIT, "layer above the last layer", "("+lastLayer+"), defaulting to", lastLayer+1)
             layer=lastLayer+1
         for i in range(layer-lastLayer):
-            renderqueue.append(set())
+            renderQueue.append(set())
     objects[ID]["layer"]=layer
     renderQueue[layer].add(ID)
 
@@ -151,7 +164,16 @@ def drawObject(ID):
         )
         for c in objects[ID]["childs"]:
             drawObject(c)
-
+    elif otype == "gameCanvas":
+        rectangle(
+            objects[ID]["ax"],
+            objects[ID]["ay"],
+            objects[ID]["bx"],
+            objects[ID]["by"],
+            objects[ID]["outlineColor"],
+            objects[ID]["fill"],
+            objects[ID]["stroke"]
+        )
 
 def moveObject(ID, layer):
     setObject(ID, {"layer": layer})
@@ -177,7 +199,6 @@ def remObject(ID):
     except KeyError as e:
         print("UI Warning: cannot remove unknown object", e)
 
-
 ######## Buttons ########
 def nullAction():
     print("je suis un bouton")
@@ -185,7 +206,7 @@ def nullAction():
 
 def addButton(x, y, action=nullAction, arguments=[], ID=None, width=150, height=50, anchorx="c", anchory="c",
               textAnchor="c", text="", outlineColor="black", textColor="black", textSize=None, textFont="Monospace",
-              fill="", stroke=1, hidden=False, layer=0, isChild=False):
+              fill="", stroke=1, hidden=False, layer=0, isChild=False, permanent=False):
     global objects, buttonCount
     if ID is None:
         ID = "Button" + str(buttonCount)
@@ -193,7 +214,7 @@ def addButton(x, y, action=nullAction, arguments=[], ID=None, width=150, height=
         textSize = int(width / len(text))
     buttonCount += 1
     addObject(x, y, ID, layer, width, height, anchorx, anchory, outlineColor, fill, stroke, hidden, isChild,
-              otype="Button")
+              otype="Button", permanent=permanent)
     objects[ID]["text"] = text
     objects[ID]["textAnchor"] = textAnchor
     objects[ID]["textColor"] = textColor
@@ -206,13 +227,13 @@ def addButton(x, y, action=nullAction, arguments=[], ID=None, width=150, height=
 ######## textFields ########
 def addTextField(x, y, ID=None, width=150, height=30, anchorx="c", anchory="c", textAnchor="w", text="",
                  outlineColor="black", textColor="black", textSize=18, fill="", textFont="Monospace", stroke=1,
-                 hidden=False, layer=0, isChild=False):
+                 hidden=False, layer=0, isChild=False, permanent=False):
     global objects, textFieldCount
     if ID is None:
         ID = "textField" + str(textFieldCount)
     textFieldCount += 1
     addObject(x, y, ID, layer, width, height, anchorx, anchory, outlineColor, fill, stroke, hidden, isChild,
-              otype="textField")
+              otype="textField", permanent=permanent)
     objects[ID]["text"] = text
     objects[ID]["textAnchor"] = textAnchor
     objects[ID]["textColor"] = textColor
@@ -222,12 +243,12 @@ def addTextField(x, y, ID=None, width=150, height=30, anchorx="c", anchory="c", 
 
 ######## Texts ########
 def addText(x, y, ID=None, width=150, height=30, anchorx="c", anchory="c", textAnchor="w", text="", textColor="black",
-            textSize=18, textFont="Monospace", hidden=False, layer=0, isChild=False):
+            textSize=18, textFont="Monospace", hidden=False, layer=0, isChild=False, permanent=False):
     global objects, textCount
     if ID is None:
         ID = "textField" + str(textCount)
     textCount += 1
-    addObject(x, y, ID, layer, width, height, anchorx, anchory, hidden, isChild, otype="Text")
+    addObject(x, y, ID, layer, width, height, anchorx, anchory, hidden, isChild, otype="Text", permanent=permanent)
     objects[ID]["text"] = text
     objects[ID]["textAnchor"] = textAnchor
     objects[ID]["textColor"] = textColor
@@ -237,11 +258,23 @@ def addText(x, y, ID=None, width=150, height=30, anchorx="c", anchory="c", textA
 
 ######## Panels ########
 def addPanel(x, y, ID=None, width=100, height=100, anchorx="c", anchory="c", outlineColor="gray", fill="gray", stroke=1,
-             childs=[], hidden=False, layer=0, isChild=False):
+             childs=[], hidden=False, layer=0, isChild=False, permanent=False):
     global objects, panelCount
     if ID is None:
         ID = "Panel" + str(panelCount)
     panelCount += 1
     addObject(x, y, ID, layer, width, height, anchorx, anchory, outlineColor, fill, stroke, hidden, isChild,
-              otype="Panel")
+              otype="Panel", permanent=permanent)
     objects[ID]["childs"] = childs
+
+
+######## Canevas ########
+def addGameCanvas(x, y, ID=None, width=100, height=100, anchorx="c", anchory="c", outlineColor="red", fill="red", stroke=1,
+             squareMap=[], hidden=False, layer=0, isChild=False, permanent=False):
+    global objects, gameCanvasCount
+    if ID is None:
+        ID = "gameCanvas" + str(gameCanvasCount)
+    gameCanvasCount += 1
+    addObject(x, y, ID, layer, width, height, anchorx, anchory, outlineColor, fill, stroke, hidden, isChild,
+              otype="gameCanvas", permanent=permanent)
+    objects[ID]["squareMap"] = squareMap

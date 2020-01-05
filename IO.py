@@ -76,8 +76,7 @@ def randomLevel(data):
     return level
 
 
-def save(data):
-    fileName = "save 1"
+def save(data, fileName):
 
     print(data["map"])
     with open("saves/" + fileName, "w") as fos:

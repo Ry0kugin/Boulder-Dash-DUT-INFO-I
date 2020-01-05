@@ -41,12 +41,14 @@ condition = False
 transaction = False
 
 
-def actionPrompt(action, arguments, check):
+def actionPrompt(action, arguments, check, anyway, anywayArguments):
     global condition, transaction, exclusiveLayer
     condition = (transaction if check else True)
     if condition:
         if action:
             action(*arguments)
+        if anyway:
+            anyway(*anywayArguments)
         remRenderRoutine("promptRoutine")
         exclusiveLayer=None
         remObject("prompt")
@@ -59,16 +61,16 @@ def checkPrompt(checker, checkerArguments):
     objects["prompt_2"]["outlineColor"] = ("Green" if transaction else "Red")
 
 def newPrompt(message, buttonText, cancelable=True, checker=None, checkerArguments=[], cancel=None, cancelArguments=[],
-              success=None, successArguments=[]):
+              success=None, successArguments=[], anyway=None, anywayArguments=[]):
     global condition, transaction, exclusiveLayer
     layer = len(renderQueue)
     childs = ["prompt_1", "prompt_2", "prompt_3"]
     addText(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 1.6 / 4, ID=childs[0], text=message, textAnchor="c", isChild=True, layer=layer)
     addTextField(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 2 / 4, ID=childs[1], outlineColor="white", isChild=True, layer=layer)
-    addButton(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 2.5 / 4, ID=childs[2], outlineColor="white", text=buttonText, textSize=18, action=actionPrompt, arguments=[success, successArguments, True], layer=layer)
+    addButton(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 2.5 / 4, ID=childs[2], outlineColor="white", text=buttonText, textSize=18, action=actionPrompt, arguments=[success, successArguments, True, anyway, anywayArguments], layer=layer)
     if cancelable:
         childs.append("prompt_4")
-        addButton(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 3 / 4, ID=childs[3], outlineColor="white", text="Annuler", layer=layer, action=actionPrompt, arguments=[cancel, cancelArguments, False])
+        addButton(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 3 / 4, ID=childs[3], outlineColor="white", text="Annuler", layer=layer, action=actionPrompt, arguments=[cancel, cancelArguments, False, anyway, anywayArguments])
     addPanel(WIDTH_WINDOW / 2, HEIGHT_WINDOW / 2, ID="prompt", width=WIDTH_WINDOW / 1.3, height=HEIGHT_WINDOW / 1.3, childs=childs, layer=layer)
     if not checker:
         transaction = True
@@ -77,10 +79,6 @@ def newPrompt(message, buttonText, cancelable=True, checker=None, checkerArgumen
     exclusiveLayer = layer
 
 
-def clearCanvas(color=None):
-    efface_tout()
-    if color is not None:
-        rectangle(0, 0, WIDTH_WINDOW, HEIGHT_WINDOW, couleur=color, remplissage=color)
 
 
 #####################################################################################
@@ -106,9 +104,8 @@ def logic(ev):
     type_ev = type_evenement(ev)
     if type_ev == "ClicGauche":
         pos = (clic_x(ev), clic_y(ev))
-        layers = set(range(len(renderQueue)-1, 0, -1))#sorted(list(renderQueue.keys()), reverse=True)
+        layers = set(range(len(renderQueue)-1, 0, -1))
         layers.add(0)
-        print(layers)
         if exclusiveLayer is None:
             for l in layers:
                 for p in positions[l]:
@@ -126,35 +123,29 @@ def logic(ev):
         focus = None
     if focus is not None and type_ev == "Touche":
         if focus["type"] == "textField":
-            if len(touche(ev)) == 1 and touche(ev).isalnum():
-                objects[focus["ID"]]["text"] += touche(ev)
-            elif touche(ev) == "BackSpace":
+            key=touche(ev)
+            if len(key) == 1 and key.isalnum():
+                objects[focus["ID"]]["text"] += key
+            elif key == "BackSpace":
                 objects[focus["ID"]]["text"] = objects[focus["ID"]]["text"][:-1]
+            elif key == "space":
+                objects[focus["ID"]]["text"] += " "
 
 
-def updateStats(remainTime, diamonds):
+def updateStats(remainTime, diamonds, score):
     # Time left#
-    texte(WIDTH_WINDOW / 32, 0, "Time left: " + str(remainTime), ("green" if remainTime > 10 else "red"))
+    texte(0, 0, "Time left: " + str(remainTime), ("green" if remainTime > 10 else "red"), ancrage="nw")
     # Diamonds#
-    texte(WIDTH_WINDOW / 2.7, 0, "Diamonds: " + str(diamonds[0]) + "/" + str(diamonds[1]),
+    texte(WIDTH_WINDOW / 4.2, 0, "Diamonds: " + str(diamonds[0]) + "/" + str(diamonds[1]),
           ("red" if diamonds[0] < diamonds[1] else "green"))
+    # Score#
+    texte(WIDTH_WINDOW / 2, 0, "score: " + str(score), "yellow" )
 
-
-def render():
+def render(text):
     global renderQueue
     for r in renderRoutines.values():
         r[0](*r[1])
     toDeleteObjects=dict()
-    # à optimiser
-    #layers = sorted(list(renderQueue.keys()), reverse=False)
-    # for l in layers:
-    #     for ID in renderQueue[l]:
-    #         # if isObject(ID):
-    #         #     drawObject(ID)
-    #         # else:
-    #         #     renderQueue[l].remove(ID)
-            
-
     for layer in range(0, len(renderQueue)):
         for ID in renderQueue[layer]:
             try:
@@ -165,12 +156,7 @@ def render():
                 if not toDeleteObjects.__contains__(layer):
                     toDeleteObjects[layer]=set()
                 toDeleteObjects[layer].add(ID)
+    texte(0, HEIGHT_WINDOW, str(text) + " fps", "white", ancrage="sw")
     for i in toDeleteObjects.items():
         for ID in i[1]:
             renderQueue[i[0]].remove(ID)
-
-
-    # delete ID from renderQueue if non existent
-    # if toRemove!=[]:
-    #    for e in toRemove:
-    #        renderQueue[e[0]].pop(e[1])

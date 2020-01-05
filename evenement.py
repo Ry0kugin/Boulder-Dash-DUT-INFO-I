@@ -1,4 +1,3 @@
-from logic import DIRECTIONS
 from upemtk import donne_evenement, type_evenement, touche
 
 event = {
@@ -18,6 +17,7 @@ def SetGameEventFromTkEvent(ev):
     :param bool debug: active le mode debug
 
     """
+    DIRECTIONS = ["Right", "Left", "Up", "Down"]
     type_ev=type_evenement(ev)
     if type_ev=="Touche":
         t=touche(event["tk"])
