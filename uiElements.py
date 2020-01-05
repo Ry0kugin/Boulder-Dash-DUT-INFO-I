@@ -1,4 +1,5 @@
 from upemtk import rectangle, texte
+from renderElements import *
 
 EMPTY_LAYER_ABOVE_LIMIT=2
 objects = {}
@@ -175,6 +176,15 @@ def drawObject(ID):
             objects[ID]["stroke"]
         )
 
+        print(objects[ID]["squaresMap"])
+        for y in range(len(objects[ID]["squaresMap"])):
+            for x in range(len(objects[ID]["squaresMap"][y])):
+                x1 = x * CELL_SIZE + objects[ID]["ax"]
+                y1 = y * CELL_SIZE + objects[ID]["ay"]
+                renderCase[objects[ID]["squaresMap"][y][x]]((x1, y1))
+
+
+
 def moveObject(ID, layer):
     setObject(ID, {"layer": layer})
 
@@ -269,12 +279,12 @@ def addPanel(x, y, ID=None, width=100, height=100, anchorx="c", anchory="c", out
 
 
 ######## Canevas ########
-def addGameCanvas(x, y, ID=None, width=100, height=100, anchorx="c", anchory="c", outlineColor="red", fill="red", stroke=1,
-             squareMap=[], hidden=False, layer=0, isChild=False, permanent=False):
+def addGameCanvas(x, y, ID=None, width=100, height=100, anchorx="c", anchory="c", outlineColor="red", fill="", stroke=1,
+             squaresMap=[], hidden=False, layer=0, isChild=False):
     global objects, gameCanvasCount
     if ID is None:
         ID = "gameCanvas" + str(gameCanvasCount)
     gameCanvasCount += 1
     addObject(x, y, ID, layer, width, height, anchorx, anchory, outlineColor, fill, stroke, hidden, isChild,
-              otype="gameCanvas", permanent=permanent)
-    objects[ID]["squareMap"] = squareMap
+              otype="gameCanvas")
+    objects[ID]["squaresMap"] = squaresMap

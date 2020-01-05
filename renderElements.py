@@ -9,40 +9,6 @@ HALF_SIZE = CELL_SIZE // 2
 WIDTH_WINDOW = 850
 HEIGHT_WINDOW = 400
 
-# def addObject(x, y, ID, layer, width, height, fill=None, hidden=None, otype=None):
-#     global objects, renderQueue, positions
-#     objects[ID] = {
-#         "x": x,
-#         "y": y,
-#         "width": width,
-#         "height": height,
-#         "outlineColor": outlineColor,
-#         "fill": fill,
-#         "stroke": stroke,
-#         "hidden": hidden,
-#         "type": otype,
-#     }
-#     # if not renderQueue.__contains__(layer):
-#     #    renderQueue[layer] = set()
-#     # renderQueue[layer].add(ID)
-
-#     lastLayer=len(renderQueue)-1
-#     if lastLayer<layer:
-#         if layer-lastLayer>EMPTY_LAYER_ABOVE_LIMIT:
-#             print("UI Warning: layer", layer, "is more than", EMPTY_LAYER_ABOVE_LIMIT, "layer above the last layer", "("+lastLayer+"), defaulting to", lastLayer+1)
-#             layer=lastLayer+1
-#         for i in range(layer-lastLayer):
-#             renderQueue.append(set())
-#     objects[ID]["layer"]=layer
-#     renderQueue[layer].add(ID)
-
-#     if not positions.__contains__(layer):
-#         positions[layer] = {}
-#     positions[layer][ID] = [
-#         [objects[ID]["ax"], objects[ID]["bx"]],
-#         [objects[ID]["ay"], objects[ID]["by"]]
-#     ]
-
 def drawVoid(coord):
     """
     dessine une case vide
@@ -171,3 +137,14 @@ def drawRockford(coord):
         '#c80',
         '#f41'
     )
+
+renderCase = {
+    '.': (lambda x: drawVoid(x)),
+    'W': (lambda x: drawWall(x)),
+    'G': (lambda x: drawGrass(x)),
+    'B': (lambda x: drawBoulder(x)),
+    'D': (lambda x: drawDiamond(x)),
+    'E': (lambda x: drawEnd(x)),
+    'R': (lambda x: drawRockford(x)),
+    'O': (lambda x: drawEnd(x, True))
+}

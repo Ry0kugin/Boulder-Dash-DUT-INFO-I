@@ -323,14 +323,14 @@ def status(data):
                 data["score"] += 10
                 data["time"]["remain"] -= 1 
                 
-                render.renderCanvas(data)
+                render.renderCanvas(data, "gameCanvas")
                 ui.updateStats(data["time"]["remain"], (data["diamonds"]["owned"], int(data["map"][0][1])), data["score"])
                 ui.render(getFps())
                 mise_a_jour()
                 time.sleep(0.005)
             ui.levelWin()
             attente_clic_ou_touche()
-            quitter()
+            return True
         else:
             ui.levelLose()
             attente_clic_ou_touche()

@@ -1,5 +1,6 @@
 from upemtk import *
 from renderElements import *
+import ui
 
 ###############################################################################
 
@@ -45,8 +46,7 @@ def renderCanvas(data, ID):
 
     :param list curMap: map actuel sous forme de liste
     """
-    # for y in range(1, len(data["map"])):
-    #     for x in range(0, len(data["map"][y])):
-    #         x1 = x * CELL_SIZE
-    #         y1 = y * CELL_SIZE
-    #         renderCase[data["map"][y][x]]((x1, y1))
+    ui.objects[ID]["squaresMap"]= [["." for x in range(CELL_NBX)] for y in range(CELL_NBY)]
+    for y in range(1, len(data["map"])):
+        for x in range(0, len(data["map"][y])):
+            ui.objects[ID]["squaresMap"][y-1][x] = data["map"][y][x]

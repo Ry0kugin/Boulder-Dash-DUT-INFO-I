@@ -12,8 +12,8 @@ fps = 0
 
 def menu():
     ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW *1/3, text="Jouer", textSize=18, textColor="white", outlineColor="white", action=play, permanent=True)
-    ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW *1.5/3, text="Time", textSize=18, textColor="white", outlineColor="white", action=timer.new, arguments=[5.0])
-    ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW *2/3, text="Reset timers", textSize=18, textColor="white", outlineColor="white", action=timer.reset)
+    ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW *1.5/3, text="Editeur", textSize=18, textColor="white", outlineColor="white", action=timer.new, arguments=[5.0])
+    ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW *2/3, text="Quitter", textSize=18, textColor="white", outlineColor="white", action=timer.reset)
     
     while True:
         evenement.compute()
@@ -102,10 +102,13 @@ def play():
         mise_a_jour()
         data["time"]["remain"] = timer.getTimer("game", int, remain=True)
         print(timer.timers["game"]["progression"])
-        logic.status(data)
+        win = logic.status(data)
+        if win:
+            IO.loadLevel(data)
+            start(data, keepScore=True)
 
 
-def start(data):
+def start(data, keepScore=False):
     """
     initialise une partie
 
@@ -118,7 +121,8 @@ def start(data):
     logic.findFallable(data)
     logic.findEnd(data)
     timer.new(data["map"][0][0], "game")
-    data["score"] = 0
+    if not keepScore:
+        data["score"] = 0
     data["time"]["remain"] = timer.getTimer("game", int, remain=True)
     data["debug"] = False
 
