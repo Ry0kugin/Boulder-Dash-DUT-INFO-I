@@ -5,6 +5,7 @@ timerCount=0
 timers={}
 timestamp=time.time()
 factor=1
+delta = 0
 
 def new(size, ID=None, paused=False):
     global timers, timerCount
@@ -25,7 +26,8 @@ def getDelta():
 
 def update():
     global timers
-    delta = getDelta()
+    delta = time.time()-timestamp
+    timestamp = time.time()
     toDelete=set()
     for t in timers.keys():
         if timers[t]["progression"]<timers[t]["size"]:
