@@ -10,6 +10,9 @@ from uiElements import *
 # prompt_3
 # prompt_4
 
+
+######## Evenements ########
+
 def setUIEvenement(ev):
     global evenement
     evenement = ev
@@ -22,66 +25,23 @@ def getUIEvenement():
     return tmp
 
 
-def levelWin():
-    """
-    affiche Victoire
-    """
-    texte(WIDTH_WINDOW / 4, HEIGHT_WINDOW / 2 - 24, "YOU WIN !", "green")
+######## Routines ########
+
+# Noms réservés pour ID:
+# animation
+def addRenderRoutine(ID, action, arguments=[]):
+    global renderRoutines
+    renderRoutines[ID]=(action, arguments)
+
+def remRenderRoutine(ID):
+    global renderRoutines
+    try:
+        renderRoutines.pop(ID)
+    except KeyError as e:
+        print("UI Warning: cannot remove unknown routine", e)
 
 
-def levelLose():
-    """
-    affiche Défaite
-    """
-    texte(WIDTH_WINDOW / 4, HEIGHT_WINDOW / 2 - 12, "GAME OVER", "red")
-
-
-######## Automation ########
-condition = False
-transaction = False
-
-
-def actionPrompt(action, arguments, check, anyway, anywayArguments):
-    global condition, transaction, exclusiveLayer
-    condition = (transaction if check else True)
-    if condition:
-        if action:
-            action(*arguments)
-        if anyway:
-            anyway(*anywayArguments)
-        remRenderRoutine("promptRoutine")
-        exclusiveLayer=None
-        remObject("prompt")
-        condition=False
-        transaction=False
-
-def checkPrompt(checker, checkerArguments):
-    global transaction
-    transaction = checker(*checkerArguments)
-    objects["prompt_2"]["outlineColor"] = ("Green" if transaction else "Red")
-
-def newPrompt(message, buttonText, cancelable=True, checker=None, checkerArguments=[], cancel=None, cancelArguments=[],
-              success=None, successArguments=[], anyway=None, anywayArguments=[]):
-    global condition, transaction, exclusiveLayer
-    layer = len(renderQueue)
-    childs = ["prompt_1", "prompt_2", "prompt_3"]
-    addText(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 1.6 / 4, ID=childs[0], text=message, textAnchor="c", isChild=True, layer=layer)
-    addTextField(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 2 / 4, ID=childs[1], outlineColor="white", isChild=True, layer=layer)
-    addButton(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 2.5 / 4, ID=childs[2], outlineColor="white", text=buttonText, textSize=18, action=actionPrompt, arguments=[success, successArguments, True, anyway, anywayArguments], layer=layer)
-    if cancelable:
-        childs.append("prompt_4")
-        addButton(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 3 / 4, ID=childs[3], outlineColor="white", text="Annuler", layer=layer, action=actionPrompt, arguments=[cancel, cancelArguments, False, anyway, anywayArguments])
-    addPanel(WIDTH_WINDOW / 2, HEIGHT_WINDOW / 2, ID="prompt", width=WIDTH_WINDOW / 1.3, height=HEIGHT_WINDOW / 1.3, childs=childs, layer=layer)
-    if not checker:
-        transaction = True
-    else:
-        addRenderRoutine("promptRoutine", checkPrompt, [checker, checkerArguments])
-    exclusiveLayer = layer
-
-
-
-
-#####################################################################################
+######## Moteur logique ########
 
 def checkClick(p, pos):
     global focus
@@ -132,14 +92,7 @@ def logic(ev):
                 objects[focus["ID"]]["text"] += " "
 
 
-def updateStats(remainTime, diamonds, score):
-    # Time left#
-    texte(0, 0, "Time left: " + str(remainTime), ("green" if remainTime > 10 else "red"), ancrage="nw")
-    # Diamonds#
-    texte(WIDTH_WINDOW / 4.2, 0, "Diamonds: " + str(diamonds[0]) + "/" + str(diamonds[1]),
-          ("red" if diamonds[0] < diamonds[1] else "green"))
-    # Score#
-    texte(WIDTH_WINDOW / 2, 0, "score: " + str(score), "yellow" )
+######## Moteur de rendu ########
 
 def render(text):
     global renderQueue
@@ -160,3 +113,63 @@ def render(text):
     for i in toDeleteObjects.items():
         for ID in i[1]:
             renderQueue[i[0]].remove(ID)
+
+
+######## Automation ########
+
+condition = False
+transaction = False
+
+
+def actionPrompt(action, arguments, check, anyway, anywayArguments):
+    global condition, transaction, exclusiveLayer
+    condition = (transaction if check else True)
+    if condition:
+        if action:
+            action(*arguments)
+        if anyway:
+            anyway(*anywayArguments)
+        remRenderRoutine("promptRoutine")
+        exclusiveLayer=None
+        remObject("prompt")
+        condition=False
+        transaction=False
+
+
+def checkPrompt(checker, checkerArguments):
+    global transaction
+    transaction = checker(*checkerArguments)
+    objects["prompt_2"]["outlineColor"] = ("Green" if transaction else "Red")
+
+
+def newPrompt(message, buttonText, cancelable=True, checker=None, checkerArguments=[], cancel=None, cancelArguments=[],
+              success=None, successArguments=[], anyway=None, anywayArguments=[]):
+    global condition, transaction, exclusiveLayer
+    layer = len(renderQueue)
+    childs = ["prompt_1", "prompt_2", "prompt_3"]
+    addText(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 1.6 / 4, ID=childs[0], text=message, textAnchor="c", isChild=True, layer=layer)
+    addTextField(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 2 / 4, ID=childs[1], outlineColor="white", isChild=True, layer=layer)
+    addButton(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 2.5 / 4, ID=childs[2], outlineColor="white", text=buttonText, textSize=18, action=actionPrompt, arguments=[success, successArguments, True, anyway, anywayArguments], layer=layer)
+    if cancelable:
+        childs.append("prompt_4")
+        addButton(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 3 / 4, ID=childs[3], outlineColor="white", text="Annuler", layer=layer, action=actionPrompt, arguments=[cancel, cancelArguments, False, anyway, anywayArguments])
+    addPanel(WIDTH_WINDOW / 2, HEIGHT_WINDOW / 2, ID="prompt", width=WIDTH_WINDOW / 1.3, height=HEIGHT_WINDOW / 1.3, childs=childs, layer=layer)
+    if not checker:
+        transaction = True
+    else:
+        addRenderRoutine("promptRoutine", checkPrompt, [checker, checkerArguments])
+    exclusiveLayer = layer
+
+
+def levelWin():
+    """
+    affiche Victoire
+    """
+    texte(WIDTH_WINDOW / 4, HEIGHT_WINDOW / 2 - 24, "YOU WIN !", "green")
+
+
+def levelLose():
+    """
+    affiche Défaite
+    """
+    texte(WIDTH_WINDOW / 4, HEIGHT_WINDOW / 2 - 12, "GAME OVER", "red")

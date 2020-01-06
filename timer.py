@@ -54,7 +54,7 @@ def pause(ID):
 def stop(ID): 
     global timers
     try:
-        finalTime = timers[t]["progression"]
+        finalTime = timers[ID]["progression"]
         timers.pop(ID)
         return finalTime
     except KeyError as e:

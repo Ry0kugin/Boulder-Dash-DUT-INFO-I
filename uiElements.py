@@ -3,6 +3,7 @@ from renderElements import *
 
 EMPTY_LAYER_ABOVE_LIMIT=2
 objects = {}
+toRenderObjects=[]
 permanentObjects = {} #/!\ *chuckles* I'm in danger
 positions = {}
 #renderQueue = {}
@@ -11,14 +12,11 @@ renderRoutines = {}
 focus = None
 exclusiveLayer = None
 evenement = None
-buttonCount = 0
-textFieldCount = 0
-textCount = 0
-panelCount = 0
-gameCanvasCount = 0
+objectCount = 0
+tkElementsCount = 0
 
 def reset():
-    global objects, positions, renderQueue, focus, exclusiveLayer, evenement, buttonCount, textFieldCount, textCount, panelCount, EMPTY_LAYER_ABOVE_LIMIT, gameCanvasCount
+    global objects, positions, renderQueue, focus, exclusiveLayer, evenement, EMPTY_LAYER_ABOVE_LIMIT, objectCount, tkElementsCount
     EMPTY_LAYER_ABOVE_LIMIT=2
     objects.clear()
     #todelete=set()
@@ -38,14 +36,13 @@ def reset():
     focus = None
     exclusiveLayer = None
     evenement = None
-    buttonCount = 0
-    textFieldCount = 0
-    textCount = 0
-    panelCount = 0
-    gameCanvasCount = 0
+    objectCount = 0
+    tkElementsCount = 0
 
 ######## Routines ########
 
+# Noms réservés pour ID:
+# animation
 def addRenderRoutine(ID, action, arguments=[]):
     global renderRoutines
     renderRoutines[ID]=(action, arguments)
@@ -60,7 +57,7 @@ def remRenderRoutine(ID):
 ######## Objects ########
 def addObject(x, y, ID, layer, width, height, anchorx, anchory, outlineColor=None, fill=None, stroke=None, hidden=None,
               isChild=None, otype=None, permanent=False):
-    global objects, renderQueue, positions
+    global objects, positions
     objects[ID] = {
         "x": (x if anchorx == "c" else (x - width / 2 if anchorx == "r" else x + width / 2)),
         "y": (y if anchory == "c" else (y + height / 2 if anchory == "u" else y - height / 2)),
@@ -80,10 +77,16 @@ def addObject(x, y, ID, layer, width, height, anchorx, anchory, outlineColor=Non
         "isChild": isChild,
         "permanent": permanent
     }
-    # if not renderQueue.__contains__(layer):
-    #    renderQueue[layer] = set()
-    # renderQueue[layer].add(ID)
+    updateLayers(ID, layer)
+    if not positions.__contains__(layer):
+        positions[layer] = {}
+    positions[layer][ID] = [
+        [objects[ID]["ax"], objects[ID]["bx"]],
+        [objects[ID]["ay"], objects[ID]["by"]]
+    ]
 
+def updateLayers(ID, layer):
+    global renderQueue
     lastLayer=len(renderQueue)-1
     if lastLayer<layer:
         if layer-lastLayer>EMPTY_LAYER_ABOVE_LIMIT:
@@ -93,14 +96,14 @@ def addObject(x, y, ID, layer, width, height, anchorx, anchory, outlineColor=Non
             renderQueue.append(set())
     objects[ID]["layer"]=layer
     renderQueue[layer].add(ID)
+    updateObject(ID)
 
-    if not positions.__contains__(layer):
-        positions[layer] = {}
-    positions[layer][ID] = [
-        [objects[ID]["ax"], objects[ID]["bx"]],
-        [objects[ID]["ay"], objects[ID]["by"]]
-    ]
-
+def updateObject(ID):
+    global toRenderObjects
+    if len(renderQueue)>len(toRenderObjects):
+        for i in range(len(renderQueue)-len(toRenderObjects)):
+            toRenderObjects.append(set())
+    toRenderObjects[objects[ID]["layer"]].add(ID)
 
 def setObject(ID, parameters):
     """
@@ -110,7 +113,7 @@ def setObject(ID, parameters):
     """
     assert type(ID) == str
     assert type(parameters) == dict
-    global objects, renderQueue
+    global objects, renderQueue, toRenderObjects
     for p in parameters:
         objects[ID][p] = parameters[p]
         if p == "x" or p == "width":
@@ -126,8 +129,9 @@ def setObject(ID, parameters):
             objects[ID]["ay"] = (y - height / 2 if anchory == "c" else (y if anchory == "u" else y - height))
             objects[ID]["by"] = (y + height / 2 if anchory == "c" else (y + height if anchory == "u" else y))
         elif p == "layer":
-            renderQueue[parameters[p]].pop(ID, None)
-            renderQueue[parameters[p]].append(ID)
+            updateLayers(ID, parameters[p])
+    updateObject(ID)
+    
 
 
 def drawObject(ID):
@@ -141,7 +145,8 @@ def drawObject(ID):
                 objects[ID]["by"],
                 objects[ID]["outlineColor"],
                 objects[ID]["fill"],
-                objects[ID]["stroke"]
+                objects[ID]["stroke"],
+                tag=""
             )
         texte(
             (objects[ID]["x"] if otype != "textField" else objects[ID]["ax"]),

@@ -138,6 +138,8 @@ def drawRockford(coord):
         '#f41'
     )
 
+#  dictionnaire permettant d'appeler les fonctions de dessins
+#  à partir du code issu de la génération d'une carte
 renderCase = {
     '.': (lambda x: drawVoid(x)),
     'W': (lambda x: drawWall(x)),
