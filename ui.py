@@ -1,4 +1,4 @@
-from upemtk import texte, type_evenement, clic_x, clic_y, touche, donne_evenement, mise_a_jour, efface_tout
+from upemtk import texte, type_evenement, clic_x, clic_y, touche, donne_evenement, mise_a_jour, efface_tout, efface
 from render import WIDTH_WINDOW, HEIGHT_WINDOW
 from uiElements import *
 
@@ -91,28 +91,49 @@ def logic(ev):
             elif key == "space":
                 objects[focus["ID"]]["text"] += " "
 
+######## Routines ########
+
+def addRenderRoutine(ID, action, arguments=[]):
+    global renderRoutines
+    renderRoutines[ID]=(action, arguments)
+
+def remRenderRoutine(ID):
+    global renderRoutines
+    try:
+        renderRoutines.pop(ID)
+    except KeyError as e:
+        print("UI Warning: cannot remove unknown routine", e)
 
 ######## Moteur de rendu ########
 
 def render(text):
-    global renderQueue
+    #global renderQueue
+    global toRenderObjects
     for r in renderRoutines.values():
         r[0](*r[1])
-    toDeleteObjects=dict()
-    for layer in range(0, len(renderQueue)):
-        for ID in renderQueue[layer]:
-            try:
-                if not (objects[ID]["hidden"] and objects[ID]["isChild"]):
-                    drawObject(ID)
-            except KeyError as e:
-                print("UI Warning: cannot render unknown object", e, "object flagged for deletion")
-                if not toDeleteObjects.__contains__(layer):
-                    toDeleteObjects[layer]=set()
-                toDeleteObjects[layer].add(ID)
+    #toDeleteObjects=dict()
+    print(toRenderObjects)
+    for l in toRenderObjects:
+        for ID in l:
+            for t in objects[ID]["tags"]:
+                efface(t)
+            drawObject(ID)
+        l.clear()
     texte(0, HEIGHT_WINDOW, str(text) + " fps", "white", ancrage="sw")
-    for i in toDeleteObjects.items():
-        for ID in i[1]:
-            renderQueue[i[0]].remove(ID)
+    # for layer in range(0, len(renderQueue)):
+    #     for ID in renderQueue[layer]:
+    #         try:
+    #             if not (objects[ID]["hidden"] and objects[ID]["isChild"]):
+    #                 drawObject(ID)
+    #         except KeyError as e:
+    #             print("UI Warning: cannot render unknown object", e, "object flagged for deletion")
+    #             if not toDeleteObjects.__contains__(layer):
+    #                 toDeleteObjects[layer]=set()
+    #             toDeleteObjects[layer].add(ID)
+    
+    # for i in toDeleteObjects.items():
+    #     for ID in i[1]:
+    #         renderQueue[i[0]].remove(ID)
 
 
 ######## Automation ########

@@ -25,7 +25,7 @@ def menu():
     
     while True:
         evenement.compute()
-        render.clearCanvas("black")
+        #render.clearCanvas("black")
 
         ui.logic(evenement.event["tk"])
         delta = timer.update()
