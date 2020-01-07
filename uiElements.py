@@ -1,4 +1,5 @@
 from upemtk import rectangle, texte, efface, efface_tout
+from copy import deepcopy
 from renderElements import *
 
 EMPTY_LAYER_ABOVE_LIMIT=2
@@ -23,7 +24,7 @@ renderTable = {
 }
 
 def reset():
-    global objects, positions, renderQueue, focus, exclusiveLayer, evenement, EMPTY_LAYER_ABOVE_LIMIT, objectCount, tkElementsCount
+    global objects, positions, renderQueue, focus, exclusiveLayer, evenement, EMPTY_LAYER_ABOVE_LIMIT, objectCount
     EMPTY_LAYER_ABOVE_LIMIT=2
     objects.clear()
     #todelete=set()
@@ -48,7 +49,10 @@ def reset():
 
 def reDraw():
     global renderQueue, toRenderObjects
-    toRenderObjects=renderQueue
+    toRenderObjects[:]=renderQueue[:]
+    # for l in range(len(renderQueue)):
+    #     for ID in renderQueue[l]:
+    #         toRenderObjects[l].add(ID)
 
 
 ######## Objects ########
@@ -85,7 +89,7 @@ def addObject(x, y, layer, width, height, anchorx, anchory, ID=None, outlineColo
         [objects[ID]["ax"], objects[ID]["bx"]],
         [objects[ID]["ay"], objects[ID]["by"]]
     ]
-    print(toRenderObjects)
+    
     return ID
 
 def updateLayers(ID, layer):
@@ -95,7 +99,7 @@ def updateLayers(ID, layer):
         if layer-lastLayer>EMPTY_LAYER_ABOVE_LIMIT:
             print("UI Warning: layer", layer, "is more than", EMPTY_LAYER_ABOVE_LIMIT, "layer above the last layer", "("+lastLayer+"), defaulting to", lastLayer+1)
             layer=lastLayer+1
-        for i in range(layer-lastLayer):
+        for _ in range(layer-lastLayer):
             renderQueue.append(set())
     objects[ID]["layer"]=layer
     renderQueue[layer].add(ID)
@@ -104,10 +108,12 @@ def updateLayers(ID, layer):
 
 def updateObject(ID):
     global toRenderObjects
+    
     if len(renderQueue)>len(toRenderObjects):
-        for i in range(len(renderQueue)-len(toRenderObjects)):
+        for _ in range(len(renderQueue)-len(toRenderObjects)):
             toRenderObjects.append(set())
     toRenderObjects[objects[ID]["layer"]].add(ID)
+    
 
 
 def setObject(ID, parameters):
@@ -224,7 +230,7 @@ def remObject(ID):
         positions[objects[ID]["layer"]].pop(ID, None)
         renderQueue[objects[ID]["layer"]].remove(ID)
         for o in objects[ID]["tkObjects"]:
-            efface(t)
+            efface(o)
         objects.pop(ID, None)
     except KeyError as e:
         print("UI Warning: cannot remove unknown object", e)

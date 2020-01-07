@@ -104,23 +104,10 @@ def logic(ev):
 ######## Moteur de rendu ########
 
 def render(text=None, backgroundColor="black"):
-    #global renderQueue
     global toRenderObjects
     for r in renderRoutines.values():
         r[0](*r[1])
-    #toDeleteObjects=dict()
-    # print(toRenderObjects)
-    # efface("background")
-    # rectangle(
-    #     0,
-    #     0,
-    #     WIDTH_WINDOW,
-    #     HEIGHT_WINDOW,
-    #     backgroundColor,
-    #     backgroundColor,
-    #     1,
-    #     tag="background"
-    # )
+    
     for l in toRenderObjects:
         for ID in l:
             if objects[ID]["tkObjects"]:
@@ -131,21 +118,6 @@ def render(text=None, backgroundColor="black"):
     efface("fps")
     if text:
         texte(0, HEIGHT_WINDOW, str(text) + " fps", "white", ancrage="sw", tag="fps")
-    # for layer in range(0, len(renderQueue)):
-    #     for ID in renderQueue[layer]:
-    #         try:
-    #             if not (objects[ID]["hidden"] and objects[ID]["isChild"]):
-    #                 drawObject(ID)
-    #         except KeyError as e:
-    #             print("UI Warning: cannot render unknown object", e, "object flagged for deletion")
-    #             if not toDeleteObjects.__contains__(layer):
-    #                 toDeleteObjects[layer]=set()
-    #             toDeleteObjects[layer].add(ID)
-    
-    # for i in toDeleteObjects.items():
-    #     for ID in i[1]:
-    #         renderQueue[i[0]].remove(ID)
-
 
 ######## Automation ########
 
