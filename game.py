@@ -18,10 +18,25 @@ def initMenuUI():
     ui.addButton(3*render.WIDTH_WINDOW / 4, render.HEIGHT_WINDOW *1.8/3, width=render.WIDTH_WINDOW / 4, height=int(render.HEIGHT_WINDOW / 4), text="Editeur", textSize=28, textColor="white", outlineColor="white")
     ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW - 30, width=150, height=50 ,text="quitter", textSize=18, textColor="white", outlineColor="white", anchory="s", action=logic.quitter)
     ui.addButton(render.WIDTH_WINDOW - 85, render.HEIGHT_WINDOW - 10, text="settings", textSize=18, textColor="white", outlineColor="white", anchory="s")
+    ui.setBackground("black")
+    ui.addButton(render.WIDTH_WINDOW /2, render.HEIGHT_WINDOW /2, text="settings", textSize=18, textColor="white", outlineColor="white", anchory="s")
+    
 
 
 def menu():
     initMenuUI()
+    
+    
+    # rec = rectangle(
+    #     0,
+    #     0,
+    #     render.WIDTH_WINDOW/2,
+    #     render.HEIGHT_WINDOW/2,
+    #     "red",
+    #     "green",
+    #     1,
+    #     tag="test1"
+    # )
     
     while True:
         evenement.compute()

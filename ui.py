@@ -11,6 +11,15 @@ from uiElements import *
 # prompt_4
 
 
+def setBackground(color):
+    efface_tout()
+    rectangle(0, 0, WIDTH_WINDOW, HEIGHT_WINDOW, color, color, 1)
+    reDraw()
+
+
+def clear():
+    efface_tout()
+
 ######## Evenements ########
 
 def setUIEvenement(ev):
@@ -91,35 +100,37 @@ def logic(ev):
             elif key == "space":
                 objects[focus["ID"]]["text"] += " "
 
-######## Routines ########
-
-def addRenderRoutine(ID, action, arguments=[]):
-    global renderRoutines
-    renderRoutines[ID]=(action, arguments)
-
-def remRenderRoutine(ID):
-    global renderRoutines
-    try:
-        renderRoutines.pop(ID)
-    except KeyError as e:
-        print("UI Warning: cannot remove unknown routine", e)
 
 ######## Moteur de rendu ########
 
-def render(text):
+def render(text=None, backgroundColor="black"):
     #global renderQueue
     global toRenderObjects
     for r in renderRoutines.values():
         r[0](*r[1])
     #toDeleteObjects=dict()
-    print(toRenderObjects)
+    # print(toRenderObjects)
+    # efface("background")
+    # rectangle(
+    #     0,
+    #     0,
+    #     WIDTH_WINDOW,
+    #     HEIGHT_WINDOW,
+    #     backgroundColor,
+    #     backgroundColor,
+    #     1,
+    #     tag="background"
+    # )
     for l in toRenderObjects:
         for ID in l:
-            for t in objects[ID]["tags"]:
-                efface(t)
+            if objects[ID]["tkObjects"]:
+                for t in objects[ID]["tkObjects"]:
+                    efface(t)
             drawObject(ID)
         l.clear()
-    texte(0, HEIGHT_WINDOW, str(text) + " fps", "white", ancrage="sw")
+    efface("fps")
+    if text:
+        texte(0, HEIGHT_WINDOW, str(text) + " fps", "white", ancrage="sw", tag="fps")
     # for layer in range(0, len(renderQueue)):
     #     for ID in renderQueue[layer]:
     #         try:
@@ -194,3 +205,4 @@ def levelLose():
     affiche Défaite
     """
     texte(WIDTH_WINDOW / 4, HEIGHT_WINDOW / 2 - 12, "GAME OVER", "red")
+

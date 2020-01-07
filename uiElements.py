@@ -1,4 +1,4 @@
-from upemtk import rectangle, texte, efface
+from upemtk import rectangle, texte, efface, efface_tout
 from renderElements import *
 
 EMPTY_LAYER_ABOVE_LIMIT=2
@@ -13,7 +13,6 @@ focus = None
 exclusiveLayer = None
 evenement = None
 objectCount = 0
-tkElementsCount = 0
 
 renderTable = {
     "Button": ((lambda x: drawButton(x)), 2),
@@ -45,7 +44,11 @@ def reset():
     exclusiveLayer = None
     evenement = None
     objectCount = 0
-    tkElementsCount = 0
+
+
+def reDraw():
+    global renderQueue, toRenderObjects
+    toRenderObjects=renderQueue
 
 
 ######## Objects ########
@@ -55,11 +58,6 @@ def addObject(x, y, layer, width, height, anchorx, anchory, ID=None, outlineColo
     if ID is None:
         ID = "object" + str(objectCount)
     objectCount+=1
-    tags=[]
-    if otype:
-        for x in range(renderTable[otype][1]):
-            tags.append(ID+str(x))
-    tags=tuple(tags)
     objects[ID] = {
         "x": (x if anchorx == "c" else (x - width / 2 if anchorx == "r" else x + width / 2)),
         "y": (y if anchory == "c" else (y + height / 2 if anchory == "u" else y - height / 2)),
@@ -78,7 +76,7 @@ def addObject(x, y, layer, width, height, anchorx, anchory, ID=None, outlineColo
         "type": otype,
         "isChild": isChild,
         "permanent": permanent,
-        "tags": tags
+        "tkObjects": None
     }
     updateLayers(ID, layer)
     if not positions.__contains__(layer):
@@ -87,6 +85,7 @@ def addObject(x, y, layer, width, height, anchorx, anchory, ID=None, outlineColo
         [objects[ID]["ax"], objects[ID]["bx"]],
         [objects[ID]["ay"], objects[ID]["by"]]
     ]
+    print(toRenderObjects)
     return ID
 
 def updateLayers(ID, layer):
@@ -144,10 +143,12 @@ def setObject(ID, parameters):
     
 
 def drawObject(ID):
+    global renderTable
     try:
-        renderTable[objects[ID]["type"]][0](ID)
+        objects[ID]["tkObjects"] = renderTable[objects[ID]["type"]][0](ID)
     except KeyError:
-        print("UI Warning: Object with ID", ID, "could not be 'drawn': type", renderTable[objects[ID]["type"]], "is not registered in the render table.")
+        print("UI Warning: Object with ID", ID, "could not be 'drawn': type", objects[ID]["type"], "is not registered in the render table.")
+    
     # global tkElementsCount
     # otype = objects[ID]["type"]
     # if otype == "Button" or otype == "textField" or otype == "Text":
@@ -222,7 +223,7 @@ def remObject(ID):
                     remObject(o)
         positions[objects[ID]["layer"]].pop(ID, None)
         renderQueue[objects[ID]["layer"]].remove(ID)
-        for t in objects[ID]["tags"]:
+        for o in objects[ID]["tkObjects"]:
             efface(t)
         objects.pop(ID, None)
     except KeyError as e:
@@ -251,26 +252,27 @@ def addButton(x, y, action=nullAction, arguments=[], ID=None, width=150, height=
 
 
 def drawButton(ID):
-    rectangle(
-        objects[ID]["ax"],
-        objects[ID]["ay"],
-        objects[ID]["bx"],
-        objects[ID]["by"],
-        objects[ID]["outlineColor"],
-        objects[ID]["fill"],
-        objects[ID]["stroke"],
-        tag=objects[ID]["tags"][0]
+    return (
+        rectangle(
+            objects[ID]["ax"],
+            objects[ID]["ay"],
+            objects[ID]["bx"],
+            objects[ID]["by"],
+            objects[ID]["outlineColor"],
+            objects[ID]["fill"],
+            objects[ID]["stroke"]
+        ),
+        texte(
+            objects[ID]["x"],
+            objects[ID]["y"],
+            objects[ID]["text"],
+            objects[ID]["textColor"],
+            taille=objects[ID]["textSize"],
+            ancrage=objects[ID]["textAnchor"],
+            police=objects[ID]["textFont"]
+        )
     )
-    texte(
-        objects[ID]["x"],
-        objects[ID]["y"],
-        objects[ID]["text"],
-        objects[ID]["textColor"],
-        taille=objects[ID]["textSize"],
-        ancrage=objects[ID]["textAnchor"],
-        police=objects[ID]["textFont"],
-        tag=objects[ID]["tags"][1]
-    )
+    #return (el1, el2)
 
 
 ######## textFields ########
@@ -287,25 +289,25 @@ def addTextField(x, y, ID=None, width=150, height=30, anchorx="c", anchory="c", 
 
 
 def drawTextField(ID):
-    rectangle(
-        objects[ID]["ax"],
-        objects[ID]["ay"],
-        objects[ID]["bx"],
-        objects[ID]["by"],
-        objects[ID]["outlineColor"],
-        objects[ID]["fill"],
-        objects[ID]["stroke"],
-        tag=objects[ID]["tags"][0]
-    )
-    texte(
-        objects[ID]["ax"],
-        (objects[ID]["ay"] + (objects[ID]["by"] - objects[ID]["ay"]) / 2),
-        objects[ID]["text"][-(objects[ID]["height"]):],
-        objects[ID]["textColor"],
-        taille=objects[ID]["textSize"],
-        ancrage=objects[ID]["textAnchor"],
-        police=objects[ID]["textFont"],
-        tag=objects[ID]["tags"][1]
+    return (
+        rectangle(
+            objects[ID]["ax"],
+            objects[ID]["ay"],
+            objects[ID]["bx"],
+            objects[ID]["by"],
+            objects[ID]["outlineColor"],
+            objects[ID]["fill"],
+            objects[ID]["stroke"]
+        ),
+        texte(
+            objects[ID]["ax"],
+            (objects[ID]["ay"] + (objects[ID]["by"] - objects[ID]["ay"]) / 2),
+            objects[ID]["text"][-(objects[ID]["height"]):],
+            objects[ID]["textColor"],
+            taille=objects[ID]["textSize"],
+            ancrage=objects[ID]["textAnchor"],
+            police=objects[ID]["textFont"]
+        )
     )
 
 
@@ -322,15 +324,16 @@ def addText(x, y, ID=None, width=150, height=30, anchorx="c", anchory="c", textA
 
 
 def drawText(ID):
-    texte(
-        objects[ID]["x"],
-        objects[ID]["y"],
-        objects[ID]["text"],
-        objects[ID]["textColor"],
-        taille=objects[ID]["textSize"],
-        ancrage=objects[ID]["textAnchor"],
-        police=objects[ID]["textFont"],
-        tag=objects[ID]["tags"][0]
+    return tuple(
+        texte(
+            objects[ID]["x"],
+            objects[ID]["y"],
+            objects[ID]["text"],
+            objects[ID]["textColor"],
+            taille=objects[ID]["textSize"],
+            ancrage=objects[ID]["textAnchor"],
+            police=objects[ID]["textFont"]
+        )
     )
 
 
@@ -342,18 +345,20 @@ def addPanel(x, y, ID=None, width=100, height=100, anchorx="c", anchory="c", out
     objects[ID]["childs"] = childs
 
 def drawPanel(ID):
-    rectangle(
-        objects[ID]["ax"],
-        objects[ID]["ay"],
-        objects[ID]["bx"],
-        objects[ID]["by"],
-        objects[ID]["outlineColor"],
-        objects[ID]["fill"],
-        objects[ID]["stroke"],
-        tag=objects[ID]["tags"][0]
+    returnValue = tuple(
+        rectangle(
+            objects[ID]["ax"],
+            objects[ID]["ay"],
+            objects[ID]["bx"],
+            objects[ID]["by"],
+            objects[ID]["outlineColor"],
+            objects[ID]["fill"],
+            objects[ID]["stroke"]
+        )
     )
     for c in objects[ID]["childs"]: #Problem
         drawObject(c)
+    return returnValue
 
 ######## Canevas ########
 def addGameCanvas(x, y, ID=None, width=100, height=100, anchorx="c", anchory="c", outlineColor="red", fill="", stroke=1,
@@ -364,19 +369,20 @@ def addGameCanvas(x, y, ID=None, width=100, height=100, anchorx="c", anchory="c"
 
 
 def drawGameCanvas(ID):
-    rectangle(
-            objects[ID]["ax"],
-            objects[ID]["ay"],
-            objects[ID]["bx"],
-            objects[ID]["by"],
-            objects[ID]["outlineColor"],
-            objects[ID]["fill"],
-            objects[ID]["stroke"],
-            tag=objects[ID]["tags"][0]
-        )
-
+    identifierList=[
+        rectangle(
+                objects[ID]["ax"],
+                objects[ID]["ay"],
+                objects[ID]["bx"],
+                objects[ID]["by"],
+                objects[ID]["outlineColor"],
+                objects[ID]["fill"],
+                objects[ID]["stroke"]
+            )
+    ]
     for y in range(len(objects[ID]["squaresMap"])):
         for x in range(len(objects[ID]["squaresMap"][y])):
             x1 = x * CELL_SIZE + objects[ID]["ax"]
             y1 = y * CELL_SIZE + objects[ID]["ay"]
-            renderCase[objects[ID]["squaresMap"][y][x]]((x1, y1))
+            identifierList.extend(renderCase[objects[ID]["squaresMap"][y][x]]((x1, y1)))
+    return tuple(identifierList)
