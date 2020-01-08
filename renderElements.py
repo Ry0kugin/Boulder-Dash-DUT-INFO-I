@@ -9,19 +9,34 @@ HALF_SIZE = CELL_SIZE // 2
 WIDTH_WINDOW = 950
 HEIGHT_WINDOW = 500
 
+#  dictionnaire permettant d'appeler les fonctions de dessins
+#  à partir du code issu de la génération d'une carte
+renderCase = {
+    '.': (lambda x: drawVoid(x)),
+    'W': (lambda x: drawWall(x)),
+    'G': (lambda x: drawGrass(x)),
+    'B': (lambda x: drawBoulder(x)),
+    'D': (lambda x: drawDiamond(x)),
+    'E': (lambda x: drawEnd(x)),
+    'R': (lambda x: drawRockford(x)),
+    'O': (lambda x: drawEnd(x, True))
+}
+
 def drawVoid(coord):
     """
     dessine une case vide
 
     :param tuple coord: couple (abscisse, ordonnee) de la case
     """
-    rectangle(
-        coord[0],
-        coord[1],
-        coord[0] + CELL_SIZE,
-        coord[1] + CELL_SIZE,
-        '#000',
-        '#000'
+    return (
+        rectangle(
+            coord[0],
+            coord[1],
+            coord[0] + CELL_SIZE,
+            coord[1] + CELL_SIZE,
+            '#000',
+            '#000'
+        ),
     )
 
 
@@ -31,13 +46,15 @@ def drawWall(coord):
 
     :param tuple coord: couple (abscisse, ordonnee) de la case
     """
-    rectangle(
-        coord[0],
-        coord[1],
-        coord[0] + CELL_SIZE,
-        coord[1] + CELL_SIZE,
-        '#666',
-        '#666'
+    return (
+        rectangle(
+            coord[0],
+            coord[1],
+            coord[0] + CELL_SIZE,
+            coord[1] + CELL_SIZE,
+            '#666',
+            '#666'
+        ),
     )
 
 
@@ -47,13 +64,15 @@ def drawGrass(coord):
 
     :param tuple coord: couple (abscisse, ordonnee) de la case
     """
-    rectangle(
-        coord[0],
-        coord[1],
-        coord[0] + CELL_SIZE,
-        coord[1] + CELL_SIZE,
-        '#850',
-        '#850'
+    return (
+        rectangle(
+            coord[0],
+            coord[1],
+            coord[0] + CELL_SIZE,
+            coord[1] + CELL_SIZE,
+            '#850',
+            '#850'
+        ),
     )
 
 
@@ -63,14 +82,15 @@ def drawBoulder(coord):
 
     :param tuple coord: couple (abscisse, ordonnee) de la case
     """
-    drawVoid(coord)
-    cercle(
+    st=set(drawVoid(coord))
+    st.add(cercle(
         coord[0] + HALF_SIZE,
         coord[1] + HALF_SIZE,
         HALF_SIZE,
         '#888',
         '#aaa'
-    )
+    ))
+    return tuple(st)
 
 
 def drawDiamond(coord):
@@ -79,14 +99,15 @@ def drawDiamond(coord):
 
     :param tuple coord: couple (abscisse, ordonnee) de la case
     """
-    drawVoid(coord)
+    st=set(drawVoid(coord))
     points = [
         (coord[0] + HALF_SIZE, coord[1]),
         (coord[0], coord[1] + HALF_SIZE),
         (coord[0] + HALF_SIZE, coord[1] + CELL_SIZE),
         (coord[0] + CELL_SIZE, coord[1] + HALF_SIZE)
     ]
-    polygone(points, '#09f', '#0ff')
+    st.add(polygone(points, '#09f', '#0ff'))
+    return tuple(st)
 
 
 def drawEnd(coord, finished=False):
@@ -98,21 +119,21 @@ def drawEnd(coord, finished=False):
     :param tuple coord: couple (abscisse, ordonnee) de la case
     """
     colors = (("#0a0", "#0f0") if finished else ("#a00", "#f00"))
-    rectangle(
+    return (rectangle(
         coord[0],
         coord[1],
         coord[0] + CELL_SIZE,
         coord[1] + CELL_SIZE,
         colors[0],
         colors[0]
-    )
+    ),
     cercle(
         coord[0] + HALF_SIZE,
         coord[1] + HALF_SIZE,
         HALF_SIZE // 2,
         colors[1],
         colors[1]
-    )
+    ))
 
 
 def drawRockford(coord):
@@ -121,14 +142,14 @@ def drawRockford(coord):
 
     :param tuple coord: couple (abscisse, ordonnee) de la case
     """
-    drawVoid(coord)
-    cercle(
+    lst=list(drawVoid(coord))
+    lst.extend((cercle(
         coord[0] + HALF_SIZE,
         coord[1] + HALF_SIZE // 2,
         HALF_SIZE // 2,
         '#c80',
         '#f41'
-    )
+    ),
     rectangle(
         coord[0] + HALF_SIZE // 2,
         coord[1] + HALF_SIZE,
@@ -136,15 +157,5 @@ def drawRockford(coord):
         coord[1] + CELL_SIZE,
         '#c80',
         '#f41'
-    )
-
-renderCase = {
-    '.': (lambda x: drawVoid(x)),
-    'W': (lambda x: drawWall(x)),
-    'G': (lambda x: drawGrass(x)),
-    'B': (lambda x: drawBoulder(x)),
-    'D': (lambda x: drawDiamond(x)),
-    'E': (lambda x: drawEnd(x)),
-    'R': (lambda x: drawRockford(x)),
-    'O': (lambda x: drawEnd(x, True))
-}
+    )))
+    return tuple(lst)

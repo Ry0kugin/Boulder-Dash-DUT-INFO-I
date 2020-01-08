@@ -5,8 +5,9 @@ timerCount=0
 timers={}
 timestamp=time.time()
 factor=1
+#delta = 0
 
-def new(size, ID=None, paused=False):
+def new(size, ID=None, paused=False, permanent=False):
     global timers, timerCount
     if ID==None:
         ID="timer"+str(timerCount)
@@ -15,22 +16,20 @@ def new(size, ID=None, paused=False):
     "size":size,
     "progression":0.0,
     "paused":paused,
+    "permanent":permanent
 }
 
-def getDelta():
-    global timestamp
-    delta = time.time()-timestamp
-    timestamp = time.time()
-    return delta
 
 def update():
-    global timers
-    delta = getDelta()
+    global timers, timestamp
+    currentTime=time.time()
+    delta = currentTime-timestamp
+    timestamp = currentTime
     toDelete=set()
     for t in timers.keys():
         if timers[t]["progression"]<timers[t]["size"]:
             timers[t]["progression"]+= (0 if timers[t]["paused"] else delta*factor)
-        else:
+        elif not timers[t]["permanent"]:
             toDelete.add(t)
     for element in toDelete:
         timers.pop(element)
@@ -54,7 +53,7 @@ def pause(ID):
 def stop(ID): 
     global timers
     try:
-        finalTime = timers[t]["progression"]
+        finalTime = timers[ID]["progression"]
         timers.pop(ID)
         return finalTime
     except KeyError as e:
@@ -63,9 +62,22 @@ def stop(ID):
 def setTimer(ID, size):
     global timers
     try:
-        timers[ID]["progression"]+=size
+        timers[ID]["progression"]=timers[ID]["progression"]-size
     except KeyError as e:
         print("Timer warning: unknown timer ID:", e)
+
+def add(ID, progress):
+    global timers
+    try:
+        timers[ID]["progression"]+=progress
+    except KeyError as e:
+        print("Timer warning: unknown timer ID:", e)
+
+def isOver(ID):
+    return timers[ID]["progression"]>=timers[ID]["size"]
+
+def restore(ID):
+    timers[ID]["progression"] = 0.0
 
 def getTimer(ID, returnType=float, remain=False):
     try:
