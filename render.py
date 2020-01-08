@@ -38,8 +38,8 @@ def update(data, ID):
     :param dict data: map actuelle dans un dictionnaire à la clé "map"
     :param string ID: ID dans ui.objects de l'objet de type gameCanvas sur lequel afficher
     """
-
-    ui.objects[ID]["squaresMap"] = data["map"][1::]
+    ui.setObject(ID, {"squaresMap": data["map"][1::]}, forceUpdate=True)
+    #ui.objects[ID]["squaresMap"] = data["map"][1::]
 
     # ui.objects[ID]["squaresMap"]= [["." for x in range(CELL_NBX)] for y in range(CELL_NBY)]
     # for y in range(1, len(data["map"])):

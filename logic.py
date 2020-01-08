@@ -4,7 +4,7 @@ from random import *
 import ui
 import render
 import timer
-from game import getFps
+from game import getFps, updateStats
 
 import time
 
@@ -100,7 +100,7 @@ def findFallable(data):
     >>> findFallable([['150s', '1d'], ['B', 'R', 'G'], ['.', 'W', 'D']])
     [(0, 1), (2, 2)]
     """
-    data["fall"]["fallings"] = True
+    timer.new(0, "fallings", permanent=True)
     data["fall"]["fallables"] = []
     for i in range(1, len(data["map"])):
         for j in range(len(data["map"][i])):
@@ -241,7 +241,7 @@ def moveRockford(data, direction):
         setRockfordCell(data["map"], data["rockford"], aimCoord)
         data["fall"]["fallables"].remove({"pos": aimCoord, "falling": False})
         changeRockfordPos(data, aimCoord, True)
-        timer.setTimer("game", -10)
+        timer.add("game", -10)
         data["score"] += 100
         if data["diamonds"]["owned"]==int(data["map"][0][1]):
             data["end"]["open"] = True
@@ -278,7 +278,6 @@ def updatePhysic(data): # Retirer rockford
     for i, fa in enumerate(data["fall"]["fallables"]):
         faX = fa["pos"][0]
         faY = fa["pos"][1]
-        setC = False
         if fa["falling"] and data["map"][faY+1][faX] == "R":
             setCell(data["map"], (faX, faY+1), data["map"][faY][faX])
             setCell(data["map"], (faX, faY), ".")
@@ -302,7 +301,11 @@ def updatePhysic(data): # Retirer rockford
             nbFalling += 1
         else: 
             data["fall"]["fallables"][i]["falling"] = False
-    data["fall"]["fallings"] = (True if nbFalling>0 else False)
+    if nbFalling > 0:
+        timer.add("fallings", 0.5)     
+        data["fall"]["fallings"] = True
+    else:
+        data["fall"]["fallings"] = False
 
 
 
@@ -317,21 +320,26 @@ def status(data):
         GAME_STATUS = False
     if GAME_STATUS is not None:
         if GAME_STATUS:
-            for s in range(data["time"]["remain"]):
+            for _ in range(data["time"]["remain"]):
 
                 data["score"] += 10
                 data["time"]["remain"] -= 1 
                 
-                ui.updateStats(data["time"]["remain"], (data["diamonds"]["owned"], int(data["map"][0][1])), data["score"])
+                updateStats(data["time"]["remain"], (data["diamonds"]["owned"], int(data["map"][0][1])), data["score"])
                 ui.render(getFps())
                 mise_a_jour()
-            ui.levelWin()
-            attente_clic_ou_touche()
+            endGame(True)
             return True
         else:
-            ui.levelLose()
-            attente_clic_ou_touche()
+            endGame(False)
             quitter()
+
+def endGame(win):
+    ui.addText(WIDTH_WINDOW / 4, HEIGHT_WINDOW / 2 - 24, text=("VOUS AVEZ GAGNE :)" if win else "VOUS AVEZ PERDU :("), textColor=("green" if win else"red"), ID="endText")
+    ui.render(getFps())
+    attente_clic_ou_touche()
+    ui.remObject("endText")
+    ui.render(getFps())
 
 def updateGameStatus():
     global GAME_STATUS

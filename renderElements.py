@@ -28,14 +28,16 @@ def drawVoid(coord):
 
     :param tuple coord: couple (abscisse, ordonnee) de la case
     """
-    return tuple(rectangle(
-        coord[0],
-        coord[1],
-        coord[0] + CELL_SIZE,
-        coord[1] + CELL_SIZE,
-        '#000',
-        '#000'
-    ))
+    return (
+        rectangle(
+            coord[0],
+            coord[1],
+            coord[0] + CELL_SIZE,
+            coord[1] + CELL_SIZE,
+            '#000',
+            '#000'
+        ),
+    )
 
 
 def drawWall(coord):
@@ -44,14 +46,16 @@ def drawWall(coord):
 
     :param tuple coord: couple (abscisse, ordonnee) de la case
     """
-    return tuple(rectangle(
-        coord[0],
-        coord[1],
-        coord[0] + CELL_SIZE,
-        coord[1] + CELL_SIZE,
-        '#666',
-        '#666'
-    ))
+    return (
+        rectangle(
+            coord[0],
+            coord[1],
+            coord[0] + CELL_SIZE,
+            coord[1] + CELL_SIZE,
+            '#666',
+            '#666'
+        ),
+    )
 
 
 def drawGrass(coord):
@@ -60,14 +64,16 @@ def drawGrass(coord):
 
     :param tuple coord: couple (abscisse, ordonnee) de la case
     """
-    return tuple(rectangle(
-        coord[0],
-        coord[1],
-        coord[0] + CELL_SIZE,
-        coord[1] + CELL_SIZE,
-        '#850',
-        '#850'
-    ))
+    return (
+        rectangle(
+            coord[0],
+            coord[1],
+            coord[0] + CELL_SIZE,
+            coord[1] + CELL_SIZE,
+            '#850',
+            '#850'
+        ),
+    )
 
 
 def drawBoulder(coord):

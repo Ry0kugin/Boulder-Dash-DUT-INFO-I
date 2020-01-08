@@ -104,17 +104,18 @@ def logic(ev):
 ######## Moteur de rendu ########
 
 def render(text=None, backgroundColor="black"):
-    global toRenderObjects
     for r in renderRoutines.values():
         r[0](*r[1])
-    
-    for l in toRenderObjects:
+    buffer=getToRenderObjects()
+    for l in buffer:
         for ID in l:
             if objects[ID]["tkObjects"]:
                 for t in objects[ID]["tkObjects"]:
                     efface(t)
             drawObject(ID)
         l.clear()
+    
+    setToRenderObjects(buffer)
     efface("fps")
     if text:
         texte(0, HEIGHT_WINDOW, str(text) + " fps", "white", ancrage="sw", tag="fps")
@@ -141,14 +142,20 @@ def actionPrompt(action, arguments, check, anyway, anywayArguments):
 
 
 def checkPrompt(checker, checkerArguments):
-    global transaction
-    transaction = checker(*checkerArguments)
-    objects["prompt_2"]["outlineColor"] = ("Green" if transaction else "Red")
+    global transaction, focus
+    if checker:
+        transaction = checker(*checkerArguments)
+        objects["prompt_2"]["outlineColor"] = ("Green" if transaction else "Red")
+    if not focus:
+        focus = {"ID": "prompt", "type": "Panel"}
+    elif focus["ID"] not in ("prompt","prompt_2"):
+        focus = {"ID": "prompt", "type": "Panel"}
+    
 
 
 def newPrompt(message, buttonText, cancelable=True, checker=None, checkerArguments=[], cancel=None, cancelArguments=[],
               success=None, successArguments=[], anyway=None, anywayArguments=[]):
-    global condition, transaction, exclusiveLayer
+    global condition, transaction, exclusiveLayer, focus
     layer = len(renderQueue)
     childs = ["prompt_1", "prompt_2", "prompt_3"]
     addText(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 1.6 / 4, ID=childs[0], text=message, textAnchor="c", isChild=True, layer=layer)
@@ -163,18 +170,7 @@ def newPrompt(message, buttonText, cancelable=True, checker=None, checkerArgumen
     else:
         addRenderRoutine("promptRoutine", checkPrompt, [checker, checkerArguments])
     exclusiveLayer = layer
+    focus = {"ID": "prompt", "type": "Panel"}
 
 
-def levelWin():
-    """
-    affiche Victoire
-    """
-    texte(WIDTH_WINDOW / 4, HEIGHT_WINDOW / 2 - 24, "YOU WIN !", "green")
-
-
-def levelLose():
-    """
-    affiche Défaite
-    """
-    texte(WIDTH_WINDOW / 4, HEIGHT_WINDOW / 2 - 12, "GAME OVER", "red")
 

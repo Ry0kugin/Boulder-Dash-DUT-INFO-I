@@ -2,14 +2,20 @@ import IO
 import logic
 import render
 import ui
+import uiElements
 import evenement
 import timer
 import animation
 from random import randint
 from upemtk import *
 
+
 data = {}
 fps = 0
+
+
+def removeText():
+    ui.remObject("text01")
 
 
 def initMenuUI():
@@ -18,7 +24,13 @@ def initMenuUI():
     ui.addButton(render.WIDTH_WINDOW / 4, render.HEIGHT_WINDOW *1.8/3, width=render.WIDTH_WINDOW / 4, height=int(render.HEIGHT_WINDOW / 4), text="Score", textSize=28, textColor="white", outlineColor="white")
     ui.addButton(3*render.WIDTH_WINDOW / 4, render.HEIGHT_WINDOW *1.8/3, width=render.WIDTH_WINDOW / 4, height=int(render.HEIGHT_WINDOW / 4), text="Editeur", textSize=28, textColor="white", outlineColor="white")
     ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW - 30, width=150, height=50 ,text="quitter", textSize=18, textColor="white", outlineColor="white", anchory="s", action=logic.quitter)
-    ui.addButton(render.WIDTH_WINDOW - 85, render.HEIGHT_WINDOW - 10, text="settings", textSize=18, textColor="white", outlineColor="white", anchory="s")
+    ui.addButton(render.WIDTH_WINDOW - 85, render.HEIGHT_WINDOW - 10, text="settings", textSize=18, textColor="white", outlineColor="white", anchory="s", action=removeText)
+    ui.addText(render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/2, text="YOLO", textColor="green", ID="text01")
+    #print(ui.toRenderObjects)
+    #ui.renderQueue[0].remove("text01")
+    #ui.remObject("text01")
+    # print(ui.renderQueue[0])
+    # print(ui.objects["text01"]["layer"])
     
 
 
@@ -36,18 +48,25 @@ def menu():
     #     1,
     #     tag="test1"
     # )
-    
+    # print(ui.renderQueue)
+    # quit()
     while True:
+        # print("in loop", ui.renderQueue)
         evenement.compute()
-        #render.clearCanvas("black")
-
+        # render.clearCanvas("black")
         ui.logic(evenement.event["tk"])
         delta = timer.update()
         computeFps(delta)
         animation.update() # /!\ render.updateAnimations before ui.render
+        # print("before obj", uiElements.toRenderObjects)
+        # print("before rnd", uiElements.renderQueue)
         ui.render(getFps())
+        #print("outlook", ui.renderQueue)
+        # print("after obj", uiElements.toRenderObjects)
+        # print("after rnd", uiElements.renderQueue)
+        # print("after", uiElements.toRenderObjects)
         mise_a_jour()
-        
+
 
 def initGameUI():
     RightXPos = render.WIDTH_WINDOW * 2 / 2.2
@@ -66,8 +85,8 @@ def initGameUI():
 
 def play():
     global data
-    efface_tout()
     ui.reset()
+    ui.setBackground("black")
     initGameUI()
     initData()
     IO.loadLevel(data)
@@ -75,7 +94,6 @@ def play():
     render.update(data, "gameCanvas")
 
     while True:
-        render.clearCanvas("black")
         evenement.compute()
         ui.logic(evenement.event["tk"])
         direction = (0, 0)
@@ -88,17 +106,22 @@ def play():
                 IO.loadLevel(data)
                 start(data)
                 render.update(data, "gameCanvas")
+                ui.render()
+                
 
                 ui.evenement = None
                 continue
 
             if evenement.event["game"] == "move":
                 logic.moveRockford(data, direction)
-                logic.updatePhysic(data)
+                data["fall"]["fallings"] = True
                 render.update(data, "gameCanvas")
-
-            if data["fall"]["fallings"]:
+                
+            print("before after before", timer.getTimer("fallings"))
+            if data["fall"]["fallings"] and timer.getTimer("fallings") <= 0.0:
+                print("before", timer.getTimer("fallings"))
                 logic.updatePhysic(data)
+                print("after", timer.getTimer("fallings"))
                 render.update(data, "gameCanvas")
 
             if evenement.event["game"] == "save":
@@ -122,17 +145,16 @@ def play():
         #     continue
 
         updateStats(data["time"]["remain"], (data["diamonds"]["owned"], int(data["map"][0][1])), data["score"])
-        delta = timer.update()
-        computeFps(delta)
-        #print(ui)
-        mise_a_jour()
+        computeFps(timer.update())
         data["time"]["remain"] = timer.getTimer("game", int, remain=True)
         #print(timer.timers["game"]["progression"])
         if logic.status(data):
             logic.updateGameStatus()
             IO.loadLevel(data)
             start(data, keepScore=True)
+            render.update(data, "gameCanvas")
         ui.render(getFps())
+        mise_a_jour()
     ui.reset()
     initMenuUI()
 

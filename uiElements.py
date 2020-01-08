@@ -16,11 +16,11 @@ evenement = None
 objectCount = 0
 
 renderTable = {
-    "Button": ((lambda x: drawButton(x)), 2),
-    "textField": ((lambda x: drawTextField(x)), 2),
-    "Text": ((lambda x: drawText(x)), 1),
-    "Panel": ((lambda x: drawPanel(x)), 1),
-    "gameCanvas": ((lambda x: drawGameCanvas(x)), 1)
+    "Button": (lambda x: drawButton(x)),
+    "textField": (lambda x: drawTextField(x)),
+    "Text": (lambda x: drawText(x)),
+    "Panel": (lambda x: drawPanel(x)),
+    "gameCanvas": (lambda x: drawGameCanvas(x))
 }
 
 def reset():
@@ -49,7 +49,9 @@ def reset():
 
 def reDraw():
     global renderQueue, toRenderObjects
-    toRenderObjects[:]=renderQueue[:]
+    toRenderObjects=deepcopy(renderQueue)
+
+
     # for l in range(len(renderQueue)):
     #     for ID in renderQueue[l]:
     #         toRenderObjects[l].add(ID)
@@ -89,7 +91,6 @@ def addObject(x, y, layer, width, height, anchorx, anchory, ID=None, outlineColo
         [objects[ID]["ax"], objects[ID]["bx"]],
         [objects[ID]["ay"], objects[ID]["by"]]
     ]
-    
     return ID
 
 def updateLayers(ID, layer):
@@ -108,7 +109,6 @@ def updateLayers(ID, layer):
 
 def updateObject(ID):
     global toRenderObjects
-    
     if len(renderQueue)>len(toRenderObjects):
         for _ in range(len(renderQueue)-len(toRenderObjects)):
             toRenderObjects.append(set())
@@ -116,7 +116,7 @@ def updateObject(ID):
     
 
 
-def setObject(ID, parameters):
+def setObject(ID, parameters, forceUpdate=False):
     """
     Modifie un ou plusieurs paramètres d'un objet.
     :param str ID: ID de l'objet
@@ -126,8 +126,8 @@ def setObject(ID, parameters):
     assert type(parameters) == dict
     global objects, toRenderObjects
     modified=False
-    for p in parameters:
-        if objects[ID][p] != parameters[p]:
+    for p in parameters.keys():
+        if objects[ID][p] != parameters[p] or forceUpdate:
             modified=True
             objects[ID][p] = parameters[p]
             if p == "x" or p == "width":
@@ -151,7 +151,7 @@ def setObject(ID, parameters):
 def drawObject(ID):
     global renderTable
     try:
-        objects[ID]["tkObjects"] = renderTable[objects[ID]["type"]][0](ID)
+        objects[ID]["tkObjects"] = tuple(renderTable[objects[ID]["type"]](ID))
     except KeyError:
         print("UI Warning: Object with ID", ID, "could not be 'drawn': type", objects[ID]["type"], "is not registered in the render table.")
     
@@ -222,15 +222,18 @@ def exists(ID):
 
 
 def remObject(ID):
+    global positions, renderQueue, objects
     try:
         if objects[ID]["type"] == "Panel":
             if objects[ID]["childs"]:
                 for o in objects[ID]["childs"]:
                     remObject(o)
         positions[objects[ID]["layer"]].pop(ID, None)
+        # print(renderQueue)
         renderQueue[objects[ID]["layer"]].remove(ID)
-        for o in objects[ID]["tkObjects"]:
-            efface(o)
+        if objects[ID]["tkObjects"]:
+            for o in objects[ID]["tkObjects"]:
+                efface(o)
         objects.pop(ID, None)
     except KeyError as e:
         print("UI Warning: cannot remove unknown object", e)
@@ -319,27 +322,29 @@ def drawTextField(ID):
 
 ######## Texts ########
 def addText(x, y, ID=None, width=150, height=30, anchorx="c", anchory="c", textAnchor="w", text="", textColor="black",
-            textSize=18, textFont="Monospace", hidden=False, layer=0, isChild=False, permanent=False):
+            textSize=18, textFont="Purisa", hidden=False, layer=0, isChild=False, permanent=False):
     global objects
-    ID = addObject(x, y, layer, width, height, anchorx, anchory, hidden, ID,isChild, otype="Text", permanent=permanent)
+    ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, hidden=hidden, isChild=isChild, otype="Text", permanent=permanent)
     objects[ID]["text"] = text
     objects[ID]["textAnchor"] = textAnchor
     objects[ID]["textColor"] = textColor
     objects[ID]["textSize"] = textSize
     objects[ID]["textFont"] = textFont
+    
 
 
 def drawText(ID):
-    return tuple(
+    #fuckyou=objects[ID]["textFont"]
+    return (
         texte(
             objects[ID]["x"],
             objects[ID]["y"],
             objects[ID]["text"],
             objects[ID]["textColor"],
-            taille=objects[ID]["textSize"],
-            ancrage=objects[ID]["textAnchor"],
-            police=objects[ID]["textFont"]
-        )
+            objects[ID]["textAnchor"],
+            objects[ID]["textFont"],
+            objects[ID]["textSize"]
+        ),
     )
 
 
@@ -351,7 +356,7 @@ def addPanel(x, y, ID=None, width=100, height=100, anchorx="c", anchory="c", out
     objects[ID]["childs"] = childs
 
 def drawPanel(ID):
-    returnValue = tuple(
+    returnValue = (
         rectangle(
             objects[ID]["ax"],
             objects[ID]["ay"],
@@ -360,7 +365,7 @@ def drawPanel(ID):
             objects[ID]["outlineColor"],
             objects[ID]["fill"],
             objects[ID]["stroke"]
-        )
+        ),
     )
     for c in objects[ID]["childs"]: #Problem
         drawObject(c)
@@ -392,3 +397,10 @@ def drawGameCanvas(ID):
             y1 = y * CELL_SIZE + objects[ID]["ay"]
             identifierList.extend(renderCase[objects[ID]["squaresMap"][y][x]]((x1, y1)))
     return tuple(identifierList)
+
+def getToRenderObjects():
+    return toRenderObjects
+
+def setToRenderObjects(value):
+    global toRenderObjects
+    toRenderObjects=value

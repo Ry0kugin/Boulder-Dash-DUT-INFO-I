@@ -1,0 +1,46 @@
+
+*** These modified files were found in JOE when it aborted on Wed Jan  8 12:40:26 2020
+*** JOE was aborted because the terminal closed
+
+*** Fichier '/home/3in1/mcloet/workspace/Boulder-Dash-DUT-INFO-I/.git/COMMIT_EDITMSG'
+yalah
+# Veuillez
+
+$cc$c  saisir le message de validation pour vos modifications. Les lignes
+# commençant par '#' seront ignorées, et un message vide abandonne la validation.
+# Sur la branche master
+# Votre branche est à jour avec 'origin/master'.
+#
+# Modifications qui seront validées :
+#	modifié :         .vscode/settings.json
+#	modifié :         __pycache__/game.cpython-35.pyc
+#	modifié :         __pycache__/logic.cpython-35.pyc
+#	modifié :         __pycache__/render.cpython-35.pyc
+#	modifié :         __pycache__/renderElements.cpython-35.pyc
+#	modifié :         __pycache__/timer.cpython-35.pyc
+#	modifié :         __pycache__/ui.cpython-35.pyc
+#	modifié :         __pycache__/uiElements.cpython-35.pyc
+#	modifié :         game.py
+#	modifié :         logic.py
+#	modifié :         render.py
+#	modifié :         renderElements.py
+#	nouveau fichier : saves/fguiezizeif
+#	modifié :         timer.py
+#	nouveau fichier : todo
+#	modifié :         ui.py
+#	modifié :         uiElements.py
+#
+
+*** Fichier '(Sans nom)'
+:x
+
+*** Fichier '(Sans nom)'
+/home/3in1/mcloet/workspace/Boulder-Dash-DUT-INFO-I/.git/COMMIT_EDITMSG
+/home/3in1/mcloet/.gitconfig
+* Build Log *
+/home/3in1/mcloet/.gitconfig
+/home/3in1/mcloet/workspace/Boulder-Dash-DUT-INFO-I/.git/COMMIT_EDITMSG
+
+*** Fichier '* Startup Log *'
+Traitement de '/etc/joe/editorrc'...Traitement de '/etc/joe/ftyperc'...Finished processing /etc/joe/ftyperc
+Finished processing /etc/joe/editorrc
