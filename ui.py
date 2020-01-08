@@ -136,10 +136,10 @@ def updateStats(remainTime, diamonds, score):
     # Time left#
     texte(0, 0, "Time left: " + str(remainTime), ("green" if remainTime > 10 else "red"), ancrage="nw")
     # Diamonds#
-    texte(WIDTH_WINDOW / 4.2, 0, "Diamonds: " + str(diamonds[0]) + "/" + str(diamonds[1]),
+    texte(WIDTH_WINDOW / 3.6, 0, "Diamonds: " + str(diamonds[0]) + "/" + str(diamonds[1]),
           ("red" if diamonds[0] < diamonds[1] else "green"))
     # Score#
-    texte(WIDTH_WINDOW / 2, 0, "score: " + str(score), "yellow" )
+    texte(WIDTH_WINDOW / 1.7, 0, "score: " + str(score), "yellow" )
 
 def render(text):
     global renderQueue
