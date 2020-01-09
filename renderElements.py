@@ -17,6 +17,7 @@ renderCase = {
     'G': (lambda x: drawGrass(x)),
     'B': (lambda x: drawBoulder(x)),
     'D': (lambda x: drawDiamond(x)),
+    'X': (lambda x: drawRarestOrd(x)),
     'E': (lambda x: drawEnd(x)),
     'R': (lambda x: drawRockford(x)),
     'O': (lambda x: drawEnd(x, True))
@@ -109,6 +110,30 @@ def drawDiamond(coord):
     st.add(polygone(points, '#09f', '#0ff'))
     return tuple(st)
 
+def drawRarestOrd(coord):
+    st=set(drawVoid(coord))
+    pointsOut = [
+        (coord[0] + HALF_SIZE, coord[1]), # up
+        (coord[0], coord[1] + HALF_SIZE), # left
+        (coord[0] + HALF_SIZE, coord[1] + CELL_SIZE), # bottom
+        (coord[0] + CELL_SIZE, coord[1] + HALF_SIZE) #right
+    ]
+    pointsIn = [
+        (coord[0] + HALF_SIZE, coord[1] + HALF_SIZE/3),
+        (coord[0] + HALF_SIZE/3, coord[1] + HALF_SIZE),
+        (coord[0] + HALF_SIZE, coord[1] + CELL_SIZE - HALF_SIZE/3),
+        (coord[0] + CELL_SIZE - HALF_SIZE/3, coord[1] + HALF_SIZE)
+    ]
+    pointsCore = [
+        (coord[0] + HALF_SIZE, coord[1] + HALF_SIZE/1.5),
+        (coord[0] + HALF_SIZE/1.5, coord[1] + HALF_SIZE),
+        (coord[0] + HALF_SIZE, coord[1] + CELL_SIZE - HALF_SIZE/1.5),
+        (coord[0] + CELL_SIZE - HALF_SIZE/1.5, coord[1] + HALF_SIZE)
+    ]
+    st.add(polygone(pointsOut, '#090', '#0f0'))
+    st.add(polygone(pointsIn, '#990', '#ff0'))
+    st.add(polygone(pointsCore, '#900', '#f00'))
+    return tuple(st)
 
 def drawEnd(coord, finished=False):
     """

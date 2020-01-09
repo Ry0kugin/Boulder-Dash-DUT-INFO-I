@@ -196,15 +196,22 @@ def editor():
 
 def updateCursor():
     ev=evenement.getTkEvent()
-    if type_evenement(ev)=="Deplacement":
+    if type_evenement(ev)=="ClicGauche":
         pos=[clic_x(ev), clic_y(ev)]
+        print(pos)
         if ui.objects["gameCanvas"]["ax"] < pos[0] < ui.objects["gameCanvas"]["bx"] and ui.objects["gameCanvas"]["ay"] < pos[1] < ui.objects["gameCanvas"]["by"]:
-            pos[0]=pos[0]-ui.objects["gameCanvas"]["ax"]
-            pos[1]=pos[1]-ui.objects["gameCanvas"]["ay"]
+            # pos[0]=pos[0]-ui.objects["gameCanvas"]["ax"]
+            # pos[1]=pos[1]-ui.objects["gameCanvas"]["ay"]
+            x=int((pos[0]-ui.objects["gameCanvas"]["ax"])/render.CELL_SIZE)
+            y=int((pos[1]-ui.objects["gameCanvas"]["ay"])/render.CELL_SIZE)
             currentMap=ui.objects["gameCanvas"]["squaresMap"]
-            currentMap[int(ui.objects["gameCanvas"]["height"]/len(ui.objects["gameCanvas"]["squaresMap"]))+1][int(ui.objects["gameCanvas"]["width"]/len(ui.objects["gameCanvas"]["squaresMap"][0]))+1]='W'
+            print("cellSize - ", render.CELL_SIZE)
+            print("pos 1 - ", x)
+            print("pos 2 - ", y)
+            # currentMap[int(ui.objects["gameCanvas"]["height"]/len(ui.objects["gameCanvas"]["squaresMap"]))+1][int(ui.objects["gameCanvas"]["width"]/len(ui.objects["gameCanvas"]["squaresMap"][0]))+1]='W'
+            currentMap[y][x] = 'D'
             ui.setObject("gameCanvas", {"squaresMap":currentMap})
-                
+            render.update(currentMap ,"gameCanvas", True)   
             
     pass
 
@@ -312,7 +319,7 @@ def play():
 
         logic.updatePhysic(data)
         if data["fall"]["fallings"]:
-            render.update(data, "gameCanvas")
+            render.update(data["map"], "gameCanvas")
         updateStats(data["time"]["remain"], (data["diamonds"]["owned"], int(data["map"][0][1])), data["score"])
         updateTime()
         data["time"]["remain"] = timer.getTimer("game", int, remain=True)
@@ -321,7 +328,7 @@ def play():
             logic.updateGameStatus()
             IO.loadLevel(data)
             start(data, keepScore=True)
-            render.update(data, "gameCanvas")
+            render.update(data["map"], "gameCanvas")
         ui.render(getFps())
         mise_a_jour()
     ui.reset()

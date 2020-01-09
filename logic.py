@@ -105,7 +105,7 @@ def findFallable(data):
     data["fall"]["fallables"] = []
     for i in range(1, len(data["map"])):
         for j in range(len(data["map"][i])):
-            if data["map"][i][j] == "B" or data["map"][i][j] == "D":
+            if data["map"][i][j] == "B" or data["map"][i][j] == "D" or data["map"][i][j] == "X":
                 data["fall"]["fallables"].append({"pos": (j,i), "falling": False})
 
 
@@ -238,12 +238,16 @@ def moveRockford(data, direction):
                 updateFallable(data, aimCoord, behindBoulder)
                 changeRockfordPos(data, aimCoord)
 
-    elif aimCell == "D":
+    elif aimCell == "D" or aimCell == "X":
         setRockfordCell(data["map"], data["rockford"], aimCoord)
         data["fall"]["fallables"].remove({"pos": aimCoord, "falling": False})
         changeRockfordPos(data, aimCoord, True)
-        timer.add("game", -10)
-        data["score"] += 100
+        if aimCell =="D":
+            timer.add("game", -10)
+            data["score"] += 100
+        else:
+            timer.add("game", -1000)
+            data["score"] += 10000
         if data["diamonds"]["owned"]==int(data["map"][0][1]):
             data["end"]["open"] = True
             enddoor = "O"

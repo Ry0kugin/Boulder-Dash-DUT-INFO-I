@@ -31,14 +31,14 @@ def clearCanvas(color="black", img=None):
         ) 
 
 
-def update(cmap, ID):
+def update(cmap, ID, cutted=False):
     """
     affiche l'ensemble des case de la carte dans data sur le gameCanvas spécifié.
 
     :param dict data: map actuelle dans un dictionnaire à la clé "map"
     :param string ID: ID dans ui.objects de l'objet de type gameCanvas sur lequel afficher
     """
-    ui.setObject(ID, {"squaresMap": cmap[1::]}, forceUpdate=True)
+    ui.setObject(ID, {"squaresMap": cmap[0::] if cutted else cmap[1::] }, forceUpdate=True)
     #ui.objects[ID]["squaresMap"] = data["map"][1::]
 
     # ui.objects[ID]["squaresMap"]= [["." for x in range(CELL_NBX)] for y in range(CELL_NBY)]

@@ -48,6 +48,7 @@ def randomLevel(data):
     nbDiamonds = randint(1, (width + height) // 3)
     nbBoulder = randint(1, (width + height) // 4)
     nbVoid = randint(1, (width + height) // 6)
+    rarestOre = randint(0, 100) 
     totalTime = randint(30, 150)
 
     level = [[totalTime, nbDiamonds], ["W" for i in range(width)]]
@@ -60,7 +61,7 @@ def randomLevel(data):
 
     positions = [(i, j) for i in range(1, width - 1) for j in range(1, height - 1)]
     shuffle(positions)
-    for i in range(2 + nbDiamonds + nbBoulder + nbVoid):
+    for i in range(2 + nbDiamonds + nbBoulder + nbVoid + (1 if rarestOre < 1 else 0)):
         x, y = positions[i][0], positions[i][1]
         if i == 0:
             level[y + 1][x] = "R"
@@ -77,6 +78,9 @@ def randomLevel(data):
         elif i < 2 + nbDiamonds + nbBoulder + nbVoid:
             level[y + 1][x] = "."
             data["map"][y + 1][x] = "."
+        elif rarestOre < 1:
+            level[y + 1][x] = "X"
+            data["map"][y + 1][x] = "X"
     return level
 
 
