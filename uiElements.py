@@ -134,6 +134,8 @@ def setObject(ID, parameters, forceUpdate=False):
             objects[ID][p] = parameters[p]
             if p == "x" or p == "width":
                 width = objects[ID]["width"]
+                print(width)
+                print(parameters[p])
                 x = objects[ID]["x"]
                 anchorx = objects[ID]["anchorx"]
                 objects[ID]["ax"] = (x - width / 2 if anchorx == "c" else (x - width if anchorx == "r" else x))
@@ -391,13 +393,13 @@ def addGameCanvas(x, y, ID=None, width=100, height=100, anchorx="c", anchory="c"
 def drawGameCanvas(ID):
     if len(objects[ID]["squaresMap"]):
         if len(objects[ID]["squaresMap"][0])*CELL_SIZE < objects[ID]["width"]:
-            width = len(objects[ID]["squaresMap"][0])*CELL_SIZE
-            setObject(ID, {"width": width})
-            print("changed")
+            setObject(ID, {"width": len(objects[ID]["squaresMap"][0])*CELL_SIZE})
         if (len(objects[ID]["squaresMap"])-1)*CELL_SIZE < objects[ID]["height"]:
-            height = (len(objects[ID]["squaresMap"])-1)*CELL_SIZE
-            setObject(ID, {"height": height})
-            print("changed")
+            setObject(ID, {"height": (len(objects[ID]["squaresMap"])-1)*CELL_SIZE})
+        if len(objects[ID]["squaresMap"][0])*CELL_SIZE > objects[ID]["width"]:
+            setObject(ID, {"width": len(objects[ID]["squaresMap"][0])*CELL_SIZE})
+        if (len(objects[ID]["squaresMap"])-1)*CELL_SIZE > objects[ID]["height"]:
+            setObject(ID, {"height": (len(objects[ID]["squaresMap"])-1)*CELL_SIZE})
 
     # if len(objects[ID]["squaresMap"]):
     #     if len(objects[ID]["squaresMap"][0])*CELL_SIZE < objects[ID]["width"]:
