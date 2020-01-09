@@ -1,4 +1,4 @@
-from upemtk import rectangle, texte, efface, efface_tout
+from upemtk import rectangle, texte, efface, efface_tout, polygone
 from copy import deepcopy
 from renderElements import *
 
@@ -245,11 +245,11 @@ def nullAction():
 
 
 def addButton(x, y, action=nullAction, arguments=[], ID=None, width=150, height=50, anchorx="c", anchory="c",
-              textAnchor="c", text="", outlineColor="black", textColor="black", textSize=None, textFont="Monospace",
-              fill="", stroke=1, hidden=False, layer=0, isChild=False, permanent=False):
+              textAnchor="c", text="", outlineColor="black", textColor="black", textSize=18, textFont="Monospace",
+              fill="", stroke=1, polygonal=None, hidden=False, layer=0, isChild=False, permanent=False):
     global objects
-    if textSize is None:
-        textSize = int(width / len(text))
+    # if textSize is None and text:
+    #     textSize = int(width / len(text))
     ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, outlineColor, fill, stroke, hidden, isChild, otype="Button", permanent=permanent)
     objects[ID]["text"] = text
     objects[ID]["textAnchor"] = textAnchor
@@ -258,10 +258,17 @@ def addButton(x, y, action=nullAction, arguments=[], ID=None, width=150, height=
     objects[ID]["action"] = action
     objects[ID]["args"] = arguments
     objects[ID]["textFont"] = textFont
-
+    objects[ID]["polygonal"] = polygonal
+    # [(x,y),(x,y),...]
 
 def drawButton(ID):
     return (
+        polygone(
+            [(objects[ID]["ax"]+x*objects[ID]["width"],objects[ID]["ay"]+y*objects[ID]["height"]) for x,y in objects[ID]["polygonal"]],
+            objects[ID]["outlineColor"],
+            objects[ID]["fill"],
+            objects[ID]["stroke"]
+        ) if objects[ID]["polygonal"] else
         rectangle(
             objects[ID]["ax"],
             objects[ID]["ay"],
@@ -276,14 +283,12 @@ def drawButton(ID):
             objects[ID]["y"],
             objects[ID]["text"],
             objects[ID]["textColor"],
-            taille=objects[ID]["textSize"],
-            ancrage=objects[ID]["textAnchor"],
-            police=objects[ID]["textFont"]
+            objects[ID]["textAnchor"],
+            objects[ID]["textFont"],
+            objects[ID]["textSize"]
         )
     )
-    #return (el1, el2)
-
-
+    
 ######## textFields ########
 def addTextField(x, y, ID=None, width=150, height=30, anchorx="c", anchory="c", textAnchor="w", text="",
                  outlineColor="black", textColor="black", textSize=18, fill="", textFont="Monospace", stroke=1,
@@ -371,8 +376,8 @@ def drawPanel(ID):
         drawObject(c)
     return returnValue
 
-######## Canevas ########
-def addGameCanvas(x, y, ID=None, width=100, height=100, anchorx="c", anchory="c", outlineColor="red", fill="", stroke=1,
+######## Canvas ########
+def addGameCanvas(x, y, ID=None, width=100, height=100, anchorx="c", anchory="c", outlineColor="", fill="", stroke=1,
              squaresMap=[], hidden=False, layer=0, isChild=False):
     global objects
     ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, outlineColor, fill, stroke, hidden, isChild, otype="gameCanvas")

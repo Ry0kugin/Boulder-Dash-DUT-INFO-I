@@ -94,11 +94,14 @@ def logic(ev):
         if focus["type"] == "textField":
             key=touche(ev)
             if len(key) == 1 and key.isalnum():
-                objects[focus["ID"]]["text"] += key
+                setObject(focus["ID"], {"text":objects[focus["ID"]]["text"]+key})
+                #objects[focus["ID"]]["text"] += key
             elif key == "BackSpace":
-                objects[focus["ID"]]["text"] = objects[focus["ID"]]["text"][:-1]
+                setObject(focus["ID"], {"text":objects[focus["ID"]]["text"][:-1]})
+                #objects[focus["ID"]]["text"] = objects[focus["ID"]]["text"][:-1]
             elif key == "space":
-                objects[focus["ID"]]["text"] += " "
+                setObject(focus["ID"], {"text":objects[focus["ID"]]["text"]+" "})
+                # objects[focus["ID"]]["text"] += " "
 
 
 def updateStats(remainTime, diamonds, score):

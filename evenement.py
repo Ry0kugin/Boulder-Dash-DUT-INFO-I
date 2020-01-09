@@ -33,6 +33,8 @@ def SetGameEventFromTkEvent(ev):
             event["game"]="save"
         elif t=="l":
             event["game"]="load"
+        elif t=="Escape":
+            event["game"]="return"
         else:
             event["game"]=None
     else: 
@@ -40,3 +42,6 @@ def SetGameEventFromTkEvent(ev):
 
 def setGameEvent(ge):
     event["game"] = ge
+
+def resetGameEvent():
+    event["game"] = None

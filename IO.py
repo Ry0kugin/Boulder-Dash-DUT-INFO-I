@@ -40,10 +40,10 @@ def loadLevel(data, level=None, fromData=False):
 
 def randomLevel(data):
     width = randint(6, 14)
-    height = randint(4, 8)
+    height = randint(6, 8)
     nbDiamonds = randint(1, (width + height) // 3)
     nbBoulder = randint(1, (width + height) // 4)
-    nbVoid = randint(1, (width + height) // 8)
+    nbVoid = randint(1, (width + height) // 6)
     totalTime = randint(30, 150)
 
     level = [[totalTime, nbDiamonds], ["W" for i in range(width)]]

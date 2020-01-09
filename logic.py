@@ -100,7 +100,8 @@ def findFallable(data):
     >>> findFallable([['150s', '1d'], ['B', 'R', 'G'], ['.', 'W', 'D']])
     [(0, 1), (2, 2)]
     """
-    timer.new(0.2, "fallings", permanent=True)
+    timer.new(0.1, "fallings", permanent=True)
+    data["fall"]["fallings"] = True
     data["fall"]["fallables"] = []
     for i in range(1, len(data["map"])):
         for j in range(len(data["map"][i])):
@@ -200,7 +201,7 @@ def moveRockford(data, direction):
     [(2, 1), 0]
 
     >>> moveRockford([(1, 1), 0], (1,1), \
-        [['150s', '1d'],['B', 'R', 'G'], ['.', 'E', 'D']], [(0, 1), (2, 2)])
+        [['150s', '1d'],['Brender.update(data, "gameCanvas") ', 'R', 'G'], ['.', 'E', 'D']], [(0, 1), (2, 2)])
     [(2, 2), 1]
 
     >>> moveRockford([(1, 1), 0], (0,1), \
@@ -274,40 +275,41 @@ def updatePhysic(data): # Retirer rockford
     (True, 'lose')
     """
     global GAME_STATUS
-    nbFalling = 0
-    for i, fa in enumerate(data["fall"]["fallables"]):
-        faX = fa["pos"][0]
-        faY = fa["pos"][1]
-        if fa["falling"] and data["map"][faY+1][faX] == "R":
-            setCell(data["map"], (faX, faY+1), data["map"][faY][faX])
-            setCell(data["map"], (faX, faY), ".")
-            GAME_STATUS = False
-        if data["map"][faY+1][faX] == ".":
-            setCell(data["map"], (faX, faY+1), data["map"][faY][faX])
-            setCell(data["map"], (faX, faY), ".")
-            data["fall"]["fallables"][i] = {"pos": (faX, faY+1), "falling": True}
-            nbFalling += 1 
+    if data["fall"]["fallings"] and timer.isOver("fallings"):
+        nbFalling = 0
+        for i, fa in enumerate(data["fall"]["fallables"]):
+            faX = fa["pos"][0]
+            faY = fa["pos"][1]
+            if fa["falling"] and data["map"][faY+1][faX] == "R":
+                setCell(data["map"], (faX, faY+1), data["map"][faY][faX])
+                setCell(data["map"], (faX, faY), ".")
+                GAME_STATUS = False
+            if data["map"][faY+1][faX] == ".":
+                setCell(data["map"], (faX, faY+1), data["map"][faY][faX])
+                setCell(data["map"], (faX, faY), ".")
+                data["fall"]["fallables"][i] = {"pos": (faX, faY+1), "falling": True}
+                nbFalling += 1 
 
-        elif (data["map"][faY][faX+1] == "." and data["map"][faY+1][faX+1] == ".") and (data["map"][faY-1][faX]!="D" and data["map"][faY-1][faX]!="B"):
-            setCell(data["map"], (faX+1, faY), data["map"][faY][faX])
-            setCell(data["map"], (faX, faY), ".")
-            data["fall"]["fallables"][i] = {"pos": (faX+1, faY), "falling": True}
-            nbFalling += 1
+            elif (data["map"][faY][faX+1] == "." and data["map"][faY+1][faX+1] == ".") and (data["map"][faY-1][faX]!="D" and data["map"][faY-1][faX]!="B"):
+                setCell(data["map"], (faX+1, faY), data["map"][faY][faX])
+                setCell(data["map"], (faX, faY), ".")
+                data["fall"]["fallables"][i] = {"pos": (faX+1, faY), "falling": True}
+                nbFalling += 1
 
-        elif (data["map"][faY][faX-1] == "." and data["map"][faY+1][faX-1] == ".") and (data["map"][faY-1][faX]!="D" and data["map"][faY-1][faX]!="B"):
-            setCell(data["map"], (faX-1, faY), data["map"][faY][faX])
-            setCell(data["map"], (faX, faY), ".")
-            data["fall"]["fallables"][i] = {"pos": (faX-1, faY), "falling": True}
-            nbFalling += 1
-        else: 
-            data["fall"]["fallables"][i]["falling"] = False
-    if nbFalling > 0:
-        print("before being restored", timer.getTimer("fallings", remain=True), timer.timers["fallings"]["progression"])
-        timer.restore("fallings")
-        print("after being restored", timer.getTimer("fallings", remain=True), timer.timers["fallings"]["progression"])     
-        data["fall"]["fallings"] = True
-    else:
-        data["fall"]["fallings"] = False
+            elif (data["map"][faY][faX-1] == "." and data["map"][faY+1][faX-1] == ".") and (data["map"][faY-1][faX]!="D" and data["map"][faY-1][faX]!="B"):
+                setCell(data["map"], (faX-1, faY), data["map"][faY][faX])
+                setCell(data["map"], (faX, faY), ".")
+                data["fall"]["fallables"][i] = {"pos": (faX-1, faY), "falling": True}
+                nbFalling += 1
+            else: 
+                data["fall"]["fallables"][i]["falling"] = False
+        if nbFalling > 0:
+            print("before being restored", timer.getTimer("fallings", remain=True), timer.timers["fallings"]["progression"])
+            timer.restore("fallings")
+            print("after being restored", timer.getTimer("fallings", remain=True), timer.timers["fallings"]["progression"])     
+            data["fall"]["fallings"] = True
+        else:
+            data["fall"]["fallings"] = False
 
 
 

@@ -1,2 +1,9 @@
-stop evenement lorsque partie finie v
-animation de fin avec timers + time factor*2
+1 - animation de fin avec timers + time factor*2 
+2 - pathfinding
+3 - Editor
+4 - Finish UI
+5 - level loading
+6 - score table
+7 - fallables affected by time DONE
+8 - Greater map on render
+9 - UI rework
