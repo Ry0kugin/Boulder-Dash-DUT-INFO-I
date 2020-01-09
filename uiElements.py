@@ -10,6 +10,7 @@ positions = {}
 #renderQueue = {}
 renderQueue = [set()]
 renderRoutines = {}
+logicRoutines = {}
 focus = None
 exclusiveLayer = None
 evenement = None
@@ -41,6 +42,7 @@ def reset():
     renderQueue.clear()
     renderQueue.append(set())
     renderRoutines.clear()
+    logicRoutines.clear()
     focus = None
     exclusiveLayer = None
     evenement = None

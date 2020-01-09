@@ -47,8 +47,18 @@ def remRenderRoutine(ID):
     try:
         renderRoutines.pop(ID)
     except KeyError as e:
-        print("UI Warning: cannot remove unknown routine", e)
+        print("UI Warning: cannot remove unknown render routine", e)
 
+def addLogicRoutine(ID, action, arguments=[]):
+    global logicRoutines
+    logicRoutines[ID]=(action, arguments)
+
+def remLogicRoutine(ID):
+    global logicRoutines
+    try:
+        logicRoutines.pop(ID)
+    except KeyError as e:
+        print("UI Warning: cannot remove unknown logic routine", e)
 
 ######## Moteur logique ########
 
@@ -71,6 +81,8 @@ def checkClick(p, pos):
 def logic(ev):
     global focus, exclusiveLayer
     type_ev = type_evenement(ev)
+    for r in logicRoutines.values():
+        r[0](*r[1])
     if type_ev == "ClicGauche":
         pos = (clic_x(ev), clic_y(ev))
         layers = set(range(len(renderQueue)-1, 0, -1))
@@ -103,15 +115,6 @@ def logic(ev):
                 setObject(focus["ID"], {"text":objects[focus["ID"]]["text"]+" "})
                 # objects[focus["ID"]]["text"] += " "
 
-
-def updateStats(remainTime, diamonds, score):
-    # Time left#
-    texte(0, 0, "Time left: " + str(remainTime), ("green" if remainTime > 10 else "red"), ancrage="nw")
-    # Diamonds#
-    texte(WIDTH_WINDOW / 3.6, 0, "Diamonds: " + str(diamonds[0]) + "/" + str(diamonds[1]),
-          ("red" if diamonds[0] < diamonds[1] else "green"))
-    # Score#
-    texte(WIDTH_WINDOW / 1.7, 0, "score: " + str(score), "yellow" )
 
 def render(text=None, backgroundColor="black"):
     for r in renderRoutines.values():

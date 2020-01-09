@@ -104,7 +104,7 @@ def initEditorUI():
     # Buttons
     ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16, action=evenement.setGameEvent, arguments=["reset"], anchorx="c", outlineColor="white", text="Reset", textColor="white", layer=1)
     ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16 * 4, action=ui.setUIEvenement, arguments=["debug"], anchorx="c", outlineColor="white", text="Debug", textColor="white", ID="debug", layer=1)
-    ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16 * 7, action=evenement.setGameEvent, arguments=["save"], anchorx="c", outlineColor="white", text="Sauvegarder", textSize=88, textColor="white", layer=1)
+    ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16 * 7, action=evenement.setGameEvent, arguments=["save"], anchorx="c", outlineColor="white", text="Sauvegarder", textSize=15, textColor="white", layer=1)
     ui.addButton(RightXPos, render.HEIGHT_WINDOW - 1, action=logic.quitter, anchorx="c", anchory="d", outlineColor="white", text="Quitter", textColor="white", layer=1)
     # Texts
     ui.addText(0, 0, ID="timeLeftText", anchorx="l", anchory="u", textColor="green")
@@ -114,6 +114,8 @@ def initEditorUI():
     #ui.addText(render.WIDTH_WINDOW / 2, 0, ID="scoreText", anchory="u", textColor="yellow")
     # Game canvas
     ui.addGameCanvas(0, render.HEIGHT_WINDOW/2, ID="gameCanvas", width=render.CELL_NBX*render.CELL_SIZE, height=render.CELL_NBY*render.CELL_SIZE, anchorx="l")
+    # cursor routine
+    ui.addLogicRoutine("editorCursor", updateCursor)
 
 def editor():
     global data
@@ -121,17 +123,18 @@ def editor():
     ui.setBackground("black")
     initEditorUI()
     initData()
+    render.update(IO.loadLevel(level="level_1"),"gameCanvas")
     #IO.loadLevel(data)
-    start(data)
-    render.update(data["map"], "gameCanvas")
+    # start(data)
+    # render.update(data["map"], "gameCanvas")
 
     while True:
         evenement.compute()
         ui.logic(evenement.event["tk"])
-        direction = (0, 0)
+        # direction = (0, 0)
         if ui.focus is None:
-            timer.start("game")
-            direction = logic.getDirection(evenement.event["tk"], data["debug"])
+            # timer.start("game")
+            # direction = logic.getDirection(evenement.event["tk"], data["debug"])
 
             if evenement.event["game"] == "reset" or ui.evenement == "reset":
                 initData()
@@ -144,17 +147,17 @@ def editor():
                 ui.evenement = None
                 continue
 
-            if evenement.event["game"] == "move":
-                logic.moveRockford(data, direction)
-                data["fall"]["fallings"] = True
-                render.update(data["map"], "gameCanvas")
+            # if evenement.event["game"] == "move":
+            #     logic.moveRockford(data, direction)
+            #     data["fall"]["fallings"] = True
+            #     render.update(data["map"], "gameCanvas")
                 
-            print("before after before", timer.getTimer("fallings", remain=True), timer.isOver("fallings"))
-            if data["fall"]["fallings"] and timer.isOver("fallings"):
-                print("before", timer.getTimer("fallings", remain=True))
-                logic.updatePhysic(data)
-                print("after", timer.getTimer("fallings", remain=True))
-                render.update(data["map"], "gameCanvas")
+            # print("before after before", timer.getTimer("fallings", remain=True), timer.isOver("fallings"))
+            # if data["fall"]["fallings"] and timer.isOver("fallings"):
+            #     print("before", timer.getTimer("fallings", remain=True))
+            #     logic.updatePhysic(data)
+            #     print("after", timer.getTimer("fallings", remain=True))
+            #     render.update(data["map"], "gameCanvas")
 
             if evenement.event["game"] == "save":
                 timer.factor = 0
@@ -176,19 +179,34 @@ def editor():
         #     ui.evenement = None
         #     continue
 
-        updateStats(data["time"]["remain"], (data["diamonds"]["owned"], int(data["map"][0][1])), data["score"])
-        updateTime()
-        data["time"]["remain"] = timer.getTimer("game", int, remain=True)
+        # updateStats(data["time"]["remain"], (data["diamonds"]["owned"], int(data["map"][0][1])), data["score"])
+        # updateTime()
+        # data["time"]["remain"] = timer.getTimer("game", int, remain=True)
         #print(timer.timers["game"]["progression"])
-        if logic.status(data):
-            logic.updateGameStatus()
-            IO.loadLevel(data)
-            start(data, keepScore=True)
-            render.update(data["map"], "gameCanvas")
+        # if logic.status(data):
+        #     logic.updateGameStatus()
+        #     IO.loadLevel(data)
+        #     start(data, keepScore=True)
+        #     render.update(data["map"], "gameCanvas")
         ui.render(getFps())
         mise_a_jour()
     ui.reset()
     initPlayMenu()
+
+
+def updateCursor():
+    ev=evenement.getTkEvent()
+    if type_evenement(ev)=="Deplacement":
+        pos=[clic_x(ev), clic_y(ev)]
+        if ui.objects["gameCanvas"]["ax"] < pos[0] < ui.objects["gameCanvas"]["bx"] and ui.objects["gameCanvas"]["ay"] < pos[1] < ui.objects["gameCanvas"]["by"]:
+            pos[0]=pos[0]-ui.objects["gameCanvas"]["ax"]
+            pos[1]=pos[1]-ui.objects["gameCanvas"]["ay"]
+            currentMap=ui.objects["gameCanvas"]["squaresMap"]
+            currentMap[int(ui.objects["gameCanvas"]["height"]/len(ui.objects["gameCanvas"]["squaresMap"]))+1][int(ui.objects["gameCanvas"]["width"]/len(ui.objects["gameCanvas"]["squaresMap"][0]))+1]='W'
+            ui.setObject("gameCanvas", {"squaresMap":currentMap})
+                
+            
+    pass
 
 
 ######## Game ########
@@ -267,116 +285,7 @@ def play():
                 if gameEvenement=="return":
                     break
                 continue
-            # if evenement.event["game"] ==             # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evlevelLstenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evlevelLstenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
-            # if evenement.event["game"] == "reset" or ui.evenement == "reset":
+            
             # if evenement.event["game"] == "reset" or ui.evenement == "reset":
             #     continue
 

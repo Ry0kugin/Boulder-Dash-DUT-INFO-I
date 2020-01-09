@@ -45,3 +45,6 @@ def setGameEvent(ge):
 
 def resetGameEvent():
     event["game"] = None
+
+def getTkEvent():
+    return event["tk"]
