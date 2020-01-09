@@ -113,7 +113,7 @@ def initEditorUI():
     #ui.addText(render.WIDTH_WINDOW / 4.2, 0, ID="diamondsText", anchory="u", textColor="red")
     #ui.addText(render.WIDTH_WINDOW / 2, 0, ID="scoreText", anchory="u", textColor="yellow")
     # Game canvas
-    ui.addGameCanvas(0, render.HEIGHT_WINDOW/2, ID="gameCanvas", width=render.CELL_NBX*render.CELL_SIZE, height=render.CELL_NBY*render.CELL_SIZE, anchorx="l")
+    ui.addGameCanvas(0, render.HEIGHT_WINDOW/2, ID="gameCanvas", width=render.CELL_NBX*render.CELL_SIZE, height=render.CELL_NBY*render.CELL_SIZE, fill="red", anchorx="l")
     # cursor routine
     ui.addLogicRoutine("editorCursor", updateCursor)
 
@@ -196,7 +196,7 @@ def editor():
 
 def updateCursor():
     ev=evenement.getTkEvent()
-    if type_evenement(ev)=="ClicGauche":
+    if type_evenement(ev)=="Deplacement":
         pos=[clic_x(ev), clic_y(ev)]
         print(pos)
         if ui.objects["gameCanvas"]["ax"] < pos[0] < ui.objects["gameCanvas"]["bx"] and ui.objects["gameCanvas"]["ay"] < pos[1] < ui.objects["gameCanvas"]["by"]:
