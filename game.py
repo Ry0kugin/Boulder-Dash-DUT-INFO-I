@@ -120,7 +120,7 @@ def initEditorUI():
     # Game canvas
     ui.addGameCanvas(0, render.HEIGHT_WINDOW/8, ID="gameCanvas", width=0, height=0, fill="green", anchorx="l", anchory="u")
     # cursor routine
-    ui.addLogicRoutine("editorCursor", updateCursor)
+    # ui.addLogicRoutine("editorCursor", updateCursor)
 
 def editor():
     global data
@@ -136,6 +136,7 @@ def editor():
     while True:
         evenement.compute()
         ui.logic(evenement.event["tk"])
+        updateCursor()
         # direction = (0, 0)
         if ui.focus is None:
             # timer.start("game")
@@ -202,7 +203,6 @@ def editor():
 
 def updateCursor():
     ev=evenement.getTkEvent()
-    # print(ev)
     if type_evenement(ev)=="Deplacement":
         pos=[clic_x(ev), clic_y(ev)]
         if ui.objects["gameCanvas"]["ax"] < pos[0] < len(ui.objects["gameCanvas"]["squaresMap"][0])*render.CELL_SIZE and ui.objects["gameCanvas"]["ay"] < pos[1] < (len(ui.objects["gameCanvas"]["squaresMap"]))*render.CELL_SIZE:
@@ -215,7 +215,8 @@ def updateCursor():
             # print("pos 1 - ", x)
             # print("pos 2 - ", y)
             # currentMap[int(ui.objects["gameCanvas"]["height"]/len(ui.objects["gameCanvas"]["squaresMap"]))+1][int(ui.objects["gameCanvas"]["width"]/len(ui.objects["gameCanvas"]["squaresMap"][0]))+1]='W'
-            ui.objects["gameCanvas"]["selected"] = (x,y)
+            
+            ui.objects["gameCanvas"]["selected"] = (x,y) 
             ui.setObject("gameCanvas", {"squaresMap":currentMap})
             render.update(currentMap ,"gameCanvas")   
             

@@ -9,6 +9,7 @@ def compute():
     ev = donne_evenement()
     event["tk"] = ev
     SetGameEventFromTkEvent(ev)
+    clearEventQueue()
 
 def SetGameEventFromTkEvent(ev):
     """
@@ -48,3 +49,7 @@ def resetGameEvent():
 
 def getTkEvent():
     return event["tk"]
+
+def clearEventQueue():
+    while type_evenement(donne_evenement()) != "RAS":
+        print("videur d'event entre à l'action")
