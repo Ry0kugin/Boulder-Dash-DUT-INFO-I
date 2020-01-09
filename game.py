@@ -113,7 +113,7 @@ def initEditorUI():
     #ui.addText(render.WIDTH_WINDOW / 4.2, 0, ID="diamondsText", anchory="u", textColor="red")
     #ui.addText(render.WIDTH_WINDOW / 2, 0, ID="scoreText", anchory="u", textColor="yellow")
     # Game canvas
-    ui.addGameCanvas(0, render.HEIGHT_WINDOW/2, ID="gameCanvas", width=render.CELL_NBX*render.CELL_SIZE, height=render.CELL_NBY*render.CELL_SIZE, fill="red", anchorx="l")
+    ui.addGameCanvas(0, render.HEIGHT_WINDOW/2, ID="gameCanvas", width=render.CELL_NBX*render.CELL_SIZE, height=render.CELL_NBY*render.CELL_SIZE, fill="green", anchorx="l")
     # cursor routine
     ui.addLogicRoutine("editorCursor", updateCursor)
 
@@ -199,7 +199,7 @@ def updateCursor():
     if type_evenement(ev)=="Deplacement":
         pos=[clic_x(ev), clic_y(ev)]
         print(pos)
-        if ui.objects["gameCanvas"]["ax"] < pos[0] < ui.objects["gameCanvas"]["bx"] and ui.objects["gameCanvas"]["ay"] < pos[1] < ui.objects["gameCanvas"]["by"]:
+        if ui.objects["gameCanvas"]["ax"] < pos[0] < len(ui.objects["gameCanvas"]["squaresMap"][0])*render.CELL_SIZE and ui.objects["gameCanvas"]["ay"] < pos[1] < (len(ui.objects["gameCanvas"]["squaresMap"])+1)*render.CELL_SIZE:
             # pos[0]=pos[0]-ui.objects["gameCanvas"]["ax"]
             # pos[1]=pos[1]-ui.objects["gameCanvas"]["ay"]
             x=int((pos[0]-ui.objects["gameCanvas"]["ax"])/render.CELL_SIZE)
