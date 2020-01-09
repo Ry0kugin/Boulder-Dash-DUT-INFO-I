@@ -30,9 +30,9 @@ def initPlayMenu():
     ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW * 2.3/3, width=render.WIDTH_WINDOW / 2.6, height=int(render.HEIGHT_WINDOW / 5), text="Load from Save", textSize=28, textColor="white", outlineColor="white")
 
 def initSelectionLevel(level):
-    ui.addButton(0 + render.WIDTH_WINDOW / 20, render.HEIGHT_WINDOW / 2, width=50, height=50, fill="white", stroke=5, polygonal=[(1,0),(0.2,0.5),(1,1)])
-    ui.addButton(render.WIDTH_WINDOW - render.WIDTH_WINDOW / 20, render.HEIGHT_WINDOW / 2, width=50, height=50, fill="white", stroke=5, polygonal=[(0,0),(0.8,0.5),(0,1)])
-    ui.addGameCanvas(render.WIDTH_WINDOW/2.2, render.HEIGHT_WINDOW/2.5, "levelSelection",render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/2, fill="red", squaresMap=level)
+    ui.addButton(0 + render.WIDTH_WINDOW / 20, render.HEIGHT_WINDOW / 2, width=80, height=80, fill="white", stroke=5, polygonal=[(1,0),(0.2,0.5),(1,1)])
+    ui.addButton(render.WIDTH_WINDOW - render.WIDTH_WINDOW / 20, render.HEIGHT_WINDOW / 2, width=80, height=80, fill="white", stroke=5, polygonal=[(0,0),(0.8,0.5),(0,1)])
+    ui.addGameCanvas(render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/2, "levelSelection",render.WIDTH_WINDOW/1.7, render.HEIGHT_WINDOW/1.5, fill="red",  squaresMap=level)
 
 
 def menu():
