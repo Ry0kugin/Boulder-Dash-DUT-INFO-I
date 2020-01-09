@@ -32,8 +32,8 @@ def initPlayMenu():
 def initSelectionLevel(level):
     ui.addButton(0 + render.WIDTH_WINDOW / 20, render.HEIGHT_WINDOW / 2, width=80, height=80, fill="white", stroke=5, polygonal=[(1,0),(0.2,0.5),(1,1)], action=evenement.setGameEvent, arguments=["left"])
     ui.addButton(render.WIDTH_WINDOW - render.WIDTH_WINDOW / 20, render.HEIGHT_WINDOW / 2, width=80, height=80, fill="white", stroke=5, polygonal=[(0,0),(0.8,0.5),(0,1)], action=evenement.setGameEvent, arguments=["right"])
-    ui.addGameCanvas(render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/2, "levelSelection", fill="red", width=render.WIDTH_WINDOW/2.2, height=render.HEIGHT_WINDOW/2.5, squaresMap=level)
-
+    ui.addGameCanvas(render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/2, "levelSelection", fill="red", width=0, height=0, squaresMap=level)
+    ui.addText(render.WIDTH_WINDOW/2, 11*render.HEIGHT_WINDOW/12, "level", render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/8, textAnchor="c", text=" ", textColor="white")
 
 def menu():
     # home
@@ -118,7 +118,7 @@ def initEditorUI():
     #ui.addText(render.WIDTH_WINDOW / 4.2, 0, ID="diamondsText", anchory="u", textColor="red")
     #ui.addText(render.WIDTH_WINDOW / 2, 0, ID="scoreText", anchory="u", textColor="yellow")
     # Game canvas
-    ui.addGameCanvas(0, render.HEIGHT_WINDOW/6, ID="gameCanvas", width=0, height=0, fill="green", anchorx="l", anchory="u")
+    ui.addGameCanvas(0, render.HEIGHT_WINDOW/8, ID="gameCanvas", width=0, height=0, fill="green", anchorx="l", anchory="u")
     # cursor routine
     ui.addLogicRoutine("editorCursor", updateCursor)
 
@@ -193,6 +193,7 @@ def editor():
         #     IO.loadLevel(data)
         #     start(data, keepScore=True)
         #     render.update(data["map"], "gameCanvas")
+        updateTime()
         ui.render(getFps())
         mise_a_jour()
     ui.reset()
@@ -236,7 +237,7 @@ def initGameUI():
     ui.addText(render.WIDTH_WINDOW / 4.2, 0, ID="diamondsText", anchory="u", textColor="red")
     ui.addText(render.WIDTH_WINDOW / 2, 0, ID="scoreText", anchory="u", textColor="yellow")
     # Game canvas
-    ui.addGameCanvas(0, render.HEIGHT_WINDOW/6, ID="gameCanvas", width=0, height=0, anchorx="l", anchory="n")
+    ui.addGameCanvas(0, render.HEIGHT_WINDOW/8, ID="gameCanvas", width=0, height=0, anchorx="l", anchory="u")
 
 def handleEvenement(evenement, args=[]):
     if evenement in ("reset", "move", "save", "load", "return"):
