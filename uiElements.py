@@ -388,6 +388,26 @@ def addGameCanvas(x, y, ID=None, width=100, height=100, anchorx="c", anchory="c"
 
 
 def drawGameCanvas(ID):
+    if len(objects[ID]["squaresMap"]):
+        if len(objects[ID]["squaresMap"][0])*CELL_SIZE < objects[ID]["width"]:
+            width = len(objects[ID]["squaresMap"][0])*CELL_SIZE
+            setObject(ID, {"width": width})
+            print("changed")
+        if (len(objects[ID]["squaresMap"])-1)*CELL_SIZE < objects[ID]["height"]:
+            height = (len(objects[ID]["squaresMap"])-1)*CELL_SIZE
+            setObject(ID, {"height": height})
+            print("changed")
+
+    # if len(objects[ID]["squaresMap"]):
+    #     if len(objects[ID]["squaresMap"][0])*CELL_SIZE < objects[ID]["width"]:
+    #         bx = objects[ID]["ax"] + len(objects[ID]["squaresMap"][0])*CELL_SIZE
+    #         setObject(ID, {"bx": bx})
+    #         print("changed")
+    #     if (len(objects[ID]["squaresMap"])-1)*CELL_SIZE < objects[ID]["height"]:
+    #         by = objects[ID]["ay"] +  (len(objects[ID]["squaresMap"])-1)*CELL_SIZE
+    #         setObject(ID, {"by": by})
+    #         print("changed")
+
     identifierList=[
         rectangle(
                 objects[ID]["ax"],

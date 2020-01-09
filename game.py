@@ -113,7 +113,7 @@ def initEditorUI():
     #ui.addText(render.WIDTH_WINDOW / 4.2, 0, ID="diamondsText", anchory="u", textColor="red")
     #ui.addText(render.WIDTH_WINDOW / 2, 0, ID="scoreText", anchory="u", textColor="yellow")
     # Game canvas
-    ui.addGameCanvas(0, render.HEIGHT_WINDOW/2, ID="gameCanvas", width=render.CELL_NBX*render.CELL_SIZE, height=render.CELL_NBY*render.CELL_SIZE, fill="green", anchorx="l")
+    ui.addGameCanvas(0, render.HEIGHT_WINDOW/6, ID="gameCanvas", width=0, height=0, fill="green", anchorx="l", anchory="u")
     # cursor routine
     ui.addLogicRoutine("editorCursor", updateCursor)
 
