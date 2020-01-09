@@ -30,9 +30,9 @@ def initPlayMenu():
     ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW * 2.3/3, width=render.WIDTH_WINDOW / 2.6, height=int(render.HEIGHT_WINDOW / 5), text="Load from Save", textSize=28, textColor="white", outlineColor="white")
 
 def initSelectionLevel(level):
-    ui.addButton(0 + render.WIDTH_WINDOW / 20, render.HEIGHT_WINDOW / 2, width=80, height=80, fill="white", stroke=5, polygonal=[(1,0),(0.2,0.5),(1,1)])
-    ui.addButton(render.WIDTH_WINDOW - render.WIDTH_WINDOW / 20, render.HEIGHT_WINDOW / 2, width=80, height=80, fill="white", stroke=5, polygonal=[(0,0),(0.8,0.5),(0,1)])
-    ui.addGameCanvas(render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/2, "levelSelection",render.WIDTH_WINDOW/1.7, render.HEIGHT_WINDOW/1.5, fill="red",  squaresMap=level)
+    ui.addButton(0 + render.WIDTH_WINDOW / 20, render.HEIGHT_WINDOW / 2, width=80, height=80, fill="white", stroke=5, polygonal=[(1,0),(0.2,0.5),(1,1)], action=evenement.setGameEvent, arguments=["left"])
+    ui.addButton(render.WIDTH_WINDOW - render.WIDTH_WINDOW / 20, render.HEIGHT_WINDOW / 2, width=80, height=80, fill="white", stroke=5, polygonal=[(0,0),(0.8,0.5),(0,1)], action=evenement.setGameEvent, arguments=["right"])
+    ui.addGameCanvas(render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/2, "levelSelection", fill="red", width=render.WIDTH_WINDOW/2.2, height=render.HEIGHT_WINDOW/2.5, squaresMap=level)
 
 
 def menu():
@@ -54,13 +54,18 @@ def menu():
                 if evenement.event["game"] == 'selection':
                     ui.reset()
                     ui.setBackground("black")
-                    level = IO.loadLevel(level="level_1")
+                    levels = IO.getLevels("level")
+                    level = IO.loadLevel(level=levels[1])
                     initSelectionLevel(level)
-                    render.update(level,"levelSelection")
+                    render.update(level[1::],"levelSelection")
 
                     while not evenement.event["game"] == 'return':   
                         evenement.compute()
                         ui.logic(evenement.event["tk"])
+                        if evenement.event["game"] == "right":
+                            render.update(IO.loadLevel()[1::],"levelSelection")
+                        elif evenement.event["game"] == "left":
+                            render.update(IO.loadLevel()[1::],"levelSelection")
                         updateTime()
                         ui.render(getFps())
                         mise_a_jour()
@@ -123,7 +128,7 @@ def editor():
     ui.setBackground("black")
     initEditorUI()
     initData()
-    render.update(IO.loadLevel(level="level_1"),"gameCanvas")
+    render.update(IO.loadLevel(level="level_1")[1::],"gameCanvas")
     #IO.loadLevel(data)
     # start(data)
     # render.update(data["map"], "gameCanvas")
@@ -140,7 +145,7 @@ def editor():
                 initData()
                 IO.loadLevel(data)
                 start(data)
-                render.update(data["map"], "gameCanvas")
+                render.update(data["map"][1::], "gameCanvas")
                 ui.render()
                 
 
@@ -211,7 +216,7 @@ def updateCursor():
             # currentMap[int(ui.objects["gameCanvas"]["height"]/len(ui.objects["gameCanvas"]["squaresMap"]))+1][int(ui.objects["gameCanvas"]["width"]/len(ui.objects["gameCanvas"]["squaresMap"][0]))+1]='W'
             currentMap[y][x] = 'D'
             ui.setObject("gameCanvas", {"squaresMap":currentMap})
-            render.update(currentMap ,"gameCanvas", True)   
+            render.update(currentMap ,"gameCanvas")   
             
     pass
 
@@ -231,7 +236,7 @@ def initGameUI():
     ui.addText(render.WIDTH_WINDOW / 4.2, 0, ID="diamondsText", anchory="u", textColor="red")
     ui.addText(render.WIDTH_WINDOW / 2, 0, ID="scoreText", anchory="u", textColor="yellow")
     # Game canvas
-    ui.addGameCanvas(0, render.HEIGHT_WINDOW/2, ID="gameCanvas", width=render.CELL_NBX*render.CELL_SIZE, height=render.CELL_NBY*render.CELL_SIZE, anchorx="l")
+    ui.addGameCanvas(0, render.HEIGHT_WINDOW/6, ID="gameCanvas", width=0, height=0, anchorx="l", anchory="n")
 
 def handleEvenement(evenement, args=[]):
     if evenement in ("reset", "move", "save", "load", "return"):
@@ -244,13 +249,13 @@ def resetGame():
     initData()
     IO.loadLevel(data)
     start(data)
-    render.update(data["map"], "gameCanvas")
+    render.update(data["map"][1::], "gameCanvas")
     ui.render()
 
 def moveRockford():
     logic.moveRockford(data, logic.getDirection(evenement.event["tk"], data["debug"]))
     data["fall"]["fallings"] = True
-    render.update(data["map"], "gameCanvas")
+    render.update(data["map"][1::], "gameCanvas")
 
 def saveGame():
     timer.factor = 0
@@ -279,7 +284,7 @@ def play():
     initData()
     IO.loadLevel(data)
     start(data)
-    render.update(data["map"], "gameCanvas")
+    render.update(data["map"][1::], "gameCanvas")
 
     while True:
         evenement.compute()
@@ -319,7 +324,7 @@ def play():
 
         logic.updatePhysic(data)
         if data["fall"]["fallings"]:
-            render.update(data["map"], "gameCanvas")
+            render.update(data["map"][1::], "gameCanvas")
         updateStats(data["time"]["remain"], (data["diamonds"]["owned"], int(data["map"][0][1])), data["score"])
         updateTime()
         data["time"]["remain"] = timer.getTimer("game", int, remain=True)
@@ -328,7 +333,7 @@ def play():
             logic.updateGameStatus()
             IO.loadLevel(data)
             start(data, keepScore=True)
-            render.update(data["map"], "gameCanvas")
+            render.update(data["map"][1::], "gameCanvas")
         ui.render(getFps())
         mise_a_jour()
     ui.reset()

@@ -137,13 +137,14 @@ def setObject(ID, parameters, forceUpdate=False):
                 x = objects[ID]["x"]
                 anchorx = objects[ID]["anchorx"]
                 objects[ID]["ax"] = (x - width / 2 if anchorx == "c" else (x - width if anchorx == "r" else x))
-                objects[ID]["bx"] = (x + width / 2 if anchorx == "c" else (x if anchorx == "r" else x + width))
+                objects[ID]["bx"] = (x + width / 2 if anchorx == "c" else (x if anchorx == "r" else x + width))           
             elif p == "y" or p == "height":
                 height = objects[ID]["height"]
                 y = objects[ID]["y"]
                 anchory = objects[ID]["anchory"]
                 objects[ID]["ay"] = (y - height / 2 if anchory == "c" else (y if anchory == "u" else y - height))
                 objects[ID]["by"] = (y + height / 2 if anchory == "c" else (y + height if anchory == "u" else y))
+
             elif p == "layer":
                 updateLayers(ID, parameters[p])
     if modified:
