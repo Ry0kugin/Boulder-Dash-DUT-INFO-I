@@ -155,7 +155,8 @@ def checkPrompt(checker, checkerArguments):
     global transaction, focus
     if checker:
         transaction = checker(*checkerArguments)
-        objects["prompt_2"]["outlineColor"] = ("Green" if transaction else "Red")
+        setObject("prompt_2", {"outlineColor":"Green" if transaction else "Red"})
+        # objects["prompt_2"]["outlineColor"] = ("Green" if transaction else "Red")
     if not focus:
         focus = {"ID": "prompt", "type": "Panel"}
     elif focus["ID"] not in ("prompt","prompt_2"):

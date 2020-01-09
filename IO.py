@@ -4,7 +4,7 @@ from os.path import isfile
 
 
 
-def loadLevel(data, level=None, fromData=False):
+def loadLevel(data=None, level=None, fromData=False):
     """
     charge la carte dans un format valide pour boulder dash
 
@@ -14,9 +14,11 @@ def loadLevel(data, level=None, fromData=False):
     [['150s', '1d'], ['a', 'b', 'c'], ['d', 'e', 'f']]
     """
     levelLst = []
-    data["map"] = []
+    if data:
+        data["map"] = []
     if level == None:
-        data["map"] = randomLevel(data)
+        if data:
+            data["map"] = randomLevel(data)
         levelLst = randomLevel(data)
     else:
         if not fromData:
@@ -30,13 +32,15 @@ def loadLevel(data, level=None, fromData=False):
         # add option
         options = level[0].split()
         levelLst.append([options[0][0:-1], options[1][0:-1]])
-        data["map"].append([options[0][0:-1], options[1][0:-1]])
+        if data:
+            data["map"].append([options[0][0:-1], options[1][0:-1]])
         # add map
-        data["Map"] = []
+            data["Map"] = []
         for i in range(1, len(level)):
             levelLst.append(list(level[i]))
-            data["map"].append(list(level[i]))
-
+            if data:
+                data["map"].append(list(level[i]))
+    return levelLst
 
 def randomLevel(data):
     width = randint(6, 14)

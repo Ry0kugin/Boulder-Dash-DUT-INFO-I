@@ -235,6 +235,7 @@ def remObject(ID):
             for o in objects[ID]["tkObjects"]:
                 efface(o)
         objects.pop(ID, None)
+        reDraw()# A corriger
     except KeyError as e:
         print("UI Warning: cannot remove unknown object", e)
 
