@@ -384,11 +384,11 @@ def drawPanel(ID):
 
 ######## Canvas ########
 def addGameCanvas(x, y, ID=None, width=100, height=100, anchorx="c", anchory="c", outlineColor="", fill="", stroke=1,
-             squaresMap=[], hidden=False, layer=0, isChild=False):
+             squaresMap=[], hidden=False, layer=0, isChild=False, selected=None):
     global objects
     ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, outlineColor, fill, stroke, hidden, isChild, otype="gameCanvas")
     objects[ID]["squaresMap"] = squaresMap
-
+    objects[ID]["selected"] = selected
 
 def drawGameCanvas(ID):
     if len(objects[ID]["squaresMap"]):
@@ -424,10 +424,15 @@ def drawGameCanvas(ID):
     ]
     for y in range(len(objects[ID]["squaresMap"])):
         for x in range(len(objects[ID]["squaresMap"][y])):
-            x1 = x * CELL_SIZE + objects[ID]["ax"]
-            y1 = y * CELL_SIZE + objects[ID]["ay"]
+            x1, y1 = toCanvasCoord(ID, x,y)
             identifierList.extend(renderCase[objects[ID]["squaresMap"][y][x]]((x1, y1)))
+    if objects[ID]["selected"]:
+        x,y = objects[ID]["selected"]
+        identifierList.append(renderCase["S"](toCanvasCoord(ID,x,y)))
     return tuple(identifierList)
+
+def toCanvasCoord(ID,x,y):
+    return (x * CELL_SIZE + objects[ID]["ax"], y * CELL_SIZE + objects[ID]["ay"])
 
 def getToRenderObjects():
     return toRenderObjects

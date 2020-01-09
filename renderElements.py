@@ -20,7 +20,8 @@ renderCase = {
     'X': (lambda x: drawRarestOrd(x)),
     'E': (lambda x: drawEnd(x)),
     'R': (lambda x: drawRockford(x)),
-    'O': (lambda x: drawEnd(x, True))
+    'O': (lambda x: drawEnd(x, True)),
+    'S': (lambda x: drawSelected(x))
 }
 
 def drawVoid(coord):
@@ -184,3 +185,15 @@ def drawRockford(coord):
         '#f41'
     )))
     return tuple(lst)
+
+def drawSelected(coord):
+    return (
+        rectangle(
+            coord[0],
+            coord[1],
+            coord[0] + CELL_SIZE,
+            coord[1] + CELL_SIZE,
+            "#ff0",
+            epaisseur=4
+        )
+    )

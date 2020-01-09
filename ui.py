@@ -184,6 +184,7 @@ def newPrompt(message, buttonText, cancelable=True, checker=None, checkerArgumen
     else:
         addRenderRoutine("promptRoutine", checkPrompt, [checker, checkerArguments])
     exclusiveLayer = layer
+    
     focus = {"ID": "prompt", "type": "Panel"}
 
 
