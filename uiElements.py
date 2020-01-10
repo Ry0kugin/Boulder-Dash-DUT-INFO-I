@@ -345,7 +345,6 @@ def addText(x, y, ID=None, width=150, height=30, anchorx="c", anchory="c", textA
 
 
 def drawText(ID):
-    #fuckyou=objects[ID]["textFont"]
     return (
         texte(
             objects[ID]["x"],

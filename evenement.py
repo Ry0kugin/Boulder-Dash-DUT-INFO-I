@@ -52,4 +52,5 @@ def getTkEvent():
 
 def clearEventQueue():
     while type_evenement(donne_evenement()) != "RAS":
-        print("videur d'event entre à l'action")
+        #print("videur d'event entre à l'action")
+        1

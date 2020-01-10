@@ -193,7 +193,7 @@ def drawSelected(coord):
             coord[1],
             coord[0] + CELL_SIZE,
             coord[1] + CELL_SIZE,
-            "#ff0",
+            "#0f0",
             epaisseur=4
         )
     )
