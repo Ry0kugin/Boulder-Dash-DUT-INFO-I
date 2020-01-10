@@ -18,7 +18,7 @@ fps = 0
 
 def initMenuUI():
     ui.setBackground("black")
-    ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW *0.8/3, width=render.WIDTH_WINDOW / 3, height=int(render.HEIGHT_WINDOW / 3), text="Jouer", textSize=42, textColor="white", outlineColor="white", action=evenement.setGameEvent, arguments=["play"])
+    ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW *0.8/3, width=render.WIDTH_WINDOW / 3, height=int(render.HEIGHT_WINDOW / 3), text="Jouer", textSize=42, textColor="white", outlineColor="white", action=evenement.setGameEvent, arguments=["play"], ID="playButton")
     ui.addButton(render.WIDTH_WINDOW / 4, render.HEIGHT_WINDOW *1.8/3, width=render.WIDTH_WINDOW / 4, height=int(render.HEIGHT_WINDOW / 4), text="Scores", textSize=28, textColor="white", outlineColor="white")
     ui.addButton(3*render.WIDTH_WINDOW / 4, render.HEIGHT_WINDOW *1.8/3, width=render.WIDTH_WINDOW / 4, height=int(render.HEIGHT_WINDOW / 4), text="Editeur", textSize=28, textColor="white", outlineColor="white", action=editor)
     ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW - 30, width=150, height=50 ,text="quitter", textSize=18, textColor="white", outlineColor="white", anchory="s", action=logic.quitter)
@@ -38,6 +38,7 @@ def initSelectionLevel(level):
 def menu():
     # home
     initMenuUI()
+    animation.animate("playButton", [2.5, 5, 2.5], [{"x":render.WIDTH_WINDOW*0.25}, {"x":render.WIDTH_WINDOW*0.75}, {"x":ui.objects["playButton"]["x"]}])
     while not evenement.event["game"] == 'return':
         evenement.compute()
         ui.logic(evenement.event["tk"])
@@ -96,7 +97,7 @@ def menu():
         
         elif evenement.event["game"] == 'return':
             break
-        # animation.update() # /!\ render.updateAnimations before ui.render
+        animation.update() # /!\ render.updateAnimations before ui.render
         updateTime()
         ui.render(getFps())
         mise_a_jour()

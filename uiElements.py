@@ -134,8 +134,8 @@ def setObject(ID, parameters, forceUpdate=False):
             objects[ID][p] = parameters[p]
             if p == "x" or p == "width":
                 width = objects[ID]["width"]
-                print(width)
-                print(parameters[p])
+                #print(width)
+                #print(parameters[p])
                 x = objects[ID]["x"]
                 anchorx = objects[ID]["anchorx"]
                 objects[ID]["ax"] = (x - width / 2 if anchorx == "c" else (x - width if anchorx == "r" else x))
