@@ -210,15 +210,15 @@ def updateCursor():
             # pos[1]=pos[1]-ui.objects["gameCanvas"]["ay"]
             x=int((pos[0]-ui.objects["gameCanvas"]["ax"])/render.CELL_SIZE)
             y=int((pos[1]-ui.objects["gameCanvas"]["ay"])/render.CELL_SIZE)
-            currentMap=ui.objects["gameCanvas"]["squaresMap"]
+            #currentMap=ui.objects["gameCanvas"]["squaresMap"]
             # print("cellSize - ", render.CELL_SIZE)
             # print("pos 1 - ", x)
             # print("pos 2 - ", y)
             # currentMap[int(ui.objects["gameCanvas"]["height"]/len(ui.objects["gameCanvas"]["squaresMap"]))+1][int(ui.objects["gameCanvas"]["width"]/len(ui.objects["gameCanvas"]["squaresMap"][0]))+1]='W'
-            
-            ui.objects["gameCanvas"]["selected"] = (x,y) 
-            ui.setObject("gameCanvas", {"squaresMap":currentMap})
-            render.update(currentMap ,"gameCanvas")   
+            ui.setObject("gameCanvas", {"selected":(x,y)})
+            # ui.objects["gameCanvas"]["selected"] = (x,y) 
+            # ui.setObject("gameCanvas", {"squaresMap":currentMap})
+            # render.update(currentMap ,"gameCanvas")   
             
     pass
 
