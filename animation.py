@@ -1,25 +1,29 @@
 import ui, timer
 
 animations={}
-
+enabled=True
 
 def update():
-    global animations
-    toDelete=set()
-    for anim in animations.keys():
-        if timer.exists(anim+"timer"):
-            if animations[anim]["status"]==1:
-                percentage=timer.getTimer(anim+"timer")/timer.timers[anim+"timer"]["size"]
-                ui.setObject(anim, {a[0]: a[1][0]+((a[1][1]*percentage)*(1 if a[1][2] else -1)) for a in animations[anim]["parameters"][animations[anim]["step"]].items()})
-                # for a in animations[anim]["parameters"][step].items():
-                #     ui.objects[anim][a[0]]=a[1][0]+((a[1][1]*percentage)*(1 if a[1][2] else -1))
-        elif animations[anim]["step"]<len(animations[anim]["time"])-1:
-            animations[anim]["step"]+=1
-            timer.new(animations[anim]["time"][animations[anim]["step"]], anim+"timer")
-        elif not animations[anim]["permanent"]:
-            toDelete.add(anim)
-    for e in toDelete:
-        animations.pop(e)
+    if enabled:
+        global animations
+        toDelete=set()
+        for anim in animations.keys():
+            if timer.exists(anim+"timer"):
+                if animations[anim]["status"]==1:
+                    percentage=timer.getTimer(anim+"timer")/timer.timers[anim+"timer"]["size"]
+                    ui.setObject(anim, {a[0]: a[1][0]+((a[1][1]*percentage)*(1 if a[1][2] else -1)) for a in animations[anim]["parameters"][animations[anim]["step"]].items()})
+                    # for a in animations[anim]["parameters"][step].items():
+                    #     ui.objects[anim][a[0]]=a[1][0]+((a[1][1]*percentage)*(1 if a[1][2] else -1))
+            elif animations[anim]["step"]<len(animations[anim]["time"])-1:
+                animations[anim]["step"]+=1
+                timer.new(animations[anim]["time"][animations[anim]["step"]], anim+"timer")
+            elif not animations[anim]["permanent"]:
+                toDelete.add(anim)
+            else:
+                animations[anim]["status"]=0
+                animations[anim]["step"]=0
+        for e in toDelete:
+            animations.pop(e)
 
 
 def new(ID, time, parameters, autoStart=False):
@@ -65,8 +69,8 @@ def stop(ID):
 def animate(ID, time, parameters):
     """
     :param string ID: ID de l'objet dans ui.objects
-    :param tuple time: Temps total que va mettre l'animation à s'executer du début à la fin. Autant fr valeurs peuvent etre spécifiées que d'éléments dans parameters.
-    :param tuple parameters: Tuple de un ou plusieurs dictionnaires contenant les paramètres à modifier pour chaque animation.
+    :param list time: Temps total que va mettre l'animation à s'executer du début à la fin. Autant fr valeurs peuvent etre spécifiées que d'éléments dans parameters.
+    :param list parameters: Tuple de un ou plusieurs dictionnaires contenant les paramètres à modifier pour chaque animation.
     """
     # assert type(ID)==str
     # assert type(time)==tuple
@@ -98,3 +102,11 @@ def animate(ID, time, parameters):
     }
     # time=sum(time)
     timer.new(time[0], ID+"timer")
+
+def setEnabled(boolean):
+    """
+    Active ou désactive toutes les animations.
+    :param bool boolean: True: activer les animations False: Désactiver les animations
+    """
+    global enabled
+    enabled=boolean

@@ -40,7 +40,13 @@ def choicePlaystyle():
                     game.play(levels[levelSelected], "s")
                     backInBlack(game.initSelectionLevel, [levels[levelSelected]])
                     moveRender(levels, levelSelected, IO.loadLevel)
+                elif evenement.event["game"] == "edit":
+                    goInBlack()
+                    editor.editor(levels[levelSelected])
+                    backInBlack(game.initSelectionLevel, [levels[levelSelected]])
+                    moveRender(levels, levelSelected, IO.loadLevel)
                 game.updateTime()
+                animation.update()
                 ui.render(game.getFps())
                 mise_a_jour()
 
@@ -69,6 +75,7 @@ def choicePlaystyle():
                     backInBlack(game.initSaveLevel, [levels[levelSelected]])
                     moveRender(levels, levelSelected, IO.loadSave)
                 game.updateTime()
+                animation.update()
                 ui.render(game.getFps())
                 mise_a_jour()
 

@@ -1,18 +1,17 @@
 from upemtk import mise_a_jour, type_evenement , clic_x, clic_y
-import ui, game, render, evenement, logic, IO, timer
+import ui, game, render, evenement, logic, IO, timer, language
 
 ######## Editor ########
 
 def initEditorUI():
     RightXPos = render.WIDTH_WINDOW * 2 / 2.2
     # Buttons
-    ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16, action=evenement.setGameEvent, arguments=["reset"], anchorx="c", outlineColor="white", text="Reset", textColor="white", layer=1)
+    ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16, action=evenement.setGameEvent, arguments=["reset"], anchorx="c", outlineColor="white", text=language.get("resetButton"), textColor="white", layer=1)
     ui.addButton(RightXPos, render.HEIGHT_WINDOW, action=evenement.setGameEvent, arguments=["save"], anchorx="c", anchory="d",outlineColor="white", text="Sauvegarder", textSize=15, textColor="white", layer=1)
     # Texts
-    ui.addText(0, 0, ID="timeLeftText", anchorx="l", anchory="u", textColor="green", text="Time left:", textFont="Monospace")
+    ui.addText(render.WIDTH_WINDOW*0.05, render.WIDTH_WINDOW*0.02, ID="timeLeftText", anchorx="l", anchory="u", textColor="green", text=language.get("timeText"), textFont="Monospace")
     # textFields
     ui.addTextField(ui.objects["timeLeftText"]["bx"], 0, ID="timeLeftTextField", anchorx="l", anchory="u", outlineColor="white")
-
     #ui.addText(render.WIDTH_WINDOW / 4.2, 0, ID="diamondsText", anchory="u", textColor="red")
     #ui.addText(render.WIDTH_WINDOW / 2, 0, ID="scoreText", anchory="u", textColor="yellow")
     # Game canvas
@@ -21,7 +20,7 @@ def initEditorUI():
     # cursor routine
     # ui.addLogicRoutine("editorCursor", updateCursor)
 
-def editor(squaresMap=None):
+def editor(level=None):
     """
     :param tuple squaresMap: (map, filename)
     """
@@ -36,7 +35,7 @@ def editor(squaresMap=None):
         ]
     editorWidth = 20
     editorHeight = 12
-    render.update((squaresMap if squaresMap else [["." for x in range(editorWidth)] for y in range(editorHeight)]), "editorCanvas")
+    render.update((IO.loadLevel(level=level)[1:] if level else [["." for x in range(editorWidth)] for y in range(editorHeight)]), "editorCanvas")
     render.update(blockMap, "blockCanvas")
     onPressed=False
     while not evenement.event["game"] == 'return':
@@ -54,8 +53,8 @@ def editor(squaresMap=None):
                 # continue
             elif evenement.event["game"] == "save":
                 timer.factor = 0
-                if squaresMap:
-                    IO.save(ui.objects["editorCanvas"]["squaresMap"], squaresMap[1])
+                if level:
+                    IO.save(ui.objects["editorCanvas"]["squaresMap"], level[1])
                 else:
                     ui.newPrompt("Nom de la sauvegarde:", "Sauvegarder", success=lambda: IO.save(game.data, ui.objects["prompt_2"]["text"]), checker=IO.checkSaveName, anyway=lambda: timer.setFactor(1))
             if type_evenement(tkEvent)=="Deplacement":
@@ -84,10 +83,12 @@ def updateCursor(ev, canvas, block=None, onPressed=False):
         pos=[clic_x(ev), clic_y(ev)]
         multiSelection=ui.objects["editorCanvas"]["selected"] and len(ui.objects["editorCanvas"]["selected"])>1
         squaresMap=ui.objects[canvas]["squaresMap"]
-        if ui.objects[canvas]["ax"] < pos[0] < ui.objects[canvas]["bx"] and ui.objects[canvas]["ay"] < pos[1] < ui.objects[canvas]["by"]:
+        if ui.objects[canvas]["ax"] < pos[0] < ui.objects[canvas]["bx"]-1 and ui.objects[canvas]["ay"] < pos[1] < ui.objects[canvas]["by"]-1:
+            
             x=int((pos[0]-ui.objects[canvas]["ax"])/ui.objects[canvas]["cellSize"])
             y=int((pos[1]-ui.objects[canvas]["ay"])/ui.objects[canvas]["cellSize"])
             if block:
+                # print("inSquare")
                 if not onPressed:
                     if multiSelection:
                         squaresMap=writeMultipleBlocks(canvas, squaresMap, block)
@@ -105,13 +106,18 @@ def updateCursor(ev, canvas, block=None, onPressed=False):
                     ui.setObject(canvas, {"selected":[(x,y),ui.objects["blockCanvas"]["selected"][1]]})
                 render.update(squaresMap, canvas)
         else:
+            
             if block:
+                # print("notinSquare")
                 if multiSelection:
                     squaresMap=writeMultipleBlocks(canvas, squaresMap, block)
                     render.update(squaresMap, canvas)
-                    return
+                    # onPressed=False
+                    # return onPressed
                 ui.setObject(canvas, {"selected":None})
             else:
                 ui.setObject(canvas, {"selected":[ui.objects["blockCanvas"]["selected"][0], None]})
+        # return onPressed
+        
            
     

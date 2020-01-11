@@ -71,9 +71,12 @@ def addObject(x, y, layer, width, height, anchorx, anchory, ID=None, outlineColo
     if ID is None:
         ID = "object" + str(objectCount)
     objectCount+=1
+    if otype!="Text":
+        x = (x if anchorx == "c" else (x - width / 2 if anchorx == "r" else x + width / 2))
+        y = (y if anchory == "c" else (y + height / 2 if anchory == "u" else y - height / 2))
     objects[ID] = {
-        "x": (x if anchorx == "c" else (x - width / 2 if anchorx == "r" else x + width / 2)),
-        "y": (y if anchory == "c" else (y + height / 2 if anchory == "u" else y - height / 2)),
+        "x": x,
+        "y": y,
         "ax": (x - width / 2 if anchorx == "c" else (x - width if anchorx == "r" else x)),
         "ay": (y - height / 2 if anchory == "c" else (y + width / 2 if anchory == "u" else y - height)),
         "bx": (x + width / 2 if anchorx == "c" else (x if anchorx == "r" else x + width)),
@@ -134,7 +137,23 @@ def setObject(ID, parameters, forceUpdate=False):
     global objects, toRenderObjects
     modified=False
     for p in parameters.keys():
-        if objects[ID][p] != parameters[p] or forceUpdate:
+        # if not modified:
+        #     if p =="squaresMap" and objects[ID]["type"]=="gameCanvas":
+        #         if objects[ID]["squaresMap"] and parameters[p]:
+        #             # print(objects[ID]["squaresMap"])
+        #             # try:
+        #             for y in len(objects[ID]["squaresMap"]):
+        #                 for x in len(y):
+        #                     if parameters[p][y][x] != objects[ID]["squaresMap"][y][x]:
+        #                         modified=True
+        #                         break
+        #             # except:
+        #             #     print(objects[ID]["squaresMap"])
+        #         else:
+        #             modified=True
+        #     elif parameters[p]!=objects[ID][p]:
+        #         modified=True
+        if objects[ID][p]!=parameters[p] or forceUpdate:
             modified=True
             objects[ID][p] = parameters[p]
             if p == "x" or p == "width":
@@ -209,7 +228,7 @@ def nullAction():
 
 
 def addButton(x, y, action=nullAction, arguments=[], ID=None, width=150, height=50, anchorx="c", anchory="c",
-              textAnchor="c", text="", outlineColor="black", textColor="black", textSize=18, textFont="Monospace",
+              textAnchor="center", text="", outlineColor="black", textColor="black", textSize=18, textFont="Monospace",
               fill="", stroke=1, polygonal=None, hidden=False, layer=0, isChild=False, permanent=False):
     global objects
     # if textSize is None and text:
@@ -284,6 +303,10 @@ def addTextField(x, y, ID=None, width=150, height=30, anchorx="c", anchory="c", 
 
 
 def drawTextField(ID):
+    i=0
+    # if objects[ID]["text"]:
+    #     while longueur_texte(objects[ID]["text"][-i:])>objects[ID]["width"]:
+    #         i+=1
     return (
         rectangle(
             objects[ID]["ax"],
@@ -297,7 +320,7 @@ def drawTextField(ID):
         texte(
             objects[ID]["ax"],
             (objects[ID]["ay"] + (objects[ID]["by"] - objects[ID]["ay"]) / 2),
-            objects[ID]["text"][-(objects[ID]["height"]):],
+            objects[ID]["text"][-i:],
             objects[ID]["textColor"],
             taille=objects[ID]["textSize"],
             ancrage="w",
@@ -320,13 +343,19 @@ def addText(x, y, ID=None, width=150, height=30, anchorx="c", anchory="c", text=
 
 
 def drawText(ID):
+    if objects[ID]["anchorx"]=="l":
+        anchor="w"
+    elif objects[ID]["anchorx"]=="r":
+        anchor="e"
+    else:
+        anchor="center"
     return (
         texte(
             objects[ID]["x"],
             objects[ID]["y"],
             objects[ID]["text"],
             objects[ID]["textColor"],
-            "center",
+            anchor,
             objects[ID]["textFont"],
             objects[ID]["textSize"]
         ),
@@ -369,12 +398,12 @@ def drawGameCanvas(ID):
     if len(objects[ID]["squaresMap"]):
         if len(objects[ID]["squaresMap"][0])*objects[ID]["cellSize"] < objects[ID]["width"]:
             setObject(ID, {"width": len(objects[ID]["squaresMap"][0])*objects[ID]["cellSize"]+1})
-        if (len(objects[ID]["squaresMap"])-1)*objects[ID]["cellSize"] < objects[ID]["height"]:
-            setObject(ID, {"height": (len(objects[ID]["squaresMap"])-1)*objects[ID]["cellSize"]+1})
+        if (len(objects[ID]["squaresMap"]))*objects[ID]["cellSize"] < objects[ID]["height"]:
+            setObject(ID, {"height": (len(objects[ID]["squaresMap"]))*objects[ID]["cellSize"]+1})
         if len(objects[ID]["squaresMap"][0])*objects[ID]["cellSize"] > objects[ID]["width"]:
             setObject(ID, {"width": len(objects[ID]["squaresMap"][0])*objects[ID]["cellSize"]+1})
-        if (len(objects[ID]["squaresMap"])-1)*objects[ID]["cellSize"] > objects[ID]["height"]:
-            setObject(ID, {"height": (len(objects[ID]["squaresMap"])-1)*objects[ID]["cellSize"]+1})
+        if (len(objects[ID]["squaresMap"]))*objects[ID]["cellSize"] > objects[ID]["height"]:
+            setObject(ID, {"height": (len(objects[ID]["squaresMap"]))*objects[ID]["cellSize"]+1})
 
     # if len(objects[ID]["squaresMap"]):
     #     if len(objects[ID]["squaresMap"][0])*CELL_SIZE < objects[ID]["width"]:
