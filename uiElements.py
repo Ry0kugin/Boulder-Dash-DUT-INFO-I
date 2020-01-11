@@ -185,14 +185,20 @@ def remObject(ID):
             if objects[ID]["childs"]:
                 for o in objects[ID]["childs"]:
                     remObject(o)
+            positions[objects[ID]["layer"]].pop(ID, None)
+            renderQueue[objects[ID]["layer"]].remove(ID)
+            if objects[ID]["tkObjects"]:
+                for o in objects[ID]["tkObjects"]:
+                    efface(o)
+            objects.pop(ID, None)
+            reDraw()# A corriger
+            return
         positions[objects[ID]["layer"]].pop(ID, None)
-        # print(renderQueue)
         renderQueue[objects[ID]["layer"]].remove(ID)
         if objects[ID]["tkObjects"]:
             for o in objects[ID]["tkObjects"]:
                 efface(o)
         objects.pop(ID, None)
-        reDraw()# A corriger
     except KeyError as e:
         print("UI Warning: cannot remove unknown object", e)
 

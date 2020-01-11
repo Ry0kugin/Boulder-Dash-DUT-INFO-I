@@ -1,9 +1,15 @@
-1 - animation de fin avec timers + time factor*2 
-2 - pathfinding
-3 - Editor
-4 - Finish UI
-5 - level loading
-6 - score table
-7 - fallables affected by time DONE
-8 - Greater map on render
-9 - UI rework
+animation de fin avec timers + time factor*2  DONE
+fallables affected by time DONE
+
+
+
+
+
+pathfinding
+Editor cursor
+Finish UI
+UI rework
+level loading DONE
+score table
+Greater map on render
+Greater map on Editor

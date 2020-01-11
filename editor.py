@@ -38,13 +38,15 @@ def editor(squaresMap=None):
     editorHeight = 12
     render.update((squaresMap if squaresMap else [["." for x in range(editorWidth)] for y in range(editorHeight)]), "editorCanvas")
     render.update(blockMap, "blockCanvas")
+    onPressed=False
     while not evenement.event["game"] == 'return':
         evenement.compute()
         ui.logic(evenement.event["tk"])
+        tkEvent=evenement.getTkEvent()
         # print(type(ui.objects["blockCanvas"]["selected"]))
-        updateCursor(evenement.getTkEvent(), "editorCanvas", ui.objects["blockCanvas"]["selected"][0])
-        updateCursor(evenement.getTkEvent(), "blockCanvas")
         if ui.focus is None:
+            updateCursor(tkEvent, "editorCanvas", ui.objects["blockCanvas"]["squaresMap"][ui.objects["blockCanvas"]["selected"][0][1]][ui.objects["blockCanvas"]["selected"][0][0]], onPressed)
+            updateCursor(tkEvent, "blockCanvas")
             # print(evenement.event["game"])
             if evenement.event["game"] == "reset":
                 render.update([["." for x in range(editorWidth)] for y in range(editorHeight)], "editorCanvas")
@@ -56,24 +58,44 @@ def editor(squaresMap=None):
                     IO.save(ui.objects["editorCanvas"]["squaresMap"], squaresMap[1])
                 else:
                     ui.newPrompt("Nom de la sauvegarde:", "Sauvegarder", success=lambda: IO.save(game.data, ui.objects["prompt_2"]["text"]), checker=IO.checkSaveName, anyway=lambda: timer.setFactor(1))
-                continue
+            if type_evenement(tkEvent)=="Deplacement":
+                if "|" in str(tkEvent):
+                    onPressed=True
+                else:
+                    onPressed=False
+
         game.updateTime()
         ui.render(game.getFps())
         mise_a_jour()
     ui.reset()
 
 
-def updateCursor(ev, canvas, block=None):
+def writeMultipleBlocks(canvas, squaresMap, block):
+    for p in ui.objects["editorCanvas"]["selected"]:
+        squaresMap[p[1]][p[0]]=block
+    ui.setObject(canvas, {"selected":None})
+    return squaresMap
+
+def updateCursor(ev, canvas, block=None, onPressed=False):
     evType=type_evenement(ev)
-    # print(type_evenement(ev))
+    # print(ev)
+    # print(ui.objects["editorCanvas"]["selected"])
     if evType in ("Deplacement", "ClicGauche"):
         pos=[clic_x(ev), clic_y(ev)]
+        multiSelection=ui.objects["editorCanvas"]["selected"] and len(ui.objects["editorCanvas"]["selected"])>1
+        squaresMap=ui.objects[canvas]["squaresMap"]
         if ui.objects[canvas]["ax"] < pos[0] < ui.objects[canvas]["bx"] and ui.objects[canvas]["ay"] < pos[1] < ui.objects[canvas]["by"]:
-            squaresMap=ui.objects[canvas]["squaresMap"]
             x=int((pos[0]-ui.objects[canvas]["ax"])/ui.objects[canvas]["cellSize"])
             y=int((pos[1]-ui.objects[canvas]["ay"])/ui.objects[canvas]["cellSize"])
             if block:
-                ui.setObject(canvas, {"selected":[(x,y)]})
+                if not onPressed:
+                    if multiSelection:
+                        squaresMap=writeMultipleBlocks(canvas, squaresMap, block)
+                    else:
+                        ui.setObject(canvas, {"selected":[(x,y)]})
+                else:
+                    ui.setObject(canvas, {"selected":list(set((*ui.objects["editorCanvas"]["selected"],(x,y))))})
+                    # ui.setObject(canvas, {"selected":[*ui.objects["editorCanvas"]["selected"],(x,y)]}) # Bad memory usage
             else:
                 ui.setObject(canvas, {"selected":[ui.objects["blockCanvas"]["selected"][0], (x,y)]})
             if evType == "ClicGauche":
@@ -84,9 +106,12 @@ def updateCursor(ev, canvas, block=None):
                 render.update(squaresMap, canvas)
         else:
             if block:
+                if multiSelection:
+                    squaresMap=writeMultipleBlocks(canvas, squaresMap, block)
+                    render.update(squaresMap, canvas)
+                    return
                 ui.setObject(canvas, {"selected":None})
             else:
                 ui.setObject(canvas, {"selected":[ui.objects["blockCanvas"]["selected"][0], None]})
            
-            
-    pass
+    
