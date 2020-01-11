@@ -141,7 +141,7 @@ def loadSave(level, data=None):
             if line == "-map-" or line == "-rockford-" or line == "-time-":
                 currentData = line
     if data:
-        data["map"] = loadLevel(curMap.strip(), fromData=True)
+        data["map"] = loadLevel(level=curMap.strip(), fromData=True)
         return data["map"]
     return loadLevel(level=curMap.strip(), fromData=True)
 
