@@ -17,7 +17,7 @@ def initEditorUI():
     #ui.addText(render.WIDTH_WINDOW / 2, 0, ID="scoreText", anchory="u", textColor="yellow")
     # Game canvas
     ui.addGameCanvas(0, render.HEIGHT_WINDOW/8, ID="editorCanvas", width=0, height=0, fill="green", anchorx="l", anchory="u")
-    ui.addGameCanvas(RightXPos, render.HEIGHT_WINDOW/8, ID="blockCanvas", width=0, height=0, fill="red", anchorx="c", anchory="u", cellSize=64)
+    ui.addGameCanvas(RightXPos, render.HEIGHT_WINDOW/8, ID="blockCanvas", width=0, height=0, fill="red", anchorx="c", anchory="u", cellSize=64, selected=[(0,0)])
     # cursor routine
     # ui.addLogicRoutine("editorCursor", updateCursor)
 
@@ -28,16 +28,21 @@ def editor(squaresMap=None):
     ui.reset()
     ui.setBackground("black")
     initEditorUI()
-    blockMap=[["." for y in range(2)] for x in range(6)]
+    blockMap=[
+        ["W", "G"],
+        [".", "B"],
+        ["D", "X"],
+        ["R", "E"],
+        ]
     editorWidth = 20
     editorHeight = 12
     render.update((squaresMap if squaresMap else [["." for x in range(editorWidth)] for y in range(editorHeight)]), "editorCanvas")
     render.update(blockMap, "blockCanvas")
-    block ="B"
     while not evenement.event["game"] == 'return':
         evenement.compute()
         ui.logic(evenement.event["tk"])
-        updateCursor(evenement.getTkEvent(), "editorCanvas", block)
+        # print(type(ui.objects["blockCanvas"]["selected"]))
+        updateCursor(evenement.getTkEvent(), "editorCanvas", ui.objects["blockCanvas"]["selected"][0])
         updateCursor(evenement.getTkEvent(), "blockCanvas")
         if ui.focus is None:
             # print(evenement.event["game"])
@@ -67,11 +72,21 @@ def updateCursor(ev, canvas, block=None):
             squaresMap=ui.objects[canvas]["squaresMap"]
             x=int((pos[0]-ui.objects[canvas]["ax"])/ui.objects[canvas]["cellSize"])
             y=int((pos[1]-ui.objects[canvas]["ay"])/ui.objects[canvas]["cellSize"])
-            ui.setObject(canvas, {"selected":(x,y)})
+            if block:
+                ui.setObject(canvas, {"selected":[(x,y)]})
+            else:
+                ui.setObject(canvas, {"selected":[ui.objects["blockCanvas"]["selected"][0], (x,y)]})
             if evType == "ClicGauche":
-                squaresMap[y][x]=block
+                if block:
+                    squaresMap[y][x]=block
+                else:
+                    ui.setObject(canvas, {"selected":[(x,y),ui.objects["blockCanvas"]["selected"][1]]})
                 render.update(squaresMap, canvas)
         else:
-            ui.setObject(canvas, {"selected":None})
+            if block:
+                ui.setObject(canvas, {"selected":None})
+            else:
+                ui.setObject(canvas, {"selected":[ui.objects["blockCanvas"]["selected"][0], None]})
+           
             
     pass

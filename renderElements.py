@@ -165,7 +165,8 @@ def drawRockford(coord, cellSize):
     :param tuple coord: couple (abscisse, ordonnee) de la case
     """
     halfSize=int(cellSize/2)
-    lst=list(drawVoid(coord, cellSize))
+    # lst=list(drawVoid(coord, cellSize))
+    lst=list()
     lst.extend((cercle(
         coord[0] + halfSize,
         coord[1] + halfSize // 2,

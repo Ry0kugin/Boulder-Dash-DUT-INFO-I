@@ -4,15 +4,15 @@ import render, logic, ui, IO, game, animation, evenement, game, editor
 
 ###############################################################################
 
-def move(levelSelected, levels, increment):
+def move(levelSelected, levels, increment, load):
     levelSelected = (levelSelected + increment)%len(levels)
-    moveRender(levels, levelSelected)
+    moveRender(levels, levelSelected, load)
     return levelSelected
 
-def moveRender(levels, levelSelected):
+def moveRender(levels, levelSelected, load):
     ui.setObject("levelName", {"text": levels[levelSelected]})
     ui.setObject("levelSelected", {"text": str(levelSelected+1)+"/"+str(len(levels))})
-    render.update(IO.loadLevel(level=levels[levelSelected])[1::],"levelSelection")
+    render.update(load(level=levels[levelSelected])[1::],"levelSelection")
 
 def choicePlaystyle():
     while not evenement.event["game"] == 'return':   
@@ -26,20 +26,48 @@ def choicePlaystyle():
             levelSelected = 0
             level = IO.loadLevel(level=levels[0])
             game.initSelectionLevel(level)
-            moveRender(levels, levelSelected)
+            moveRender(levels, levelSelected, IO.loadLevel)
 
             while not evenement.event["game"] == 'return':   
                 evenement.compute()
                 ui.logic(evenement.event["tk"])
                 if evenement.event["game"] == "right":
-                    levelSelected = move(levelSelected, levels, 1)
+                    levelSelected = move(levelSelected, levels, 1, IO.loadLevel)
                 elif evenement.event["game"] == "left":
-                    levelSelected = move(levelSelected, levels,-1)
+                    levelSelected = move(levelSelected, levels,-1, IO.loadLevel)
                 elif evenement.event["game"] == "play":
                     goInBlack()
-                    game.play(levels[levelSelected])
+                    game.play(levels[levelSelected], "s")
                     backInBlack(game.initSelectionLevel, [levels[levelSelected]])
-                    moveRender(levels, levelSelected)
+                    moveRender(levels, levelSelected, IO.loadLevel)
+                game.updateTime()
+                ui.render(game.getFps())
+                mise_a_jour()
+
+            backInBlack(game.initPlayMenu)
+
+        # REFACTORING URGENT!!!
+        if evenement.event["game"] == 'save': 
+            ui.reset()
+            ui.setBackground("black")
+            levels = IO.getLevels("save")
+            levelSelected = 0
+            level = IO.loadSave(levels[0])
+            game.initSaveLevel(level)
+            moveRender(levels, levelSelected, IO.loadSave)
+
+            while not evenement.event["game"] == 'return':   
+                evenement.compute()
+                ui.logic(evenement.event["tk"])
+                if evenement.event["game"] == "right":
+                    levelSelected = move(levelSelected, levels, 1,IO.loadSave)
+                elif evenement.event["game"] == "left":
+                    levelSelected = move(levelSelected, levels,-1,IO.loadSave)
+                elif evenement.event["game"] == "play":
+                    goInBlack()
+                    game.play(levels[levelSelected], "l")
+                    backInBlack(game.initSaveLevel, [levels[levelSelected]])
+                    moveRender(levels, levelSelected, IO.loadSave)
                 game.updateTime()
                 ui.render(game.getFps())
                 mise_a_jour()
@@ -50,7 +78,7 @@ def choicePlaystyle():
             ui.reset()
             ui.setBackground("black")
 
-            game.play()
+            game.play(mode="r")
 
             backInBlack(game.initPlayMenu)
 

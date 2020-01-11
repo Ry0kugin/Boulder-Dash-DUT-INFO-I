@@ -248,50 +248,22 @@ def drawButton(ID):
     )
     
 ######## Polygons ########
-def addPolygon(x, y, action=nullAction, arguments=[], ID=None, width=150, height=50, anchorx="c", anchory="c",
-              textAnchor="c", text="", outlineColor="black", textColor="black", textSize=18, textFont="Monospace",
-              fill="", stroke=1, polygonal=None, hidden=False, layer=0, isChild=False, permanent=False):
+def addPolygon(x, y, ID=None, points=None,width=150, height=50, anchorx="c", anchory="c", outlineColor="black", fill="", stroke=1, hidden=False, layer=0, isChild=False):
     global objects
     # if textSize is None and text:
     #     textSize = int(width / len(text))
-    ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, outlineColor, fill, stroke, hidden, isChild, otype="Button", permanent=permanent)
-    objects[ID]["text"] = text
-    objects[ID]["textAnchor"] = textAnchor
-    objects[ID]["textColor"] = textColor
-    objects[ID]["textSize"] = textSize
-    objects[ID]["action"] = action
-    objects[ID]["args"] = arguments
-    objects[ID]["textFont"] = textFont
-    objects[ID]["polygonal"] = polygonal
+    ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, outlineColor, fill, stroke, hidden, isChild, otype="Polygon")
+    objects[ID]["points"]=points
     # [(x,y),(x,y),...]
 
 def drawPolygon(ID):
     return (
         polygone(
-            [(objects[ID]["ax"]+x*objects[ID]["width"],objects[ID]["ay"]+y*objects[ID]["height"]) for x,y in objects[ID]["polygonal"]],
+            [(objects[ID]["ax"]+x*objects[ID]["width"],objects[ID]["ay"]+y*objects[ID]["height"]) for x,y in objects[ID]["points"]],
             objects[ID]["outlineColor"],
             objects[ID]["fill"],
             objects[ID]["stroke"]
-        ) if objects[ID]["polygonal"] else
-        rectangle(
-            objects[ID]["ax"],
-            objects[ID]["ay"],
-            objects[ID]["bx"],
-            objects[ID]["by"],
-            objects[ID]["outlineColor"],
-            objects[ID]["fill"],
-            objects[ID]["stroke"]
-        ),
-        texte(
-            objects[ID]["x"],
-            objects[ID]["y"],
-            objects[ID]["text"],
-            objects[ID]["textColor"],
-            objects[ID]["textAnchor"],
-            objects[ID]["textFont"],
-            objects[ID]["textSize"]
-        )
-    )
+        ))
 
 ######## textFields ########
 def addTextField(x, y, ID=None, width=150, height=30, anchorx="c", anchory="c", text="",
@@ -380,7 +352,7 @@ def drawPanel(ID):
 
 ######## Canvas ########
 def addGameCanvas(x, y, ID=None, width=100, height=100, anchorx="c", anchory="c", outlineColor="", fill="", stroke=1,
-             squaresMap=[], hidden=False, layer=0, isChild=False, selected=None, cellSize=32):
+             squaresMap=[], hidden=False, layer=0, isChild=False, selected=None, permanentSelected=None,cellSize=32):
     global objects
     ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, outlineColor, fill, stroke, hidden, isChild, otype="gameCanvas")
     objects[ID]["squaresMap"] = squaresMap
@@ -424,8 +396,10 @@ def drawGameCanvas(ID):
             x1, y1 = toCanvasCoord(ID, x,y)
             identifierList.extend(renderCase[objects[ID]["squaresMap"][y][x]]((x1+1, y1+1), objects[ID]["cellSize"]-2))
     if objects[ID]["selected"]:
-        x,y = objects[ID]["selected"]
-        identifierList.append(renderCase["S"](toCanvasCoord(ID,x,y), objects[ID]["cellSize"], objects[ID]["fill"]))
+        for p in objects[ID]["selected"]:
+            if p:
+                x,y = p[0], p[1]
+                identifierList.append(renderCase["S"](toCanvasCoord(ID,x,y), objects[ID]["cellSize"], objects[ID]["fill"]))
     return tuple(identifierList)
 
 def toCanvasCoord(ID,x,y):

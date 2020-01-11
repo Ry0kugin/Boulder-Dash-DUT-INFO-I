@@ -118,10 +118,9 @@ def checkSaveName():
         return True
 
 
-def loadSave(data):
-    fileName = "save 1"
+def loadSave(level, data=None):
 
-    with open("saves/" + fileName, "r") as fis:
+    with open("saves/" + level, "r") as fis:
         currentData = ""
         curMap= ""
         for line in fis:
@@ -132,16 +131,19 @@ def loadSave(data):
             elif currentData == "-rockford-":
                 pos, diamonds = line.strip().split()
                 x, y = pos.split("-")
-                data["rockford"] = (int(x), int(y))
-                data["diamonds"]["owned"] = int(diamonds)
+                if data:
+                    data["rockford"] = (int(x), int(y))
+                    data["diamonds"]["owned"] = int(diamonds)
             elif currentData == "-time-":
-                data["time"]["remain"] = int(line.strip())
+                if data:
+                    data["time"]["remain"] = int(line.strip())
             line = line.strip()
             if line == "-map-" or line == "-rockford-" or line == "-time-":
                 currentData = line
-
-    data["map"] = loadLevel(curMap.strip(), fromData=True)
-    return fileName
+    if data:
+        data["map"] = loadLevel(curMap.strip(), fromData=True)
+        return data["map"]
+    return loadLevel(level=curMap.strip(), fromData=True)
 
 def getLevels(getfrom="level" ,directory=None):
     path = None  
@@ -150,7 +152,7 @@ def getLevels(getfrom="level" ,directory=None):
     else:
         if getfrom == "level":
             path="level"
-        elif loadLevel == "save":
+        elif getfrom == "save":
             path="saves"
         else:
             print("/!\ Can only load from -level- or -save-")

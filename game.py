@@ -17,7 +17,7 @@ fps = 0
 def initPlayMenu():
     ui.addButton(1.2*render.WIDTH_WINDOW / 4, render.HEIGHT_WINDOW * 1/3, width=render.WIDTH_WINDOW / 2.8, height=int(render.HEIGHT_WINDOW / 2), text="Select\nLevel", textSize=40, textColor="white", outlineColor="white", action=evenement.setGameEvent, arguments=["selection"])
     ui.addButton(2.8*render.WIDTH_WINDOW / 4, render.HEIGHT_WINDOW * 1/3, width=render.WIDTH_WINDOW / 2.8, height=int(render.HEIGHT_WINDOW / 2), text="unlimited\nRandom", textSize=40, textColor="white", outlineColor="white", action=evenement.setGameEvent, arguments=["play"])
-    ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW * 2.3/3, width=render.WIDTH_WINDOW / 2.6, height=int(render.HEIGHT_WINDOW / 5), text="Load from Save", textSize=28, textColor="white", outlineColor="white")
+    ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW * 2.3/3, width=render.WIDTH_WINDOW / 2.6, height=int(render.HEIGHT_WINDOW / 5), text="Load from Save", textSize=28, textColor="white", outlineColor="white", action=evenement.setGameEvent, arguments=["save"])
 
 
 def initMenuUI():
@@ -28,14 +28,18 @@ def initMenuUI():
     ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW - 30, width=150, height=50 ,text="quitter", textSize=18, textColor="white", outlineColor="white", anchory="s", action=logic.quitter)
     ui.addButton(render.WIDTH_WINDOW - 85, render.HEIGHT_WINDOW - 10, text="settings", textSize=18, textColor="white", outlineColor="white", anchory="s")
 
-def initSelectionLevel(level):
+def initSaveLevel(level):
     ui.addButton(0 + render.WIDTH_WINDOW / 20, render.HEIGHT_WINDOW / 2, width=80, height=80, fill="white", stroke=5, polygonal=[(1,0),(0.2,0.5),(1,1)], action=evenement.setGameEvent, arguments=["left"])
     ui.addButton(render.WIDTH_WINDOW - render.WIDTH_WINDOW / 20, render.HEIGHT_WINDOW / 2, width=80, height=80, fill="white", stroke=5, polygonal=[(0,0),(0.8,0.5),(0,1)], action=evenement.setGameEvent, arguments=["right"])
-    ui.addGameCanvas(render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/2, "levelSelection", fill="red", width=0, height=0, squaresMap=level)
+    ui.addGameCanvas(render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/2, "levelSelection", width=0, height=0, squaresMap=level)
     ui.addText(render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/9, "levelName", render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/8, text=" ", textColor="white", textSize=28)
     ui.addText(3*render.WIDTH_WINDOW/4, render.HEIGHT_WINDOW/9, "levelSelected", render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/8, text=" ", textColor="white", textSize=28)
-    ui.addButton(render.WIDTH_WINDOW-1, render.HEIGHT_WINDOW-1, width=render.WIDTH_WINDOW/5, height=render.HEIGHT_WINDOW/8, anchorx="r" ,anchory="d", text="import Level", outlineColor="white", textColor="white")
     ui.addButton(render.WIDTH_WINDOW/2, 7*render.HEIGHT_WINDOW/8, width=render.WIDTH_WINDOW/4, height=render.HEIGHT_WINDOW/7, anchorx="c" ,anchory="c", text="Play", outlineColor="white", textColor="white", action=evenement.setGameEvent, arguments=["play"])
+
+def initSelectionLevel(level):
+    initSaveLevel(level)
+    ui.addButton(render.WIDTH_WINDOW/2, 7*render.HEIGHT_WINDOW/8, width=render.WIDTH_WINDOW/4, height=render.HEIGHT_WINDOW/7, anchorx="c" ,anchory="c", text="Play", outlineColor="white", textColor="white", action=evenement.setGameEvent, arguments=["play"])
+
 
 def playButton():
     # animation.animate("playButton", [0.1], [{"width":render.WIDTH_WINDOW / 2}])
@@ -108,18 +112,18 @@ evenementHandler={
     "load":loadGame
 }
 
-def play(level=None):
+def play(level=None, mode="r"):
     global data
     ui.reset()
     ui.setBackground("black")
     initGameUI()
     initData()
-    if level:
+    if level and mode=="s":
         IO.loadLevel(data, level)
-        data["mode"] = "s"
+    elif level and mode=="l":
+        IO.loadSave(level, data)
     else: 
         IO.loadLevel(data)
-        data["mode"] = "r"
     start(data)
     render.update(data["map"][1::], "gameCanvas")
 
