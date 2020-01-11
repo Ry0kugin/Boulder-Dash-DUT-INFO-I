@@ -21,7 +21,12 @@ renderTable = {
     "textField": (lambda x: drawTextField(x)),
     "Text": (lambda x: drawText(x)),
     "Panel": (lambda x: drawPanel(x)),
-    "gameCanvas": (lambda x: drawGameCanvas(x))
+    "gameCanvas": (lambda x: drawGameCanvas(x)),
+    "Polygon": (lambda x: drawPolygon(x))
+}
+
+anchorTable = {
+
 }
 
 def reset():
@@ -155,63 +160,10 @@ def setObject(ID, parameters, forceUpdate=False):
 
 def drawObject(ID):
     global renderTable
-    try:
-        objects[ID]["tkObjects"] = tuple(renderTable[objects[ID]["type"]](ID))
-    except KeyError:
-        print("UI Warning: Object with ID", ID, "could not be 'drawn': type", objects[ID]["type"], "is not registered in the render table.")
-    
-    # global tkElementsCount
-    # otype = objects[ID]["type"]
-    # if otype == "Button" or otype == "textField" or otype == "Text":
-    #     if otype != "Text":
-    #         rectangle(
-    #             objects[ID]["ax"],
-    #             objects[ID]["ay"],
-    #             objects[ID]["bx"],
-    #             objects[ID]["by"],
-    #             objects[ID]["outlineColor"],
-    #             objects[ID]["fill"],
-    #             objects[ID]["stroke"],
-    #             tag=""
-    #         )
-    #     texte(
-    #         (objects[ID]["x"] if otype != "textField" else objects[ID]["ax"]),
-    #         (objects[ID]["y"] if otype != "textField" else objects[ID]["ay"] + (
-    #                     objects[ID]["by"] - objects[ID]["ay"]) / 2),
-    #         objects[ID]["text"][-(objects[ID]["height"]):],
-    #         objects[ID]["textColor"],
-    #         taille=objects[ID]["textSize"],
-    #         ancrage=objects[ID]["textAnchor"],
-    #         police=objects[ID]["textFont"]
-    #     )
-    # elif otype == "Panel":
-    #     rectangle(
-    #         objects[ID]["ax"],
-    #         objects[ID]["ay"],
-    #         objects[ID]["bx"],
-    #         objects[ID]["by"],
-    #         objects[ID]["outlineColor"],
-    #         objects[ID]["fill"],
-    #         objects[ID]["stroke"]
-    #     )
-    #     for c in objects[ID]["childs"]:
-    #         drawObject(c)
-    # elif otype == "gameCanvas":
-    #     rectangle(
-    #         objects[ID]["ax"],
-    #         objects[ID]["ay"],
-    #         objects[ID]["bx"],
-    #         objects[ID]["by"],
-    #         objects[ID]["outlineColor"],
-    #         objects[ID]["fill"],
-    #         objects[ID]["stroke"]
-    #     )
-
-    #     for y in range(len(objects[ID]["squaresMap"])):
-    #         for x in range(len(objects[ID]["squaresMap"][y])):
-    #             x1 = x * CELL_SIZE + objects[ID]["ax"]
-    #             y1 = y * CELL_SIZE + objects[ID]["ay"]
-    #             renderCase[objects[ID]["squaresMap"][y][x]]((x1, y1))
+    # try:
+    objects[ID]["tkObjects"] = tuple(renderTable[objects[ID]["type"]](ID))
+    # except KeyError:
+    #     print("UI Warning: Object with ID", ID, "could not be 'drawn': type", objects[ID]["type"], "is not registered in the render table.")
 
 
 def moveObject(ID, layer):
@@ -295,14 +247,59 @@ def drawButton(ID):
         )
     )
     
+######## Polygons ########
+def addPolygon(x, y, action=nullAction, arguments=[], ID=None, width=150, height=50, anchorx="c", anchory="c",
+              textAnchor="c", text="", outlineColor="black", textColor="black", textSize=18, textFont="Monospace",
+              fill="", stroke=1, polygonal=None, hidden=False, layer=0, isChild=False, permanent=False):
+    global objects
+    # if textSize is None and text:
+    #     textSize = int(width / len(text))
+    ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, outlineColor, fill, stroke, hidden, isChild, otype="Button", permanent=permanent)
+    objects[ID]["text"] = text
+    objects[ID]["textAnchor"] = textAnchor
+    objects[ID]["textColor"] = textColor
+    objects[ID]["textSize"] = textSize
+    objects[ID]["action"] = action
+    objects[ID]["args"] = arguments
+    objects[ID]["textFont"] = textFont
+    objects[ID]["polygonal"] = polygonal
+    # [(x,y),(x,y),...]
+
+def drawPolygon(ID):
+    return (
+        polygone(
+            [(objects[ID]["ax"]+x*objects[ID]["width"],objects[ID]["ay"]+y*objects[ID]["height"]) for x,y in objects[ID]["polygonal"]],
+            objects[ID]["outlineColor"],
+            objects[ID]["fill"],
+            objects[ID]["stroke"]
+        ) if objects[ID]["polygonal"] else
+        rectangle(
+            objects[ID]["ax"],
+            objects[ID]["ay"],
+            objects[ID]["bx"],
+            objects[ID]["by"],
+            objects[ID]["outlineColor"],
+            objects[ID]["fill"],
+            objects[ID]["stroke"]
+        ),
+        texte(
+            objects[ID]["x"],
+            objects[ID]["y"],
+            objects[ID]["text"],
+            objects[ID]["textColor"],
+            objects[ID]["textAnchor"],
+            objects[ID]["textFont"],
+            objects[ID]["textSize"]
+        )
+    )
+
 ######## textFields ########
-def addTextField(x, y, ID=None, width=150, height=30, anchorx="c", anchory="c", textAnchor="w", text="",
+def addTextField(x, y, ID=None, width=150, height=30, anchorx="c", anchory="c", text="",
                  outlineColor="black", textColor="black", textSize=18, fill="", textFont="Monospace", stroke=1,
                  hidden=False, layer=0, isChild=False, permanent=False):
     global objects
     ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, outlineColor, fill, stroke, hidden, isChild, otype="textField", permanent=permanent)
     objects[ID]["text"] = text
-    objects[ID]["textAnchor"] = textAnchor
     objects[ID]["textColor"] = textColor
     objects[ID]["textSize"] = textSize
     objects[ID]["textFont"] = textFont
@@ -325,19 +322,19 @@ def drawTextField(ID):
             objects[ID]["text"][-(objects[ID]["height"]):],
             objects[ID]["textColor"],
             taille=objects[ID]["textSize"],
-            ancrage=objects[ID]["textAnchor"],
+            ancrage="w",
             police=objects[ID]["textFont"]
         )
     )
 
 
 ######## Texts ########
-def addText(x, y, ID=None, width=150, height=30, anchorx="c", anchory="c", textAnchor="w", text="", textColor="black",
+def addText(x, y, ID=None, width=150, height=30, anchorx="c", anchory="c", text="", textColor="black",
             textSize=18, textFont="Purisa", hidden=False, layer=0, isChild=False, permanent=False):
     global objects
     ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, hidden=hidden, isChild=isChild, otype="Text", permanent=permanent)
     objects[ID]["text"] = text
-    objects[ID]["textAnchor"] = textAnchor
+    # objects[ID]["textAnchor"] = textAnchor
     objects[ID]["textColor"] = textColor
     objects[ID]["textSize"] = textSize
     objects[ID]["textFont"] = textFont
@@ -351,7 +348,7 @@ def drawText(ID):
             objects[ID]["y"],
             objects[ID]["text"],
             objects[ID]["textColor"],
-            objects[ID]["textAnchor"],
+            "center",
             objects[ID]["textFont"],
             objects[ID]["textSize"]
         ),
@@ -383,22 +380,23 @@ def drawPanel(ID):
 
 ######## Canvas ########
 def addGameCanvas(x, y, ID=None, width=100, height=100, anchorx="c", anchory="c", outlineColor="", fill="", stroke=1,
-             squaresMap=[], hidden=False, layer=0, isChild=False, selected=None):
+             squaresMap=[], hidden=False, layer=0, isChild=False, selected=None, cellSize=32):
     global objects
     ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, outlineColor, fill, stroke, hidden, isChild, otype="gameCanvas")
     objects[ID]["squaresMap"] = squaresMap
     objects[ID]["selected"] = selected
+    objects[ID]["cellSize"] = cellSize
 
 def drawGameCanvas(ID):
     if len(objects[ID]["squaresMap"]):
-        if len(objects[ID]["squaresMap"][0])*CELL_SIZE < objects[ID]["width"]:
-            setObject(ID, {"width": len(objects[ID]["squaresMap"][0])*CELL_SIZE})
-        if (len(objects[ID]["squaresMap"])-1)*CELL_SIZE < objects[ID]["height"]:
-            setObject(ID, {"height": (len(objects[ID]["squaresMap"])-1)*CELL_SIZE})
-        if len(objects[ID]["squaresMap"][0])*CELL_SIZE > objects[ID]["width"]:
-            setObject(ID, {"width": len(objects[ID]["squaresMap"][0])*CELL_SIZE})
-        if (len(objects[ID]["squaresMap"])-1)*CELL_SIZE > objects[ID]["height"]:
-            setObject(ID, {"height": (len(objects[ID]["squaresMap"])-1)*CELL_SIZE})
+        if len(objects[ID]["squaresMap"][0])*objects[ID]["cellSize"] < objects[ID]["width"]:
+            setObject(ID, {"width": len(objects[ID]["squaresMap"][0])*objects[ID]["cellSize"]+1})
+        if (len(objects[ID]["squaresMap"])-1)*objects[ID]["cellSize"] < objects[ID]["height"]:
+            setObject(ID, {"height": (len(objects[ID]["squaresMap"])-1)*objects[ID]["cellSize"]+1})
+        if len(objects[ID]["squaresMap"][0])*objects[ID]["cellSize"] > objects[ID]["width"]:
+            setObject(ID, {"width": len(objects[ID]["squaresMap"][0])*objects[ID]["cellSize"]+1})
+        if (len(objects[ID]["squaresMap"])-1)*objects[ID]["cellSize"] > objects[ID]["height"]:
+            setObject(ID, {"height": (len(objects[ID]["squaresMap"])-1)*objects[ID]["cellSize"]+1})
 
     # if len(objects[ID]["squaresMap"]):
     #     if len(objects[ID]["squaresMap"][0])*CELL_SIZE < objects[ID]["width"]:
@@ -424,14 +422,14 @@ def drawGameCanvas(ID):
     for y in range(len(objects[ID]["squaresMap"])):
         for x in range(len(objects[ID]["squaresMap"][y])):
             x1, y1 = toCanvasCoord(ID, x,y)
-            identifierList.extend(renderCase[objects[ID]["squaresMap"][y][x]]((x1, y1)))
+            identifierList.extend(renderCase[objects[ID]["squaresMap"][y][x]]((x1+1, y1+1), objects[ID]["cellSize"]-2))
     if objects[ID]["selected"]:
         x,y = objects[ID]["selected"]
-        identifierList.append(renderCase["S"](toCanvasCoord(ID,x,y)))
+        identifierList.append(renderCase["S"](toCanvasCoord(ID,x,y), objects[ID]["cellSize"], objects[ID]["fill"]))
     return tuple(identifierList)
 
 def toCanvasCoord(ID,x,y):
-    return (x * CELL_SIZE + objects[ID]["ax"], y * CELL_SIZE + objects[ID]["ay"])
+    return (x * objects[ID]["cellSize"] + objects[ID]["ax"], y * objects[ID]["cellSize"] + objects[ID]["ay"])
 
 def getToRenderObjects():
     return toRenderObjects

@@ -4,7 +4,7 @@ from random import *
 import ui
 import render
 import timer
-from game import getFps, updateStats
+from game import getFps, updateStats, updateTime
 
 import time
 
@@ -328,24 +328,37 @@ def status(data):
         GAME_STATUS = False
     if GAME_STATUS is not None:
         if GAME_STATUS:
-            for _ in range(data["time"]["remain"]):
-
-                data["score"] += 10
-                data["time"]["remain"] -= 1 
+            timer.new(1, ID="endScoreUpdate", permanent=True) # shadows the older timer /!\
+            vector=data["time"]["remain"]*10
+            currentTime=data["time"]["remain"]
+            currentScore=data["score"]
+            while not timer.isOver("endScoreUpdate"):
+                currentVector=vector*(timer.timers["endScoreUpdate"]["progression"]/timer.timers["endScoreUpdate"]["size"])
+                data["score"]=currentScore+int(currentVector)
+                data["time"]["remain"]= currentTime+int(currentScore/10)
                 
                 updateStats(data["time"]["remain"], (data["diamonds"]["owned"], int(data["map"][0][1])), data["score"])
+                updateTime()
                 ui.render(getFps())
                 mise_a_jour()
+            data["score"]=currentScore+vector
+            data["time"]["remain"]=0
+            updateStats(data["time"]["remain"], (data["diamonds"]["owned"], int(data["map"][0][1])), data["score"])
+            ui.render(getFps())
+
+            
             endGame(True)
+            if data["mode"] == "s":
+                attente_clic_ou_touche()
             return True
         else:
             endGame(False)
+            attente_clic_ou_touche()
             quitter()
 
 def endGame(win):
     ui.addText(WIDTH_WINDOW / 4, HEIGHT_WINDOW / 2 - 24, text=("VOUS AVEZ GAGNE :)" if win else "VOUS AVEZ PERDU :("), textColor=("green" if win else"red"), ID="endText")
     ui.render(getFps())
-    attente_clic_ou_touche()
     ui.remObject("endText")
     ui.render(getFps())
 

@@ -5,25 +5,30 @@ event = {
     "tk": None
 }
 
-def compute():
+def compute(inGame=False):
     ev = donne_evenement()
     event["tk"] = ev
-    SetGameEventFromTkEvent(ev)
+    SetGameEventFromTkEvent(ev,inGame)
     clearEventQueue()
 
-def SetGameEventFromTkEvent(ev):
+def SetGameEventFromTkEvent(ev, inGame):
     """
     renvoie la direction de rockford
 
     :param bool debug: active le mode debug
 
     """
-    DIRECTIONS = ["Right", "Left", "Up", "Down"]
     type_ev=type_evenement(ev)
     if type_ev=="Touche":
         t=touche(event["tk"])
-        if t in DIRECTIONS:
-            event["game"]="move"
+        if t in "Right":
+            event["game"]="move" if inGame else "right" 
+        elif t in "Left":
+            event["game"]="move" if inGame else "left"
+        elif t in "Up":
+            event["game"]="move" if inGame else "up"
+        elif t in "Down":
+            event["game"]="move" if inGame else "down"
         elif t=="r":
             event["game"]="reset"
         elif t=="d":

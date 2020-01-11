@@ -32,9 +32,9 @@ def loadLevel(data=None, level=None, fromData=False):
         print(level)
         # add option
         options = level[0].split()
-        levelLst.append([options[0][0:-1], options[1][0:-1]])
+        levelLst.append([int(options[0][0:-1]), int(options[1][0:-1])])
         if data:
-            data["map"].append([options[0][0:-1], options[1][0:-1]])
+            data["map"].append([int(options[0][0:-1]), int(options[1][0:-1])])
         # add map
             data["Map"] = []
         for i in range(1, len(level)):
@@ -94,11 +94,11 @@ def randomLevel(data):
     return level
 
 
-def save(data, fileName):
+def save(data, fileName, saveIn="saves"):
 
     print(data["map"])
-    with open("saves/" + fileName, "w") as fos:
-        fos.write("-map-\n")
+    with open(saveIn+"/" + fileName, "w") as fos:
+        fos.write(saveIn+"-map-\n")
         fos.write(str(data["map"][0][0]) + "s " + str(data["map"][0][1]) + "d\n")
         for i in range(1, len(data["map"])):
             fos.write("".join(data["map"][i]) + "\n")

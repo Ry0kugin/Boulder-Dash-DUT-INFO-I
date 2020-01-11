@@ -172,7 +172,7 @@ def newPrompt(message, buttonText, cancelable=True, checker=None, checkerArgumen
     global condition, transaction, exclusiveLayer, focus
     layer = len(renderQueue)
     childs = ["prompt_1", "prompt_2", "prompt_3"]
-    addText(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 1.6 / 4, ID=childs[0], text=message, textAnchor="c", isChild=True, layer=layer)
+    addText(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 1.6 / 4, ID=childs[0], text=message, isChild=True, layer=layer)
     addTextField(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 2 / 4, ID=childs[1], outlineColor="white", isChild=True, layer=layer)
     addButton(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 2.5 / 4, ID=childs[2], outlineColor="white", text=buttonText, textSize=18, action=actionPrompt, arguments=[success, successArguments, True, anyway, anywayArguments], layer=layer)
     if cancelable:
