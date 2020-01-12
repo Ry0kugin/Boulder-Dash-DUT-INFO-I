@@ -50,7 +50,8 @@ def drawGrass(coord, cellSize):
     """
     dessine une case terre
 
-    :param tuple coord: couple (abscisse, ordonnee) de la case
+    :param tuple coord: Couple (abscisse, ordonnee) de la case
+    :param float cellSize: Taille de la cellule
     """
     return (
         rectangle(
@@ -68,7 +69,7 @@ def drawBoulder(coord, cellSize):
     """
     dessine une case boulet
 
-    :param tuple coord: couple (abscisse, ordonnee) de la case
+    :param tuple coord: Couple (abscisse, ordonnee) de la case
     """
     halfSize=int(cellSize/2)
     st=set(drawVoid(coord, cellSize))
@@ -87,6 +88,7 @@ def drawDiamond(coord, cellSize):
     dessine une case diamant
 
     :param tuple coord: couple (abscisse, ordonnee) de la case
+    :param float cellSize: Taille de la cellule
     """
     halfSize=int(cellSize/2)
     st=set(drawVoid(coord, cellSize))
@@ -138,6 +140,7 @@ def drawEnd(coord, cellSize, finished=False):
     vert si open true
 
     :param tuple coord: couple (abscisse, ordonnee) de la case
+    :param float cellSize: Taille de la cellule
     """
     halfSize=int(cellSize/2)
     colors = (("#0a0", "#0f0") if finished else ("#a00", "#f00"))

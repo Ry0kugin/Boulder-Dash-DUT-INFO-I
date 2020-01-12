@@ -29,7 +29,7 @@ def loadLevel(data=None, level=None, fromData=False):
                     level += line
 
         level = level.split("\n")
-        print(level)
+        # print(level)
         # add option
         options = level[0].split()
         levelLst.append([int(options[0][0:-1]), int(options[1][0:-1])])
@@ -38,7 +38,8 @@ def loadLevel(data=None, level=None, fromData=False):
         # add map
             data["Map"] = []
         for i in range(1, len(level)):
-            levelLst.append(list(level[i]))
+            if level[i]:
+                levelLst.append(list(level[i]))
             if data:
                 data["map"].append(list(level[i]))
     return levelLst
@@ -158,7 +159,6 @@ def getLevels(getfrom="level" ,directory=None):
             print("/!\ Can only load from -level- or -save-")
             print("/!\ get -level-")
             path = getfrom
-    
     return [f for f in listdir(path) if isfile(join(path, f))]
     
 

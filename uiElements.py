@@ -7,7 +7,6 @@ objects = {}
 toRenderObjects=[]
 permanentObjects = {} #/!\ *chuckles* I'm in danger
 positions = {}
-#renderQueue = {}
 renderQueue = [set()]
 renderRoutines = {}
 logicRoutines = {}
@@ -21,7 +20,7 @@ renderTable = {
     "textField": (lambda x: drawTextField(x)),
     "Text": (lambda x: drawText(x)),
     "Panel": (lambda x: drawPanel(x)),
-    "gameCanvas": (lambda x: drawGameCanvas(x)),
+    "Canvas": (lambda x: drawCanvas(x)),
     "Polygon": (lambda x: drawPolygon(x))
 }
 
@@ -30,6 +29,9 @@ anchorTable = {
 }
 
 def reset():
+    """
+    Réinitialise toute l'Interface Utilisateur.
+    """
     global objects, positions, renderQueue, focus, exclusiveLayer, evenement, EMPTY_LAYER_ABOVE_LIMIT, objectCount
     EMPTY_LAYER_ABOVE_LIMIT=2
     objects.clear()
@@ -55,6 +57,9 @@ def reset():
 
 
 def reDraw():
+    """
+    Réécrit tous les objets existants (recrée une image entière).
+    """
     global renderQueue, toRenderObjects
     toRenderObjects=deepcopy(renderQueue)
 
@@ -66,7 +71,24 @@ def reDraw():
 
 ######## Objects ########
 def addObject(x, y, layer, width, height, anchorx, anchory, ID=None, outlineColor=None, fill=None, stroke=None, hidden=None,
-              isChild=None, otype=None, permanent=False):
+              isChild=None, otype=None):
+    """
+    Ajoute un objet à l'Interface Utilisateur.
+    :param float x: Position de l'objet sur x
+    :param float y: Position de l'objet sur y
+    :param int layer: Calque parent de l'objet
+    :param width float: Largeur de l'objet
+    :param height float: Hauteur de l'objet
+    :param string anchorx: Ancrage de l'objet sur x
+    :param string anchory: Ancrage de l'objet sur y
+    :param string ID: Identifiant unique de l'objet
+    :param string outlineColor: Couleur de la bordure de l'objet
+    :param string fill: Couleur de remplissage de l'objet
+    :param string stroke: Epaisseur de la bordure de l'objet
+    :param bool hidden: Booléenne vraie si l'objet ne doit pas s'afficher à l'écran
+    :param string isChild: ID de l'objet parent
+    :param string otype: Type de l'objet (type interne au framework)
+    """
     global objects, positions, objectCount
     if ID is None:
         ID = "object" + str(objectCount)
@@ -91,7 +113,6 @@ def addObject(x, y, layer, width, height, anchorx, anchory, ID=None, outlineColo
         "hidden": hidden,
         "type": otype,
         "isChild": isChild,
-        "permanent": permanent,
         "tkObjects": None
     }
     updateLayers(ID, layer)
@@ -104,6 +125,11 @@ def addObject(x, y, layer, width, height, anchorx, anchory, ID=None, outlineColo
     return ID
 
 def updateLayers(ID, layer):
+    """
+    Met à jour les calques en plaçant l'objet donné dans le calque donné.
+    :param string ID: ID de l'objet
+    :param int layer: Numéro du layer
+    """
     global renderQueue
     lastLayer=len(renderQueue)-1
     if lastLayer<layer:
@@ -118,6 +144,10 @@ def updateLayers(ID, layer):
 
 
 def updateObject(ID):
+    """
+    Met à jour un objet (donc le réécrit).
+    :param string ID: ID de l'objet
+    """
     global toRenderObjects
     if len(renderQueue)>len(toRenderObjects):
         for _ in range(len(renderQueue)-len(toRenderObjects)):
@@ -131,6 +161,7 @@ def setObject(ID, parameters, forceUpdate=False):
     Modifie un ou plusieurs paramètres d'un objet.
     :param str ID: ID de l'objet
     :param dict parameters: Paramètres à modifier
+    :param bool forceUpdate: Si vrai, force la mise à jour de l'objet même si celui-ci n'a pas été changé
     """
     assert type(ID) == str
     assert type(parameters) == dict
@@ -138,7 +169,7 @@ def setObject(ID, parameters, forceUpdate=False):
     modified=False
     for p in parameters.keys():
         # if not modified:
-        #     if p =="squaresMap" and objects[ID]["type"]=="gameCanvas":
+        #     if p =="squaresMap" and objects[ID]["type"]=="Canvas":
         #         if objects[ID]["squaresMap"] and parameters[p]:
         #             # print(objects[ID]["squaresMap"])
         #             # try:
@@ -178,6 +209,10 @@ def setObject(ID, parameters, forceUpdate=False):
     
 
 def drawObject(ID):
+    """
+    Dessine un objet.
+    :param string ID: ID de l'objet
+    """
     global renderTable
     # try:
     objects[ID]["tkObjects"] = tuple(renderTable[objects[ID]["type"]](ID))
@@ -185,11 +220,11 @@ def drawObject(ID):
     #     print("UI Warning: Object with ID", ID, "could not be 'drawn': type", objects[ID]["type"], "is not registered in the render table.")
 
 
-def moveObject(ID, layer):
-    setObject(ID, {"layer": layer})
-
-
 def exists(ID):
+    """
+    Retourne vrai si un objet existe, sinon faux.
+    :param string ID: ID de l'objet
+    """
     try:
         objects[ID]
         return True
@@ -198,6 +233,10 @@ def exists(ID):
 
 
 def remObject(ID):
+    """
+    Supprime un objet (du rendu et de la base des objets).
+    :param string ID: ID de l'objet
+    """
     global positions, renderQueue, objects
     try:
         if objects[ID]["type"] == "Panel":
@@ -224,16 +263,19 @@ def remObject(ID):
 
 ######## Buttons ########
 def nullAction():
+    """
+    Fonction par défaut éxécutée par les boutons non configurés (à des fins de test).
+    """
     print("je suis un bouton")
 
 
 def addButton(x, y, action=nullAction, arguments=[], ID=None, width=150, height=50, anchorx="c", anchory="c",
               textAnchor="center", text="", outlineColor="black", textColor="black", textSize=18, textFont="Monospace",
-              fill="", stroke=1, polygonal=None, hidden=False, layer=0, isChild=False, permanent=False):
+              fill="", stroke=1, polygonal=None, hidden=False, layer=0, isChild=False):
     global objects
     # if textSize is None and text:
     #     textSize = int(width / len(text))
-    ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, outlineColor, fill, stroke, hidden, isChild, otype="Button", permanent=permanent)
+    ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, outlineColor, fill, stroke, hidden, isChild, otype="Button")
     objects[ID]["text"] = text
     objects[ID]["textAnchor"] = textAnchor
     objects[ID]["textColor"] = textColor
@@ -245,6 +287,10 @@ def addButton(x, y, action=nullAction, arguments=[], ID=None, width=150, height=
     # [(x,y),(x,y),...]
 
 def drawButton(ID):
+    """
+    Dessine un bouton à partir de l'objet donné.
+    :param string ID: ID de l'objet
+    """
     return (
         polygone(
             [(objects[ID]["ax"]+x*objects[ID]["width"],objects[ID]["ay"]+y*objects[ID]["height"]) for x,y in objects[ID]["polygonal"]],
@@ -274,6 +320,7 @@ def drawButton(ID):
     
 ######## Polygons ########
 def addPolygon(x, y, ID=None, points=None,width=150, height=50, anchorx="c", anchory="c", outlineColor="black", fill="", stroke=1, hidden=False, layer=0, isChild=False):
+
     global objects
     # if textSize is None and text:
     #     textSize = int(width / len(text))
@@ -282,6 +329,10 @@ def addPolygon(x, y, ID=None, points=None,width=150, height=50, anchorx="c", anc
     # [(x,y),(x,y),...]
 
 def drawPolygon(ID):
+    """
+    Dessine un polygone à partir de l'objet donné.
+    :param string ID: ID de l'objet
+    """
     return (
         polygone(
             [(objects[ID]["ax"]+x*objects[ID]["width"],objects[ID]["ay"]+y*objects[ID]["height"]) for x,y in objects[ID]["points"]],
@@ -293,9 +344,9 @@ def drawPolygon(ID):
 ######## textFields ########
 def addTextField(x, y, ID=None, width=150, height=30, anchorx="c", anchory="c", text="",
                  outlineColor="black", textColor="black", textSize=18, fill="", textFont="Monospace", stroke=1,
-                 hidden=False, layer=0, isChild=False, permanent=False):
+                 hidden=False, layer=0, isChild=False):
     global objects
-    ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, outlineColor, fill, stroke, hidden, isChild, otype="textField", permanent=permanent)
+    ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, outlineColor, fill, stroke, hidden, isChild, otype="textField")
     objects[ID]["text"] = text
     objects[ID]["textColor"] = textColor
     objects[ID]["textSize"] = textSize
@@ -303,6 +354,10 @@ def addTextField(x, y, ID=None, width=150, height=30, anchorx="c", anchory="c", 
 
 
 def drawTextField(ID):
+    """
+    Dessine un champ de texte modifiable à partir de l'objet donné.
+    :param string ID: ID de l'objet
+    """
     i=0
     # if objects[ID]["text"]:
     #     while longueur_texte(objects[ID]["text"][-i:])>objects[ID]["width"]:
@@ -331,9 +386,9 @@ def drawTextField(ID):
 
 ######## Texts ########
 def addText(x, y, ID=None, width=150, height=30, anchorx="c", anchory="c", text="", textColor="black",
-            textSize=18, textFont="Purisa", hidden=False, layer=0, isChild=False, permanent=False):
+            textSize=18, textFont="Purisa", hidden=False, layer=0, isChild=False):
     global objects
-    ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, hidden=hidden, isChild=isChild, otype="Text", permanent=permanent)
+    ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, hidden=hidden, isChild=isChild, otype="Text")
     objects[ID]["text"] = text
     # objects[ID]["textAnchor"] = textAnchor
     objects[ID]["textColor"] = textColor
@@ -343,6 +398,10 @@ def addText(x, y, ID=None, width=150, height=30, anchorx="c", anchory="c", text=
 
 
 def drawText(ID):
+    """
+    Dessine un texte à partir de l'objet donné.
+    :param string ID: ID de l'objet
+    """
     if objects[ID]["anchorx"]=="l":
         anchor="w"
     elif objects[ID]["anchorx"]=="r":
@@ -364,12 +423,16 @@ def drawText(ID):
 
 ######## Panels ########
 def addPanel(x, y, ID=None, width=100, height=100, anchorx="c", anchory="c", outlineColor="gray", fill="gray", stroke=1,
-             childs=[], hidden=False, layer=0, isChild=False, permanent=False):
+             childs=[], hidden=False, layer=0, isChild=False):
     global objects
-    ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, outlineColor, fill, stroke, hidden, isChild, otype="Panel", permanent=permanent)
+    ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, outlineColor, fill, stroke, hidden, isChild, otype="Panel")
     objects[ID]["childs"] = childs
 
 def drawPanel(ID):
+    """
+    Dessine un panneau à partir de l'objet donné.
+    :param string ID: ID de l'objet
+    """
     returnValue = (
         rectangle(
             objects[ID]["ax"],
@@ -386,15 +449,19 @@ def drawPanel(ID):
     return returnValue
 
 ######## Canvas ########
-def addGameCanvas(x, y, ID=None, width=100, height=100, anchorx="c", anchory="c", outlineColor="", fill="", stroke=1,
+def addCanvas(x, y, ID=None, width=100, height=100, anchorx="c", anchory="c", outlineColor="", fill="", stroke=1,
              squaresMap=[], hidden=False, layer=0, isChild=False, selected=None, permanentSelected=None,cellSize=32):
     global objects
-    ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, outlineColor, fill, stroke, hidden, isChild, otype="gameCanvas")
+    ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, outlineColor, fill, stroke, hidden, isChild, otype="Canvas")
     objects[ID]["squaresMap"] = squaresMap
     objects[ID]["selected"] = selected
     objects[ID]["cellSize"] = cellSize
 
-def drawGameCanvas(ID):
+def drawCanvas(ID):
+    """
+    Dessine un canevas à partir de l'objet donné.
+    :param string ID: ID de l'objet
+    """
     if len(objects[ID]["squaresMap"]):
         if len(objects[ID]["squaresMap"][0])*objects[ID]["cellSize"] < objects[ID]["width"]:
             setObject(ID, {"width": len(objects[ID]["squaresMap"][0])*objects[ID]["cellSize"]+1})

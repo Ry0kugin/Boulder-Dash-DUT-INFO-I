@@ -6,6 +6,9 @@ event = {
 }
 
 def compute(inGame=False):
+    """
+
+    """
     ev = donne_evenement()
     event["tk"] = ev
     SetGameEventFromTkEvent(ev,inGame)
@@ -14,9 +17,7 @@ def compute(inGame=False):
 def SetGameEventFromTkEvent(ev, inGame):
     """
     renvoie la direction de rockford
-
-    :param bool debug: active le mode debug
-
+    :param tuple ev: Evenement donné par upemtk
     """
     type_ev=type_evenement(ev)
     if type_ev=="Touche":
@@ -47,15 +48,29 @@ def SetGameEventFromTkEvent(ev, inGame):
         event["game"]=None
 
 def setGameEvent(ge):
+    """
+    Modifie l'événement interne au jeu.
+    :param string ge: Evenement à insérer
+    """
     event["game"] = ge
 
 def resetGameEvent():
+    """
+    Réinitialise l'événement interne au jeu.
+    """
     event["game"] = None
 
 def getTkEvent():
+    """
+    Retourne l'événement donné par upemtk.
+    """
     return event["tk"]
 
 def clearEventQueue():
+    """
+    Corrige le système de pile d'événements de upemtk.
+    """
     while type_evenement(donne_evenement()) != "RAS":
         #print("videur d'event entre à l'action")
         1
+    

@@ -16,23 +16,32 @@ data = {}
 fps = 0
 
 def initPlayMenu():
+    """
+    Initialise les éléments d'interface du menu de sélection de mode de jeu.
+    """
     ui.addButton(1.2*render.WIDTH_WINDOW / 4, render.HEIGHT_WINDOW * 1/3, width=render.WIDTH_WINDOW / 2.8, height=int(render.HEIGHT_WINDOW / 2), text=language.get("levelSelectionButton"), textSize=40, textColor="white", outlineColor="white", action=evenement.setGameEvent, arguments=["selection"])
     ui.addButton(2.8*render.WIDTH_WINDOW / 4, render.HEIGHT_WINDOW * 1/3, width=render.WIDTH_WINDOW / 2.8, height=int(render.HEIGHT_WINDOW / 2), text=language.get("randomButton"), textSize=40, textColor="white", outlineColor="white", action=evenement.setGameEvent, arguments=["play"])
     ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW * 2.3/3, width=render.WIDTH_WINDOW / 2.6, height=int(render.HEIGHT_WINDOW / 5), text=language.get("loadFromSaveButton"), textSize=28, textColor="white", outlineColor="white", action=evenement.setGameEvent, arguments=["save"])
 
 
 def initMenuUI():
+    """
+    Initialise les éléments d'interface du menu principal du jeu.
+    """
     ui.setBackground("black")
     ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW *0.8/3, width=render.WIDTH_WINDOW / 3, height=int(render.HEIGHT_WINDOW / 3), text=language.get("playButton"), textSize=42, textColor="white", outlineColor="white", action=playButton, ID="playButton")
     ui.addButton(render.WIDTH_WINDOW / 4, render.HEIGHT_WINDOW *1.8/3, width=render.WIDTH_WINDOW / 4, height=int(render.HEIGHT_WINDOW / 4), text=language.get("scoreButton"), textSize=28, textColor="white", outlineColor="white")
     ui.addButton(3*render.WIDTH_WINDOW / 4, render.HEIGHT_WINDOW *1.8/3, width=render.WIDTH_WINDOW / 4, height=int(render.HEIGHT_WINDOW / 4), text=language.get("editorButton"), textSize=28, textColor="white", outlineColor="white", action=evenement.setGameEvent, arguments=["editor"])
     ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW - 30, width=150, height=50 ,text=language.get("quitButton"), textSize=18, textColor="white", outlineColor="white", anchory="s", action=logic.quitter)
     ui.addButton(render.WIDTH_WINDOW - 85, render.HEIGHT_WINDOW - 10, text=language.get("settingsButton"), textSize=18, textColor="white", outlineColor="white", anchory="s")
-    ui.addButton(render.WIDTH_WINDOW*0.1, render.HEIGHT_WINDOW*0.05, text=language.get("frenchButton"), action=setLanguage, arguments=["french"], outlineColor="white", textColor="white")
-    ui.addButton(render.WIDTH_WINDOW*0.1, render.HEIGHT_WINDOW*0.15, text=language.get("englishButton"), action=setLanguage, arguments=["english"], outlineColor="white", textColor="white")
+    ui.addButton(render.WIDTH_WINDOW*0.1, render.HEIGHT_WINDOW*0.05, text=language.get("frenchButton"), action=setLanguage, arguments=["french", initMenuUI], outlineColor="white", textColor="white")
+    ui.addButton(render.WIDTH_WINDOW*0.1, render.HEIGHT_WINDOW*0.15, text=language.get("englishButton"), action=setLanguage, arguments=["english", initMenuUI], outlineColor="white", textColor="white")
     # ui.addButton(render.WIDTH_WINDOW*0.1, render.HEIGHT_WINDOW*0.15, text=language.get("englishButton"), action=ui.setBackground, arguments=["green"], outlineColor="white", textColor="white")
 
 def initSaveLevel(level):
+    """
+    Initialise les éléments d'interface du menu de sélection d'une partie sauvegardée.
+    """
     ui.addButton(render.WIDTH_WINDOW * 0.1, render.HEIGHT_WINDOW / 2, width=100, height=100, fill="white", stroke=5, polygonal=[(1,0),(0.2,0.5),(1,1)], action=setLevelDirection, arguments=["left", "leftButton"], ID="leftButton")
     ui.addButton(render.WIDTH_WINDOW * 0.9, render.HEIGHT_WINDOW / 2, width=100, height=100, fill="white", stroke=5, polygonal=[(0,0),(0.8,0.5),(0,1)], action=setLevelDirection, arguments=["right", "rightButton"], ID="rightButton")
     ui.addButton(render.WIDTH_WINDOW/2, 7*render.HEIGHT_WINDOW/8, width=render.WIDTH_WINDOW/4, height=render.HEIGHT_WINDOW/7, anchorx="c" ,anchory="c", text=language.get("playSelectedButton"), outlineColor="white", textColor="white", action=evenement.setGameEvent, arguments=["play"], ID="playButton")
@@ -43,21 +52,36 @@ def initSaveLevel(level):
     ui.addText(render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/9, "levelName", render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/8, text=" ", textColor="white", textSize=28)
     ui.addText(3*render.WIDTH_WINDOW/4, render.HEIGHT_WINDOW/9, "levelSelected", render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/8, text=" ", textColor="white", textSize=28)
     
-    ui.addGameCanvas(render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/2, "levelSelection", width=0, height=0, squaresMap=level)
+    ui.addCanvas(render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/2, "levelSelection", width=0, height=0, squaresMap=level)
 
 
 def initSelectionLevel(level):
+    """
+    Initialise les éléments d'interface du menu de sélection d'un niveau sauvegardé.
+    """
     initSaveLevel(level)
     ui.setObject("playButton", {"x":render.WIDTH_WINDOW*0.37})
     ui.addButton(render.WIDTH_WINDOW*0.63, 7*render.HEIGHT_WINDOW/8, width=render.WIDTH_WINDOW/4, height=render.HEIGHT_WINDOW/7, anchorx="c" ,anchory="c", text="Edit", outlineColor="white", textColor="white", action=evenement.setGameEvent, arguments=["edit"])
     # ui.addButton(render.WIDTH_WINDOW/2, 7*render.HEIGHT_WINDOW/8, width=render.WIDTH_WINDOW/4, height=render.HEIGHT_WINDOW/7, anchorx="c" ,anchory="c", text="Play", outlineColor="white", textColor="white", action=evenement.setGameEvent, arguments=["play"])
 
-def setLanguage(lang):
+def setLanguage(lang, fc=None, args=[]):
+    """
+    Modifie la langue du jeu.
+    :param string lang: Nom de la langue à mettre en place
+    :param function fc: Fonction à éxécuter après la modification
+    :param list args: Arguments de la fonction
+    """
     language.setLocale(lang)
     ui.reset()
-    initMenuUI()
+    if fc:
+        fc(*args)
 
 def setLevelDirection(direction, ID):
+    """
+    Anime le bouton 'ID' (de gauche ou droite en fonction de 'direction') du menu de sélection d'un niveau/sauvegarde.
+    :param string direction: direction "left" ou "right"
+    :param string ID: ID de l'objet
+    """
     animation.start(ID)
     evenement.setGameEvent(direction)
 
@@ -75,10 +99,13 @@ def playButton():
 ######## Game ########
 
 def initGameUI():
+    """
+    Initialise les éléments d'interface d'une partie.
+    """
     RightXPos = render.WIDTH_WINDOW * 2 / 2.2
     # Buttons
     ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16, action=evenement.setGameEvent, arguments=["reset"], anchorx="c", outlineColor="white", text=language.get("resetButton"), textColor="white", layer=1)
-    ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16 * 4, action=ui.setUIEvenement, arguments=["debug"], anchorx="c", outlineColor="white", text=language.get("debugButton"), textColor="white", ID="debug", layer=1)
+    ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16 * 4, action=evenement.setGameEvent, arguments=["debug"], anchorx="c", outlineColor="white", text=language.get("debugButton"), textColor="white", ID="debug", layer=1)
     ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16 * 7, action=evenement.setGameEvent, arguments=["save"], anchorx="c", outlineColor="white", text=language.get("saveButton"), textColor="white", textSize=18, layer=1)
     ui.addButton(RightXPos, render.HEIGHT_WINDOW - 1, action=logic.quitter, anchorx="c", anchory="d", outlineColor="white", text=language.get("quitButton"), textColor="white", layer=1)
     # Texts
@@ -86,9 +113,14 @@ def initGameUI():
     ui.addText(render.WIDTH_WINDOW*0.25, render.WIDTH_WINDOW*0.02, ID="diamondsText", anchorx="l", anchory="u", textColor="red", textFont="Monospace")
     ui.addText(render.WIDTH_WINDOW*0.45,  render.WIDTH_WINDOW*0.02, ID="scoreText", anchorx='l', anchory="u", textColor="purple", textFont="Monospace")
     # Game canvas
-    ui.addGameCanvas(0, render.HEIGHT_WINDOW/8, ID="gameCanvas", width=0, height=0, anchorx="l", anchory="u", cellSize=32)
+    ui.addCanvas(0, render.HEIGHT_WINDOW/8, ID="gameCanvas", width=0, height=0, anchorx="l", anchory="u", cellSize=32)
 
 def handleEvenement(evenement, args=[]):
+    """
+    Lance l'action liée à un événement via le dictionnaire 'evenementHandler'.
+    :param string evenement: Evenement à traiter
+    :param list args: Liste d'arguments à passer en paramètre de la fonction finale
+    """
     # evenement = "move" if evenement in ("Right", "Left", "Up", "Down")
     if evenement in ("reset", "move", "save", "load", "return"):
         if evenement!="return":
@@ -97,6 +129,9 @@ def handleEvenement(evenement, args=[]):
     return False
 
 def resetGame():
+    """
+    Réinitialise la partie et les données associées à celle-ci.
+    """
     origin = data["origin"][:]
     mode = data["mode"]
     initData()
@@ -133,7 +168,13 @@ evenementHandler={
 }
 
 def play(level=None, mode="r"):
+    """
+    Lance une partie.
+    :param string level: Nom du niveau à charger
+    :param string mode: Type de partie à jouer ("r": random "s": save "l":level)
+    """
     global data
+    print(level)
     ui.reset()
     ui.setBackground("black")
     initGameUI()
@@ -210,8 +251,7 @@ def play(level=None, mode="r"):
 
 def start(data, keepScore=False):
     """
-    initialise une partie
-
+    Initialise une partie.
     :param list curMap: map actuel sous forme de liste
 
     >>> start([['150s', '1d'],['B', 'R', 'G'], ['.', 'E', 'D'], ['W', 'W', 'W']])
@@ -229,6 +269,9 @@ def start(data, keepScore=False):
 
 
 def initData():
+    """
+    Initialise les données nécessaires à une partie.
+    """
     global data
     data["map"] = None
     data["rockford"] = None
@@ -254,6 +297,10 @@ def initData():
     data["origin"] = None
 
 def computeFps(delta):
+    """
+    Calcule le nombre d'images par seconde.
+    :param float delta: Temps écoulé entre l'image précédente et l'image actuelle
+    """
     global fps
     if delta:
         fps = int(1/(delta))
@@ -261,10 +308,19 @@ def computeFps(delta):
         fps = "unlimited"
 
 def getFps():
+    """
+    Retourne le nombre d'images par seconde actuel.
+    """
     global fps
     return fps
 
 def updateStats(remainTime, diamonds, score):
+    """
+    Met à jour les statistiques de la partie et les textes les affichant.
+    :param int remainTime: Temps restant dans la partie
+    :param tuple diamonds: Tuple contenant en position 0 le nombre de diamants ramassés et en position 1 le nombre de diamants dans la partie
+    :param int score: Score actuel du joueur dans la partie
+    """
     # Time left#
     ui.setObject("timeLeftText", {"text":language.get("timeText") + str(remainTime), "textColor":("green" if remainTime > 10 else "red")})
     # Diamonds#
@@ -273,6 +329,9 @@ def updateStats(remainTime, diamonds, score):
     ui.setObject("scoreText", {"text":language.get("scoreText") + str(score), "x":ui.objects["diamondsText"]["x"]+longueur_texte(ui.objects["diamondsText"]["text"])})
 
 def updateTime():
+    """
+    Met à jour tous les timers et calcule le nombre d'images par seconde.
+    """
     delta = timer.update()
     computeFps(delta)
     return delta

@@ -4,6 +4,9 @@ import ui, game, render, evenement, logic, IO, timer, language
 ######## Editor ########
 
 def initEditorUI():
+    """
+    Initialise les éléments d'interface de l'éditeur de niveau.
+    """
     RightXPos = render.WIDTH_WINDOW * 2 / 2.2
     # Buttons
     ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16, action=evenement.setGameEvent, arguments=["reset"], anchorx="c", outlineColor="white", text=language.get("resetButton"), textColor="white", layer=1)
@@ -15,14 +18,15 @@ def initEditorUI():
     #ui.addText(render.WIDTH_WINDOW / 4.2, 0, ID="diamondsText", anchory="u", textColor="red")
     #ui.addText(render.WIDTH_WINDOW / 2, 0, ID="scoreText", anchory="u", textColor="yellow")
     # Game canvas
-    ui.addGameCanvas(0, render.HEIGHT_WINDOW/8, ID="editorCanvas", width=0, height=0, fill="green", anchorx="l", anchory="u")
-    ui.addGameCanvas(RightXPos, render.HEIGHT_WINDOW/8, ID="blockCanvas", width=0, height=0, fill="red", anchorx="c", anchory="u", cellSize=64, selected=[(0,0)])
+    ui.addCanvas(0, render.HEIGHT_WINDOW/8, ID="editorCanvas", width=0, height=0, fill="green", anchorx="l", anchory="u")
+    ui.addCanvas(RightXPos, render.HEIGHT_WINDOW/8, ID="blockCanvas", width=0, height=0, fill="red", anchorx="c", anchory="u", cellSize=64, selected=[(0,0)])
     # cursor routine
     # ui.addLogicRoutine("editorCursor", updateCursor)
 
 def editor(level=None):
     """
-    :param tuple squaresMap: (map, filename)
+    Lance et fait fonctionner l'éditeur de niveau.
+    :param list level: Niveau à charger
     """
     ui.reset()
     ui.setBackground("black")
@@ -70,12 +74,25 @@ def editor(level=None):
 
 
 def writeMultipleBlocks(canvas, squaresMap, block):
+    """
+    Ecrit plusieurs blocs sur le canvas donné.
+    :param string canvas: ID du canvas cible
+    :param list squaresMap: Matrice du niveau
+    :param string block: type de bloc à placer
+    """
     for p in ui.objects["editorCanvas"]["selected"]:
         squaresMap[p[1]][p[0]]=block
     ui.setObject(canvas, {"selected":None})
     return squaresMap
 
 def updateCursor(ev, canvas, block=None, onPressed=False):
+    """
+    Met à jour la position du curseur dans la matrice de l'éditeur de niveau.
+    :param tuple ev: Evenement donné par upemtk
+    :param string canvas: ID du canvas cible
+    :param string block: type de bloc
+    :param bool onPressed: condition vraie si le clic de la souris est resté enfoncé
+    """
     evType=type_evenement(ev)
     # print(ev)
     # print(ui.objects["editorCanvas"]["selected"])

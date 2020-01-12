@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from upemtk import mise_a_jour
+from upemtk import mise_a_jour, donne_evenement
 import render, logic, ui, IO, game, animation, evenement, game, editor
 
 ###############################################################################
@@ -14,79 +14,86 @@ def moveRender(levels, levelSelected, load):
     ui.setObject("levelSelected", {"text": str(levelSelected+1)+"/"+str(len(levels))})
     render.update(load(level=levels[levelSelected])[1::],"levelSelection")
 
-def choicePlaystyle():
+def levelSelectionMenu():
+    """
+    Fait fonctionner le menu de sélection d'un niveau enregistré.
+    """
+    goInBlack()
+    levels = IO.getLevels("level")
+    levelSelected = 0
+    level = IO.loadLevel(level=levels[0])
+    game.initSelectionLevel(level)
+    moveRender(levels, levelSelected, IO.loadLevel)
+    while not evenement.event["game"] == 'return':
+        evenement.compute()
+        ui.logic(evenement.event["tk"])
+        if evenement.event["game"] == "right":
+            levelSelected = move(levelSelected, levels, 1, IO.loadLevel)
+        elif evenement.event["game"] == "left":
+            levelSelected = move(levelSelected, levels,-1, IO.loadLevel)
+        elif evenement.event["game"] == "play":
+            goInBlack()
+            game.play(levels[levelSelected], "s")
+            backInBlack(game.initSelectionLevel, [levels[levelSelected]])
+            moveRender(levels, levelSelected, IO.loadLevel)
+        elif evenement.event["game"] == "edit":
+            goInBlack()
+            editor.editor(levels[levelSelected])
+            backInBlack(game.initSelectionLevel, [levels[levelSelected]])
+            moveRender(levels, levelSelected, IO.loadLevel)
+        game.updateTime()
+        animation.update()
+        ui.render(game.getFps())
+        mise_a_jour()
+    backInBlack(game.initPlayMenu)
+
+def levelSaveMenu():
+    """
+    Fait fonctionner le menu de sélection d'une sauvegarde.
+    """
+    goInBlack()
+    levels = IO.getLevels("save")
+    levelSelected = 0
+    level = IO.loadSave(levels[0])
+    game.initSaveLevel(level)
+    moveRender(levels, levelSelected, IO.loadSave)
+
     while not evenement.event["game"] == 'return':   
         evenement.compute()
         ui.logic(evenement.event["tk"])
-        # home-play-selection
-        if evenement.event["game"] == 'selection':
-            ui.reset()
-            ui.setBackground("black")
-            levels = IO.getLevels("level")
-            levelSelected = 0
-            level = IO.loadLevel(level=levels[0])
-            game.initSelectionLevel(level)
-            moveRender(levels, levelSelected, IO.loadLevel)
-
-            while not evenement.event["game"] == 'return':   
-                evenement.compute()
-                ui.logic(evenement.event["tk"])
-                if evenement.event["game"] == "right":
-                    levelSelected = move(levelSelected, levels, 1, IO.loadLevel)
-                elif evenement.event["game"] == "left":
-                    levelSelected = move(levelSelected, levels,-1, IO.loadLevel)
-                elif evenement.event["game"] == "play":
-                    goInBlack()
-                    game.play(levels[levelSelected], "s")
-                    backInBlack(game.initSelectionLevel, [levels[levelSelected]])
-                    moveRender(levels, levelSelected, IO.loadLevel)
-                elif evenement.event["game"] == "edit":
-                    goInBlack()
-                    editor.editor(levels[levelSelected])
-                    backInBlack(game.initSelectionLevel, [levels[levelSelected]])
-                    moveRender(levels, levelSelected, IO.loadLevel)
-                game.updateTime()
-                animation.update()
-                ui.render(game.getFps())
-                mise_a_jour()
-
-            backInBlack(game.initPlayMenu)
-
-        # REFACTORING URGENT!!!
-        if evenement.event["game"] == 'save': 
-            ui.reset()
-            ui.setBackground("black")
-            levels = IO.getLevels("save")
-            levelSelected = 0
-            level = IO.loadSave(levels[0])
-            game.initSaveLevel(level)
+        if evenement.event["game"] == "right":
+            levelSelected = move(levelSelected, levels, 1,IO.loadSave)
+        elif evenement.event["game"] == "left":
+            levelSelected = move(levelSelected, levels,-1,IO.loadSave)
+        elif evenement.event["game"] == "play":
+            goInBlack()
+            game.play(levels[levelSelected], "l")
+            backInBlack(game.initSaveLevel, [levels[levelSelected]])
             moveRender(levels, levelSelected, IO.loadSave)
+        game.updateTime()
+        animation.update()
+        ui.render(game.getFps())
+        mise_a_jour()
 
-            while not evenement.event["game"] == 'return':   
-                evenement.compute()
-                ui.logic(evenement.event["tk"])
-                if evenement.event["game"] == "right":
-                    levelSelected = move(levelSelected, levels, 1,IO.loadSave)
-                elif evenement.event["game"] == "left":
-                    levelSelected = move(levelSelected, levels,-1,IO.loadSave)
-                elif evenement.event["game"] == "play":
-                    goInBlack()
-                    game.play(levels[levelSelected], "l")
-                    backInBlack(game.initSaveLevel, [levels[levelSelected]])
-                    moveRender(levels, levelSelected, IO.loadSave)
-                game.updateTime()
-                animation.update()
-                ui.render(game.getFps())
-                mise_a_jour()
+    backInBlack(game.initPlayMenu)
 
-            backInBlack(game.initPlayMenu)
-        # home-play-random
+def choicePlaystyleMenu():
+    """
+    Fait fonctionner le menu de sélection du mode de jeu.
+    """
+    while not evenement.event["game"] == 'return':   
+        evenement.compute()
+        ui.logic(evenement.event["tk"])
+        # home:play:selection
+        if evenement.event["game"] == 'selection':
+            levelSelectionMenu()
+        # home:play:save
+        if evenement.event["game"] == 'save': 
+            levelSaveMenu()
+        # home:play:random
         if evenement.event["game"] == 'play':
-            ui.reset()
-            ui.setBackground("black")
-
+            goInBlack()
             game.play(mode="r")
-
             backInBlack(game.initPlayMenu)
 
         game.updateTime()
@@ -95,14 +102,21 @@ def choicePlaystyle():
 
 
 def goInBlack(go=None):
+    """
+    Réinitialise l'UI et met le fond d'interface en noir.
+    """
     ui.reset()
     ui.setBackground("black")
     if go:
         go()
 
 def backInBlack(back, args=[]): # AC / DC
-    ui.reset()
-    ui.setBackground("black")
+    """
+    Réinitialise l'UI, met le fond d'interface en noir, exécute la fonctions spécifiée avec ses arguments et réinitialise les événements de jeu.
+    :param function back: Fonction à éxecuter
+    :param list args: Liste des arguments de la fonction back
+    """
+    goInBlack()
     back(*args)
     evenement.resetGameEvent()
     
@@ -112,25 +126,24 @@ if __name__ == '__main__':
     # home
     game.initMenuUI()
     while not evenement.event["game"] == 'return':
+        # ev=donne_evenement()
+        # if ev[0]!='RAS':
+        #     print(ev)
         evenement.compute()
         ui.logic(evenement.event["tk"])
-        # home-play
+        # home:play
         if evenement.event["game"] == 'play':
             goInBlack(game.initPlayMenu)
-
-            choicePlaystyle()
-
+            choicePlaystyleMenu()
             backInBlack(game.initMenuUI)
-        
+        # home:editor
         elif evenement.event["game"] == 'editor':
             goInBlack()
-            
             editor.editor()
-
             backInBlack(game.initMenuUI)
             
-        animation.update() # /!\ render.updateAnimations before ui.render
         game.updateTime()
+        animation.update() # /!\ render.updateAnimations before ui.render
         ui.render(game.getFps())
         mise_a_jour()
 

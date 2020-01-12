@@ -8,6 +8,13 @@ factor=1
 delta = 0
 
 def new(size, ID=None, paused=False, permanent=False):
+    """
+    Crée un nouveau chronomètre.
+    :param float size: Temps maximal que peut atteindre le chronomètre
+    :param string ID: ID du chronomètre
+    :param bool paused: Si vrai, le chronomètre sera en pause
+    :param bool permanent: Si vrai, le chronomètre ne sera pas supprimé lorsqu'il dépassera son temps maximal
+    """
     global timers, timerCount
     if ID==None:
         ID="timer"+str(timerCount)
@@ -21,6 +28,9 @@ def new(size, ID=None, paused=False, permanent=False):
 
 
 def update():
+    """
+    Met à jour tous les chronomètres.
+    """
     global timers, timestamp, delta
     currentTime=time.time()
     deltaT = currentTime-timestamp
@@ -37,61 +47,90 @@ def update():
     return deltaT
 
 def start(ID):
+    """
+    Démarre un chronomètre.
+    :param string ID: ID du chronomètre
+    """
     global timers
-    try:
+    if ID in timers:
         timers[ID]["paused"]=False
-    except KeyError as e:
-        print("Timer warning: unknown timer ID:", e)
+    else:
+        print("Timer warning: unknown timer ID:", ID)
 
 def pause(ID):
+    """
+    Met en pause un chronomètre.
+    :param string ID: ID du chronomètre
+    """
     global timers
-
-    try:
+    if ID in timers:
         timers[ID]["paused"]=True
-    except KeyError as e:
-        print("Timer warning: unknown timer ID:", e)
+    else:
+        print("Timer warning: unknown timer ID:", ID)
 
 def stop(ID): 
+    """
+    Arrête et supprime un chronomètre.
+    :param string ID: ID du chronomètre
+    """
     global timers
-    try:
+    if ID in timers:
         finalTime = timers[ID]["progression"]
         timers.pop(ID)
         return finalTime
-    except KeyError as e:
-        print("Timer warning: unknown timer ID:", e)
+    else:
+        print("Timer warning: unknown timer ID:", ID)
 
-def remove(ID):
-    global timers
-    try:
-        timers.pop(ID)
-    except KeyError as e:
-        print("Timer warning: cannot remove unknown timer ID:", e)
+# def remove(ID):
+#     global timers
+#     try:
+#         timers.pop(ID)
+#     except KeyError as e:
+#         print("Timer warning: cannot remove unknown timer ID:", e)
 
 def setTimer(ID, size):
+    """
+    Enlève un temps à un chronomètre.
+    :param string ID: ID du chronomètre
+    :param float size: Temps à enlever
+    """
     global timers
-    try:
-        timers[ID]["progression"]=timers[ID]["progression"]-size
-    except KeyError as e:
-        print("Timer warning: unknown timer ID:", e)
+    if ID in timers:
+        timers[ID]["progression"]-=size
+    else:
+        print("Timer warning: unknown timer ID:", ID)
 
-def add(ID, progress):
+def add(ID, size):
+    """
+    Ajoute un temps à un chronomètre.
+    :param string ID: ID du chronomètre
+    :param float size: Temps à ajouter
+    """
     global timers
-    try:
-        timers[ID]["progression"]+=progress
-    except KeyError as e:
-        print("Timer warning: unknown timer ID:", e)
+    if ID in timers:
+        timers[ID]["progression"]+=size
+    else:
+        print("Timer warning: unknown timer ID:", ID)
 
 def isOver(ID):
+    """
+    Retourne vrai si le chronomètre donné est fini.
+    :param string ID: ID du chronomètre
+    """
     return timers[ID]["progression"]>=timers[ID]["size"]
 
 def restore(ID):
+    """
+    Réinitialise la progression d'un chronomètre.
+    :param string ID: ID du chronomètre
+    """
     timers[ID]["progression"] = 0.0
 
 def getTimer(ID, returnType=float, remain=False):
-    try:
+    if ID in timers:
         return (returnType(timers[ID]["size"] - timers[ID]["progression"]) if remain else returnType(timers[ID]["progression"]))
-    except KeyError as e:
-        print("Timer warning: unknown timer ID:", e)
+    else:
+        print("Timer warning: unknown timer ID:", ID)
     # except:
     #     exit("Timer error: wrong returnType specified")
     
@@ -102,20 +141,33 @@ def getTimer(ID, returnType=float, remain=False):
     #     return int(timers[ID]["progression"])
 
 def getDelta():
+    """
+    Retourne le delta (temps écoulé entre la dernière image et l'image actuelle)
+    """
     return delta
 
 def reset():
+    """
+    Réinitialise toutes les données sur les chronomètres.
+    """
     global timers, timerCount
     timers={}
     timerCount=0
 
 def setFactor(value):
+    """
+    Modifie le multiplicateur du temps (Par exemple, 0: temps arrêté 1: temps normal -1: temps à l'envers).
+    :param float value: Nouveau multiplicateur
+    """
     global factor
     factor = value
 
 def exists(ID):
-    try:
-        timers[ID]
+    """
+    Retourne vrai si le chronomètre donné existe.
+    :param string ID: ID du chronomètre
+    """
+    if ID in timers:
         return True
-    except KeyError:
+    else:
         return False

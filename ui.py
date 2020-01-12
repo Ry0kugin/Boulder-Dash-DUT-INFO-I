@@ -12,26 +12,20 @@ from uiElements import *
 
 
 def setBackground(color):
+    """
+    Modifie la couleur d'arrière plan.
+    :param string color: Couleur d'arrière plan
+    """
     efface_tout()
     rectangle(0, 0, WIDTH_WINDOW, HEIGHT_WINDOW, color, color, 1)
     reDraw()
 
 
 def clear():
+    """
+    Efface toute l'image.
+    """
     efface_tout()
-
-######## Evenements ########
-
-def setUIEvenement(ev):
-    global evenement
-    evenement = ev
-
-
-def getUIEvenement():
-    global evenement
-    tmp = evenement
-    evenement = None
-    return tmp
 
 
 ######## Routines ########
@@ -39,21 +33,41 @@ def getUIEvenement():
 # Noms réservés pour ID:
 # animation
 def addRenderRoutine(ID, action, arguments=[]):
+    """
+    Ajoute une routine de rendu. C'est une fonction qui sera éxécutée à chaque rendu d'image.
+    :param string ID: Identifiant de la routine
+    :param function action: La fonction à éxécuter
+    :param list arguments: Liste des arguments à passer à la fonction
+    """
     global renderRoutines
     renderRoutines[ID]=(action, arguments)
 
 def remRenderRoutine(ID):
     global renderRoutines
-    try:
+    """
+    Supprime une routine de rendu.
+    :param string ID: ID de la routine
+    """
+    if ID in renderRoutines:
         renderRoutines.pop(ID)
-    except KeyError as e:
-        print("UI Warning: cannot remove unknown render routine", e)
+    else:
+        print("UI Warning: cannot remove unknown render routine", ID)
 
 def addLogicRoutine(ID, action, arguments=[]):
+    """
+    Ajoute une routine de logique. C'est une fonction qui sera éxécutée à chaque éxécution de la logique de l'interface.
+    :param string ID: Identifiant de la routine
+    :param function action: La fonction à éxécuter
+    :param list arguments: Liste des arguments à passer à la fonction
+    """
     global logicRoutines
     logicRoutines[ID]=(action, arguments)
 
 def remLogicRoutine(ID):
+    """
+    Supprime une routine de logique.
+    :param string ID: ID de la routine
+    """
     global logicRoutines
     try:
         logicRoutines.pop(ID)
@@ -62,23 +76,32 @@ def remLogicRoutine(ID):
 
 ######## Moteur logique ########
 
-def checkClick(p, pos):
+def checkClick(ID, pos):
+    """
+    Vérifie si l'objet donné a été ciblé par le clic.
+    :param string ID: ID de l'objet
+    :param tuple pos: tuple (x, y) de la position de la souris
+    """
     global focus
-    if objects[p]["ax"] < pos[0] < objects[p]["bx"] and objects[p]["ay"] < pos[1] < objects[p]["by"]:
-        if objects[p]["type"] == "Button":
+    if objects[ID]["ax"] < pos[0] < objects[ID]["bx"] and objects[ID]["ay"] < pos[1] < objects[ID]["by"]:
+        if objects[ID]["type"] == "Button":
             focus = None
-            objects[p]["action"](*objects[p]["args"])
+            objects[ID]["action"](*objects[ID]["args"])
             return True
-        elif objects[p]["type"] == "textField":
-            focus = {"ID": p, "type": "textField"}
+        elif objects[ID]["type"] == "textField":
+            focus = {"ID": ID, "type": "textField"}
             return True
-        elif objects[p]["type"] == "Panel":
-            focus = {"ID": p, "type": "Panel"}
+        elif objects[ID]["type"] == "Panel":
+            focus = {"ID": ID, "type": "Panel"}
             return True
     return False
 
 
 def logic(ev):
+    """
+    Exécute toutes les actions liées à la logique de l'interface, principalement la vérification des clics de la souris sur les boutons.
+    :param tuple ev: Evenement de upemtk
+    """
     global focus, exclusiveLayer
     type_ev = type_evenement(ev)
     for r in logicRoutines.values():
@@ -102,7 +125,7 @@ def logic(ev):
                 exclusiveLayer = None
                 return
         focus = None
-    if focus is not None and type_ev == "Touche":
+    elif focus is not None and type_ev == "Touche":
         if focus["type"] == "textField":
             key=touche(ev)
             if len(key) == 1 and key.isalnum():
@@ -116,7 +139,11 @@ def logic(ev):
                 # objects[focus["ID"]]["text"] += " "
 
 
-def render(text=None, backgroundColor="black"):
+def render(text=None):
+    """
+    Exécute toutes les actions liées à au rendu de l'interface, principalement la gestion des objets à dessiner puis supprimer de la pile d'affichage.
+    :param string text: texte affiché au dessus de toute l'interface en bas à gauche (utilisé pour le compteur d'images par seconde)
+    """
     for r in renderRoutines.values():
         r[0](*r[1])
     buffer=getToRenderObjects()
