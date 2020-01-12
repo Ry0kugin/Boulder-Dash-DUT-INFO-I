@@ -78,7 +78,7 @@ def reDraw():
 
 
 ######## Objects ########
-def addObject(x, y, layer, width, height, anchorx, anchory, ID=None, outlineColor=None, fill=None, stroke=None, hidden=None,
+def addObject(x, y, layer, width, height, anchor, ID=None, outlineColor=None, fill=None, stroke=None, hidden=None,
               isChild=None, otype=None):
     """
     Ajoute un objet à l'Interface Utilisateur.
@@ -101,16 +101,27 @@ def addObject(x, y, layer, width, height, anchorx, anchory, ID=None, outlineColo
     if ID is None:
         ID = "object" + str(objectCount)
     objectCount+=1
+    anchorx="c"
+    anchory="c"
+    if anchor:
+        if len(anchor) == 1:
+            if anchor[0] in "ns": 
+                anchory=anchor[0]
+            elif anchor[0] in "we": 
+                anchorx=anchor[0]
+        else:
+            anchory=anchor[0]
+            anchorx=anchor[1]
     if otype!="Text":
-        x = (x if anchorx == "c" else (x - width / 2 if anchorx == "r" else x + width / 2))
-        y = (y if anchory == "c" else (y + height / 2 if anchory == "u" else y - height / 2))
+        x = (x if anchorx == "c" else (x - width / 2 if anchorx == "e" else x + width / 2))
+        y = (y if anchory == "c" else (y + height / 2 if anchory == "n" else y - height / 2))
     objects[ID] = {
         "x": x,
         "y": y,
-        "ax": (x - width / 2 if anchorx == "c" else (x - width if anchorx == "r" else x)),
-        "ay": (y - height / 2 if anchory == "c" else (y + width / 2 if anchory == "u" else y - height)),
-        "bx": (x + width / 2 if anchorx == "c" else (x if anchorx == "r" else x + width)),
-        "by": (y + height / 2 if anchory == "c" else (y + height * 2 if anchory == "u" else y)),
+        "ax": (x - width / 2 if anchorx == "c" else (x - width if anchorx == "e" else x)),
+        "ay": (y - height / 2 if anchory == "c" else (y + width / 2 if anchory == "n" else y - height)),
+        "bx": (x + width / 2 if anchorx == "c" else (x if anchorx == "e" else x + width)),
+        "by": (y + height / 2 if anchory == "c" else (y + height * 2 if anchory == "n" else y)),
         "width": width,
         "height": height,
         "anchorx": anchorx,
@@ -161,7 +172,6 @@ def updateObject(ID):
         for _ in range(len(renderQueue)-len(toRenderObjects)):
             toRenderObjects.append(set())
     toRenderObjects[objects[ID]["layer"]].add(ID)
-    
 
 
 def setObject(ID, parameters, forceUpdate=False):
@@ -201,14 +211,14 @@ def setObject(ID, parameters, forceUpdate=False):
                 #print(parameters[p])
                 x = objects[ID]["x"]
                 anchorx = objects[ID]["anchorx"]
-                objects[ID]["ax"] = (x - width / 2 if anchorx == "c" else (x - width if anchorx == "r" else x))
-                objects[ID]["bx"] = (x + width / 2 if anchorx == "c" else (x if anchorx == "r" else x + width))           
+                objects[ID]["ax"] = (x - width / 2 if anchorx == "c" else (x - width if anchorx == "e" else x))
+                objects[ID]["bx"] = (x + width / 2 if anchorx == "c" else (x if anchorx == "e" else x + width))           
             elif p == "y" or p == "height":
                 height = objects[ID]["height"]
                 y = objects[ID]["y"]
                 anchory = objects[ID]["anchory"]
-                objects[ID]["ay"] = (y - height / 2 if anchory == "c" else (y if anchory == "u" else y - height))
-                objects[ID]["by"] = (y + height / 2 if anchory == "c" else (y + height if anchory == "u" else y))
+                objects[ID]["ay"] = (y - height / 2 if anchory == "c" else (y if anchory == "n" else y - height))
+                objects[ID]["by"] = (y + height / 2 if anchory == "c" else (y + height if anchory == "n" else y))
 
             elif p == "layer":
                 updateLayers(ID, parameters[p])
@@ -277,13 +287,13 @@ def nullAction():
     print("je suis un bouton")
 
 
-def addButton(x, y, action=nullAction, arguments=[], ID=None, width=150, height=50, anchorx="c", anchory="c",
+def addButton(x, y, action=nullAction, arguments=[], ID=None, width=150, height=50, anchor=None,
               textAnchor="center", text="", outlineColor="black", textColor="black", textSize=18, textFont="Monospace",
               fill="", stroke=1, polygonal=None, hidden=False, layer=0, isChild=False):
     global objects
     # if textSize is None and text:
     #     textSize = int(width / len(text))
-    ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, outlineColor, fill, stroke, hidden, isChild, otype="Button")
+    ID = addObject(x, y, layer, width, height, anchor, ID, outlineColor, fill, stroke, hidden, isChild, otype="Button")
     objects[ID]["text"] = text
     objects[ID]["textAnchor"] = textAnchor
     objects[ID]["textColor"] = textColor
@@ -316,23 +326,23 @@ def drawButton(ID):
             objects[ID]["stroke"]
         ),
         texte(
-            objects[ID]["x"],
-            objects[ID]["y"],
+            objects[ID]["ax"]+objects[ID]["width"]/2,
+            objects[ID]["ay"]+objects[ID]["height"]/2,
             objects[ID]["text"],
             objects[ID]["textColor"],
-            objects[ID]["textAnchor"],
+            "center",
             objects[ID]["textFont"],
             objects[ID]["textSize"]
         )
     )
     
 ######## Polygons ########
-def addPolygon(x, y, ID=None, points=None,width=150, height=50, anchorx="c", anchory="c", outlineColor="black", fill="", stroke=1, hidden=False, layer=0, isChild=False):
+def addPolygon(x, y, ID=None, points=None,width=150, height=50, anchor=None, outlineColor="black", fill="", stroke=1, hidden=False, layer=0, isChild=False):
 
     global objects
     # if textSize is None and text:
     #     textSize = int(width / len(text))
-    ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, outlineColor, fill, stroke, hidden, isChild, otype="Polygon")
+    ID = addObject(x, y, layer, width, height, anchor, ID, outlineColor, fill, stroke, hidden, isChild, otype="Polygon")
     objects[ID]["points"]=points
     # [(x,y),(x,y),...]
 
@@ -350,11 +360,11 @@ def drawPolygon(ID):
         ))
 
 ######## textFields ########
-def addTextField(x, y, ID=None, width=150, height=30, anchorx="c", anchory="c", text="",
+def addTextField(x, y, ID=None, width=150, height=30, anchor=None, text="",
                  outlineColor="black", textColor="black", textSize=18, fill="", textFont="Monospace", stroke=1,
                  hidden=False, layer=0, isChild=False):
     global objects
-    ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, outlineColor, fill, stroke, hidden, isChild, otype="textField")
+    ID = addObject(x, y, layer, width, height, anchor, ID, outlineColor, fill, stroke, hidden, isChild, otype="textField")
     objects[ID]["text"] = text
     objects[ID]["textColor"] = textColor
     objects[ID]["textSize"] = textSize
@@ -393,16 +403,15 @@ def drawTextField(ID):
 
 
 ######## Texts ########
-def addText(x, y, ID=None, width=150, height=30, anchorx="c", anchory="c", text="", textColor="black",
+def addText(x, y, ID=None, width=150, height=30, anchor=None, text="", textColor="black",
             textSize=18, textFont="Purisa", hidden=False, layer=0, isChild=False):
     global objects
-    ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, hidden=hidden, isChild=isChild, otype="Text")
+    ID = addObject(x, y, layer, width, height, anchor, ID, hidden=hidden, isChild=isChild, otype="Text")
     objects[ID]["text"] = text
     # objects[ID]["textAnchor"] = textAnchor
     objects[ID]["textColor"] = textColor
     objects[ID]["textSize"] = textSize
     objects[ID]["textFont"] = textFont
-    
 
 
 def drawText(ID):
@@ -430,10 +439,10 @@ def drawText(ID):
 
 
 ######## Panels ########
-def addPanel(x, y, ID=None, width=100, height=100, anchorx="c", anchory="c", outlineColor="gray", fill="gray", stroke=1,
+def addPanel(x, y, ID=None, width=100, height=100, anchor=None, outlineColor="gray", fill="gray", stroke=1,
              childs=[], hidden=False, layer=0, isChild=False):
     global objects
-    ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, outlineColor, fill, stroke, hidden, isChild, otype="Panel")
+    ID = addObject(x, y, layer, width, height, anchor, ID, outlineColor, fill, stroke, hidden, isChild, otype="Panel")
     objects[ID]["childs"] = childs
 
 def drawPanel(ID):
@@ -457,10 +466,10 @@ def drawPanel(ID):
     return returnValue
 
 ######## Canvas ########
-def addCanvas(x, y, ID=None, width=100, height=100, anchorx="c", anchory="c", outlineColor="", fill="", stroke=1,
+def addCanvas(x, y, ID=None, width=100, height=100, anchor=None, outlineColor="", fill="", stroke=1,
              squaresMap=[], hidden=False, layer=0, isChild=False, selected=None, permanentSelected=None,cellSize=32):
     global objects
-    ID = addObject(x, y, layer, width, height, anchorx, anchory, ID, outlineColor, fill, stroke, hidden, isChild, otype="Canvas")
+    ID = addObject(x, y, layer, width, height, anchor, ID, outlineColor, fill, stroke, hidden, isChild, otype="Canvas")
     objects[ID]["squaresMap"] = squaresMap
     objects[ID]["selected"] = selected
     objects[ID]["cellSize"] = cellSize

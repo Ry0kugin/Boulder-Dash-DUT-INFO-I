@@ -41,6 +41,8 @@ dictionnary = {
 }
 
 def get(ID):
+    """
+    """
     try:
         return dictionnary[locale][ID]
     except KeyError as e:

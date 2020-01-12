@@ -147,15 +147,16 @@ def render(text=None):
     for r in renderRoutines.values():
         r[0](*r[1])
     buffer=getToRenderObjects()
-    for l in buffer:
-        for ID in l:
-            if objects[ID]["tkObjects"]:
-                for t in objects[ID]["tkObjects"]:
-                    efface(t)
-            drawObject(ID)
-        l.clear()
-    
-    setToRenderObjects(buffer)
+    if buffer:
+        for l in buffer:
+            for ID in l:
+                if objects[ID]["tkObjects"]:
+                    for t in objects[ID]["tkObjects"]:
+                        efface(t)
+                drawObject(ID)
+            l.clear()
+        
+        setToRenderObjects(buffer)
     efface("fps")
     if text:
         texte(0, HEIGHT_WINDOW, str(text) + " fps", "white", ancrage="sw", tag="fps")

@@ -33,8 +33,8 @@ def initMenuUI():
     ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW *0.8/3, width=render.WIDTH_WINDOW / 3, height=int(render.HEIGHT_WINDOW / 3), polygonal=POLYGONS["octo"], text=language.get("playButton"), textSize=42, textColor="white", outlineColor="white", action=playButton, ID="playButton")
     ui.addButton(render.WIDTH_WINDOW / 4, render.HEIGHT_WINDOW *1.8/3, width=render.WIDTH_WINDOW / 4, height=int(render.HEIGHT_WINDOW / 4), polygonal=POLYGONS["octo"], text=language.get("scoreButton"), textSize=28, textColor="white", outlineColor="white")
     ui.addButton(3*render.WIDTH_WINDOW / 4, render.HEIGHT_WINDOW *1.8/3, width=render.WIDTH_WINDOW / 4, height=int(render.HEIGHT_WINDOW / 4), polygonal=POLYGONS["octo"], text=language.get("editorButton"), textSize=28, textColor="white", outlineColor="white", action=evenement.setGameEvent, arguments=["editor"])
-    ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW - 30, width=150, height=50, polygonal=POLYGONS["octo"], text=language.get("quitButton"), textSize=18, textColor="white", outlineColor="white", anchory="s", action=logic.quitter)
-    ui.addButton(render.WIDTH_WINDOW - 85, render.HEIGHT_WINDOW - 10, polygonal=POLYGONS["octo"], text=language.get("settingsButton"), textSize=18, textColor="white", outlineColor="white", anchory="s")
+    ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW - 30, width=150, height=50, polygonal=POLYGONS["octo"], text=language.get("quitButton"), textSize=18, textColor="white", outlineColor="white", anchor="sc", action=logic.quitter)
+    ui.addButton(render.WIDTH_WINDOW - 85, render.HEIGHT_WINDOW - 10, polygonal=POLYGONS["octo"], text=language.get("settingsButton"), textSize=18, textColor="white", outlineColor="white", anchor="sc")
     ui.addButton(render.WIDTH_WINDOW*0.05, render.HEIGHT_WINDOW*0.05, polygonal=POLYGONS["trapeze-up"], width=render.WIDTH_WINDOW*0.10  ,text="FR", action=setLanguage, arguments=["fr", initMenuUI], outlineColor="white", textColor="white")
     ui.addButton(render.WIDTH_WINDOW*0.05, render.HEIGHT_WINDOW*0.15, polygonal=POLYGONS["trapeze-down"], width=render.WIDTH_WINDOW*0.10 , text="EN", action=setLanguage, arguments=["en", initMenuUI], outlineColor="white", textColor="white")
     # ui.addButton(render.WIDTH_WINDOW*0.1, render.HEIGHT_WINDOW*0.15, text=language.get("englishButton"), action=ui.setBackground, arguments=["green"], outlineColor="white", textColor="white")
@@ -45,7 +45,7 @@ def initSaveLevel(level):
     """
     ui.addButton(render.WIDTH_WINDOW * 0.1, render.HEIGHT_WINDOW / 2, width=70, height=100, fill="white", stroke=5, polygonal=POLYGONS["left-arrow"], action=setLevelDirection, arguments=["left", "leftButton"], ID="leftButton")
     ui.addButton(render.WIDTH_WINDOW * 0.9, render.HEIGHT_WINDOW / 2, width=70, height=100, fill="white", stroke=5, polygonal=POLYGONS["right-arrow"], action=setLevelDirection, arguments=["right", "rightButton"], ID="rightButton")
-    ui.addButton(render.WIDTH_WINDOW/2, 7*render.HEIGHT_WINDOW/8, width=render.WIDTH_WINDOW/4, height=render.HEIGHT_WINDOW/7, anchorx="c" ,anchory="c", text=language.get("playSelectedButton"), outlineColor="white", textColor="white", action=evenement.setGameEvent, arguments=["play"], ID="playButton")
+    ui.addButton(render.WIDTH_WINDOW/2, 7*render.HEIGHT_WINDOW/8, width=render.WIDTH_WINDOW/4, height=render.HEIGHT_WINDOW/7, text=language.get("playSelectedButton"), outlineColor="white", textColor="white", action=evenement.setGameEvent, arguments=["play"], ID="playButton")
     
     animation.new("leftButton", [0.1, 0.1], [{"x":render.WIDTH_WINDOW * 0.05}, {"x":render.WIDTH_WINDOW * 0.1}])
     animation.new("rightButton", [0.1, 0.1], [{"x":render.WIDTH_WINDOW * 0.95}, {"x":render.WIDTH_WINDOW * 0.9}])
@@ -62,7 +62,7 @@ def initSelectionLevel(level):
     """
     initSaveLevel(level)
     ui.setObject("playButton", {"x":render.WIDTH_WINDOW*0.37})
-    ui.addButton(render.WIDTH_WINDOW*0.63, 7*render.HEIGHT_WINDOW/8, width=render.WIDTH_WINDOW/4, height=render.HEIGHT_WINDOW/7, anchorx="c" ,anchory="c", text="Edit", outlineColor="white", textColor="white", action=evenement.setGameEvent, arguments=["edit"])
+    ui.addButton(render.WIDTH_WINDOW*0.63, 7*render.HEIGHT_WINDOW/8, width=render.WIDTH_WINDOW/4, height=render.HEIGHT_WINDOW/7, text="Edit", outlineColor="white", textColor="white", action=evenement.setGameEvent, arguments=["edit"])
     # ui.addButton(render.WIDTH_WINDOW/2, 7*render.HEIGHT_WINDOW/8, width=render.WIDTH_WINDOW/4, height=render.HEIGHT_WINDOW/7, anchorx="c" ,anchory="c", text="Play", outlineColor="white", textColor="white", action=evenement.setGameEvent, arguments=["play"])
 
 def setLanguage(lang, fc=None, args=[]):
@@ -105,16 +105,16 @@ def initGameUI():
     """
     RightXPos = render.WIDTH_WINDOW * 2 / 2.2
     # Buttons
-    ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16, action=evenement.setGameEvent, arguments=["reset"], anchorx="c", outlineColor="white", text=language.get("resetButton"), textColor="white", layer=1)
-    ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16 * 4, action=evenement.setGameEvent, arguments=["debug"], anchorx="c", outlineColor="white", text=language.get("debugButton"), textColor="white", ID="debug", layer=1)
-    ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16 * 7, action=evenement.setGameEvent, arguments=["save"], anchorx="c", outlineColor="white", text=language.get("saveButton"), textColor="white", textSize=18, layer=1)
-    ui.addButton(RightXPos, render.HEIGHT_WINDOW - 1, action=logic.quitter, anchorx="c", anchory="d", outlineColor="white", text=language.get("quitButton"), textColor="white", layer=1)
+    ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16, action=evenement.setGameEvent, arguments=["reset"], outlineColor="white", text=language.get("resetButton"), textColor="white", layer=1)
+    ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16 * 4, action=evenement.setGameEvent, arguments=["debug"], outlineColor="white", text=language.get("debugButton"), textColor="white", ID="debug", layer=1)
+    ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16 * 7, action=evenement.setGameEvent, arguments=["save"], outlineColor="white", text=language.get("saveButton"), textColor="white", textSize=18, layer=1)
+    ui.addButton(RightXPos, render.HEIGHT_WINDOW - 1, action=logic.quitter, anchor="sc", outlineColor="white", text=language.get("quitButton"), textColor="white", layer=1)
     # Texts
-    ui.addText(render.WIDTH_WINDOW*0.05, render.WIDTH_WINDOW*0.02, ID="timeLeftText", anchorx="l", anchory="u", textColor="green", textFont="Monospace")
-    ui.addText(render.WIDTH_WINDOW*0.25, render.WIDTH_WINDOW*0.02, ID="diamondsText", anchorx="l", anchory="u", textColor="red", textFont="Monospace")
-    ui.addText(render.WIDTH_WINDOW*0.45,  render.WIDTH_WINDOW*0.02, ID="scoreText", anchorx='l', anchory="u", textColor="purple", textFont="Monospace")
+    ui.addText(render.WIDTH_WINDOW*0.05, render.WIDTH_WINDOW*0.02, ID="timeLeftText", anchor="nw", textColor="green", textFont="Monospace")
+    ui.addText(render.WIDTH_WINDOW*0.25, render.WIDTH_WINDOW*0.02, ID="diamondsText", anchor="nw", textColor="red", textFont="Monospace")
+    ui.addText(render.WIDTH_WINDOW*0.45,  render.WIDTH_WINDOW*0.02, ID="scoreText", anchor='nw', textColor="purple", textFont="Monospace")
     # Game canvas
-    ui.addCanvas(0, render.HEIGHT_WINDOW/8, ID="gameCanvas", width=0, height=0, anchorx="l", anchory="u", cellSize=32)
+    ui.addCanvas(0, render.HEIGHT_WINDOW/8, ID="gameCanvas", width=0, height=0, anchor="nw", cellSize=32)
 
 def handleEvenement(evenement, args=[]):
     """
@@ -180,6 +180,7 @@ def play(level=None, mode="r"):
     ui.setBackground("black")
     initGameUI()
     initData()
+    data["mode"] = mode
     if level and mode=="s":
         IO.loadLevel(data, level)
     elif level and mode=="l":
@@ -233,15 +234,16 @@ def play(level=None, mode="r"):
         data["time"]["remain"] = timer.getTimer("game", int, remain=True)
         #print(timer.timers["game"]["progression"])
         win = logic.status(data)
+        logic.updateGameStatus()
         if win and data["mode"] == "s":
-            logic.updateGameStatus()
             attente_clic_ou_touche()
             break
-        if win:
-            logic.updateGameStatus()
+        elif win:
             IO.loadLevel(data)
             start(data, keepScore=True)
             render.update(data["map"][1::], "gameCanvas")
+        elif win==False:
+            break
         ui.render(getFps())
         mise_a_jour()
     ui.reset()
@@ -253,7 +255,7 @@ def play(level=None, mode="r"):
 def start(data, keepScore=False):
     """
     Initialise une partie.
-    :param list curMap: map actuel sous forme de liste
+    :param list curMap: map actuelle sous forme de liste
 
     >>> start([['150s', '1d'],['B', 'R', 'G'], ['.', 'E', 'D'], ['W', 'W', 'W']])
     ([(1, 1), 0], [(0, 1), (2, 2)], True)

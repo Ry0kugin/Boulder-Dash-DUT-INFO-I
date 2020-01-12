@@ -8,20 +8,17 @@ def initEditorUI():
     Initialise les éléments d'interface de l'éditeur de niveau.
     """
     RightXPos = render.WIDTH_WINDOW * 2 / 2.2
+    
     # Buttons
-    ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16, action=evenement.setGameEvent, arguments=["reset"], anchorx="c", outlineColor="white", text=language.get("resetButton"), textColor="white", layer=1)
-    ui.addButton(RightXPos, render.HEIGHT_WINDOW, action=evenement.setGameEvent, arguments=["save"], anchorx="c", anchory="d",outlineColor="white", text="Sauvegarder", textSize=15, textColor="white", layer=1)
+    ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16, action=evenement.setGameEvent, arguments=["reset"], outlineColor="white", text=language.get("resetButton"), textColor="white", layer=1)
+    ui.addButton(RightXPos, render.HEIGHT_WINDOW, action=evenement.setGameEvent, arguments=["save"], anchor="sc",outlineColor="white", text="Sauvegarder", textSize=15, textColor="white", layer=1)
     # Texts
-    ui.addText(render.WIDTH_WINDOW*0.05, render.WIDTH_WINDOW*0.02, ID="timeLeftText", anchorx="l", anchory="u", textColor="green", text=language.get("timeText"), textFont="Monospace")
+    ui.addText(render.WIDTH_WINDOW*0.05, render.WIDTH_WINDOW*0.02, ID="timeLeftText", anchor="nw", textColor="green", text=language.get("timeText"), textFont="Monospace")
     # textFields
-    ui.addTextField(ui.objects["timeLeftText"]["bx"], 0, ID="timeLeftTextField", anchorx="l", anchory="u", outlineColor="white")
-    #ui.addText(render.WIDTH_WINDOW / 4.2, 0, ID="diamondsText", anchory="u", textColor="red")
-    #ui.addText(render.WIDTH_WINDOW / 2, 0, ID="scoreText", anchory="u", textColor="yellow")
+    ui.addTextField(ui.objects["timeLeftText"]["bx"], 0, ID="timeLeftTextField", anchor="nw", outlineColor="white")
     # Game canvas
-    ui.addCanvas(0, render.HEIGHT_WINDOW/8, ID="editorCanvas", width=0, height=0, fill="green", anchorx="l", anchory="u")
-    ui.addCanvas(RightXPos, render.HEIGHT_WINDOW/8, ID="blockCanvas", width=0, height=0, fill="red", anchorx="c", anchory="u", cellSize=64, selected=[(0,0)])
-    # cursor routine
-    # ui.addLogicRoutine("editorCursor", updateCursor)
+    ui.addCanvas(0, render.HEIGHT_WINDOW/8, ID="editorCanvas", width=0, height=0, fill="green", anchor="nw")
+    ui.addCanvas(RightXPos, render.HEIGHT_WINDOW/8, ID="blockCanvas", width=0, height=0, fill="red", anchor="n", cellSize=64, selected=[(0,0)])
 
 def editor(level=None):
     """
@@ -48,8 +45,9 @@ def editor(level=None):
         tkEvent=evenement.getTkEvent()
         # print(type(ui.objects["blockCanvas"]["selected"]))
         if ui.focus is None:
-            updateCursor(tkEvent, "editorCanvas", ui.objects["blockCanvas"]["squaresMap"][ui.objects["blockCanvas"]["selected"][0][1]][ui.objects["blockCanvas"]["selected"][0][0]], onPressed)
-            updateCursor(tkEvent, "blockCanvas")
+            if ui.exclusiveLayer is None:
+                updateCursor(tkEvent, "editorCanvas", ui.objects["blockCanvas"]["squaresMap"][ui.objects["blockCanvas"]["selected"][0][1]][ui.objects["blockCanvas"]["selected"][0][0]], onPressed)
+                updateCursor(tkEvent, "blockCanvas")
             # print(evenement.event["game"])
             if evenement.event["game"] == "reset":
                 render.update([["." for x in range(editorWidth)] for y in range(editorHeight)], "editorCanvas")
@@ -112,7 +110,8 @@ def updateCursor(ev, canvas, block=None, onPressed=False):
                     else:
                         ui.setObject(canvas, {"selected":[(x,y)]})
                 else:
-                    ui.setObject(canvas, {"selected":list(set((*ui.objects["editorCanvas"]["selected"],(x,y))))})
+                    if ui.objects["editorCanvas"]["selected"]:
+                        ui.setObject(canvas, {"selected":list(set((*ui.objects["editorCanvas"]["selected"],(x,y))))})
                     # ui.setObject(canvas, {"selected":[*ui.objects["editorCanvas"]["selected"],(x,y)]}) # Bad memory usage
             else:
                 ui.setObject(canvas, {"selected":[ui.objects["blockCanvas"]["selected"][0], (x,y)]})
@@ -135,6 +134,23 @@ def updateCursor(ev, canvas, block=None, onPressed=False):
             else:
                 ui.setObject(canvas, {"selected":[ui.objects["blockCanvas"]["selected"][0], None]})
         # return onPressed
-        
-           
+
+def exportEditorLevel():
+    squaresMap=ui.objects["editorCanvas"]["squaresMap"]
+    maximalX=0
+    maximalY=0
+    
+    for y in len(squaresMap):
+        empty=True
+        for x in len(squaresMap[y]):
+            if squaresMap[y][x]!=".":
+                if x>maximalX:
+                    maximalX=x
+                empty=False
+        # if 
+        "".join(squaresMap[y])
+
+def saveLevel():
+    # ui.newPrompt("Nom du niveau:", "Sauvegarder", success=lambda: IO.save(, ui.objects["prompt_2"]["text"], saveIn="level"), checker=IO.checkSaveName, anyway=lambda: timer.setFactor(1))
+    pass
     

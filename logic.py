@@ -354,7 +354,7 @@ def status(data):
         else:
             endGame(False)
             attente_clic_ou_touche()
-            quitter()
+            return False
 
 def endGame(win):
     ui.addText(WIDTH_WINDOW / 4, HEIGHT_WINDOW / 2 - 24, text=("VOUS AVEZ GAGNE :)" if win else "VOUS AVEZ PERDU :("), textColor=("green" if win else"red"), ID="endText")
