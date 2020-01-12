@@ -1,10 +1,10 @@
-locale = "french"
+locale = "fr"
 dictionnary = {
-    "french": {
+    "fr": {
         "playButton":"Jouer",
         "scoreButton":"Scores",
         "editorButton":"Editeur",
-        "levelSelectionButton": "Selectionner\nniveau",
+        "levelSelectionButton": "Selection\nniveau",
         "quitButton": "Quitter",
         "randomButton": "Aléatoire\nInfini",
         "loadFromSaveButton": "Depuis sauvegarde",
@@ -19,7 +19,7 @@ dictionnary = {
         "debugButton": "Déboguer",
         "saveButton": "Sauvegarder"
     },
-    "english": {
+    "en": {
         "playButton":"Play",
         "scoreButton":"Scores",
         "editorButton":"Editor",

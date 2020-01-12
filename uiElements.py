@@ -28,6 +28,14 @@ anchorTable = {
 
 }
 
+POLYGONS = {
+    "octo": [(0.3,0), (0.7,0), (1,0.3), (1,0.7), (0.7,1), (0.3,1), (0,0.7), (0,0.3)],
+    "trapeze-up": [(0,1), (0.3,0), (0.7,0), (1,1)],
+    "trapeze-down": [(0,0), (0.3,1), (0.7,1), (1,0)],
+    "right-arrow": [(0,0),(1,0.5),(0,1)],
+    "left-arrow": [(1,0),(0,0.5),(1,1)]
+}
+
 def reset():
     """
     Réinitialise toute l'Interface Utilisateur.
