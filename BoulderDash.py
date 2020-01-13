@@ -105,7 +105,6 @@ def scoresMenu():
         evenement.compute()
         ui.logic(evenement.event["tk"])
         
-        
 
         game.updateTime()
         animation.update()
@@ -116,6 +115,7 @@ def goInBlack(go=None):
     """
     Réinitialise l'UI et met le fond d'interface en noir.
     """
+    animation.clearAnimation()
     ui.reset()
     ui.setBackground("black")
     if go:

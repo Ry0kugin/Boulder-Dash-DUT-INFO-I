@@ -252,8 +252,8 @@ def moveRockford(data, direction):
                 setCell(data["map"], data["end"]["pos"], enddoor)
         else:
             changeRockfordPos(data, aimCoord, False)
-            timer.add("game", -1000)
-            data["score"] += 10000
+            timer.add("game", -100)
+            data["score"] += 1000
 
     elif aimCell == "O":
         setRockfordCell(data["map"], data["rockford"], aimCoord, aim=enddoor)
@@ -354,8 +354,6 @@ def status(data):
             if data["mode"] == "s":
                 updateScore(data["score"], "player", level=data["level"])
                 attente_clic_ou_touche()
-            else:
-                updateScore(data["score"], "player")
             return True
         else:
             endGame(False)
@@ -387,11 +385,11 @@ def quitter():
 def updateScore(score, player ,level=None):
     scores = IO.loadScore()
     if level:
-        if score > scores["s"][level][0]:
+        if score > int(scores["s"][level][0]):
             scores["s"][level] = (score, player)
     else:
         for i in range(10):
-            if score >= scores["r"][i][0]:
+            if score >= int(scores["r"][i][0]):
                 scores["r"].insert(i, (score, player))
                 break
         scores["r"] = scores["r"][:10]

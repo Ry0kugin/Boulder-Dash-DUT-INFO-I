@@ -35,15 +35,15 @@ def initMenuUI():
     ui.addButton(render.WIDTH_WINDOW*5/4, render.HEIGHT_WINDOW *1.8/3, width=render.WIDTH_WINDOW / 4, height=int(render.HEIGHT_WINDOW / 4), polygonal=POLYGONS["octo"], text=language.get("editorButton"), textSize=28, textColor="white", outlineColor="white", action=evenement.setGameEvent, arguments=["editor"], ID="editorButton")
     ui.addButton(render.WIDTH_WINDOW / 2, render.HEIGHT_WINDOW*1.15, width=150, height=50, polygonal=POLYGONS["octo"], text=language.get("quitButton"), textSize=18, textColor="white", outlineColor="white", action=logic.quitter, ID="quitButton")
     # ui.addButton(render.WIDTH_WINDOW - 85, render.HEIGHT_WINDOW - 10, polygonal=POLYGONS["octo"], text=language.get("settingsButton"), textSize=18, textColor="white", outlineColor="white", anchor="sc")
-    ui.addButton(render.WIDTH_WINDOW*0.05, -render.HEIGHT_WINDOW*0.06, polygonal=POLYGONS["trapeze-up"], width=render.WIDTH_WINDOW*0.10  ,text="FR", action=setLanguage, arguments=["fr", initMenuUI], outlineColor="white", textColor="white", ID="frButton")
-    ui.addButton(-render.WIDTH_WINDOW*0.06, render.HEIGHT_WINDOW*0.15, polygonal=POLYGONS["trapeze-down"], width=render.WIDTH_WINDOW*0.10 , text="EN", action=setLanguage, arguments=["en", initMenuUI], outlineColor="white", textColor="white", ID="enButton")
+    ui.addButton(render.WIDTH_WINDOW*0.05, render.HEIGHT_WINDOW*0.05, polygonal=POLYGONS["trapeze-up"], width=render.WIDTH_WINDOW*0.10  , text="FR", action=setLanguage, arguments=["fr", initMenuUI], outlineColor="white", textColor="white", ID="frButton")
+    ui.addButton(render.WIDTH_WINDOW*0.05, render.HEIGHT_WINDOW*0.15, polygonal=POLYGONS["trapeze-down"], width=render.WIDTH_WINDOW*0.10 , text="EN", action=setLanguage, arguments=["en", initMenuUI], outlineColor="white", textColor="white", ID="enButton")
     # ui.addButton(render.WIDTH_WINDOW*0.1, render.HEIGHT_WINDOW*0.15, text=language.get("englishButton"), action=ui.setBackground, arguments=["green"], outlineColor="white", textColor="white")
-    animation.animate("playButton", [1, 0.6], [{"y":render.HEIGHT_WINDOW *0.8/3}, {"width":render.WIDTH_WINDOW / 3, "height":int(render.HEIGHT_WINDOW / 3)}])
-    animation.animate("scoreButton", [1], [{"x":render.WIDTH_WINDOW / 4}])
-    animation.animate("editorButton", [1], [{"x": 3*render.WIDTH_WINDOW / 4}])
-    animation.animate("quitButton", [1], [{"y": render.HEIGHT_WINDOW*0.75}])
-    animation.animate("frButton", [1], [{"y": render.HEIGHT_WINDOW*0.05}])
-    animation.animate("enButton", [1], [{"x": render.WIDTH_WINDOW*0.05}])
+    animation.animate("playButton", [0.5, 0.3], [{"y":render.HEIGHT_WINDOW *0.8/3}, {"width":render.WIDTH_WINDOW / 3, "height":int(render.HEIGHT_WINDOW / 3)}])
+    animation.animate("scoreButton", [0.5], [{"x":render.WIDTH_WINDOW / 4}])
+    animation.animate("editorButton", [0.5], [{"x": 3*render.WIDTH_WINDOW / 4}])
+    animation.animate("quitButton", [0.5], [{"y": render.HEIGHT_WINDOW*0.85}])
+    # animation.animate("frButton", [0.5], [{"y": render.HEIGHT_WINDOW*0.05}])
+    # animation.animate("enButton", [0.5], [{"x": render.WIDTH_WINDOW*0.05}])
 
 def initSaveLevel(level):
     """
@@ -59,7 +59,7 @@ def initSaveLevel(level):
     ui.addText(render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/9, "levelName", render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/8, text=" ", textColor="white", textSize=28)
     ui.addText(3*render.WIDTH_WINDOW/4, render.HEIGHT_WINDOW/9, "levelSelected", render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/8, text=" ", textColor="white", textSize=28)
     
-    ui.addCanvas(render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/2, "levelSelection", width=0, height=0, squaresMap=level)
+    ui.addCanvas(render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/2, "levelSelection", width=0, height=0, squaresMap=level, cellSize=24)
 
 
 def initSelectionLevel(level):
@@ -73,14 +73,14 @@ def initSelectionLevel(level):
 
 
 def initScores():
-    ui.addText(render.WIDTH_WINDOW/20, render.HEIGHT_WINDOW/20, text="Levels", textColor="white", textSize=32, anchor="nw")
+    ui.addText(render.WIDTH_WINDOW/20, render.HEIGHT_WINDOW/20, text="Levels", textColor="white", textSize=32, textAnchor="nw")
     ui.addPolygon(render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/2, width=render.WIDTH_WINDOW/100, height=0, points=POLYGONS["separator-vertical"], fill="white", ID='separator')
     animation.animate("separator", [0.4], [{"height":render.HEIGHT_WINDOW/1.1}])
     ui.addText(render.WIDTH_WINDOW/2 + render.WIDTH_WINDOW/20, render.HEIGHT_WINDOW/20, text="Unlimited Random", textColor="white", textSize=32, textAnchor="nw")
+    scores = IO.loadScore()
     for i in range(10):
-        ui.addText(render.WIDTH_WINDOW/2 + render.WIDTH_WINDOW/18, render.HEIGHT_WINDOW/16, ID="urtext"+str(i+1), text=" ---- # ---- ", textColor="white", textSize=18, anchor="nw")
-    
-    pass
+        ui.addText(render.WIDTH_WINDOW/2 + render.WIDTH_WINDOW/24, render.HEIGHT_WINDOW/5.5+ (render.HEIGHT_WINDOW/16) * 1.3*i, ID="urtext"+str(i+1), text=str(i+1)+")  "+scores["r"][i][0]+" - "+scores["r"][i][1], textColor="white", textSize=18, textAnchor="nw")
+
 
 def setLanguage(lang, fc=None, args=[]):
     """
@@ -152,12 +152,16 @@ def resetGame():
     """
     origin = data["origin"][:]
     mode = data["mode"]
+    level = data["level"]
     initData()
+    print(mode, origin)
     if mode == "s":
         data["map"] = origin[:]
     else: 
         IO.loadLevel(data)
     start(data)
+    data["level"] = level
+    data["mode"] = mode
     render.update(data["map"][1::], "gameCanvas")
     ui.render()
 

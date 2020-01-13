@@ -404,7 +404,7 @@ def drawTextField(ID):
 
 ######## Texts ########
 def addText(x, y, ID=None, width=150, height=30, anchor=None, textAnchor=None, text="", textColor="black",
-            textSize=18, textFont="Purisa", hidden=False, layer=0, isChild=False):
+            textSize=18, textFont="Monospace", hidden=False, layer=0, isChild=False):
     global objects
     ID = addObject(x, y, layer, width, height, anchor, ID, hidden=hidden, isChild=isChild, otype="Text")
     objects[ID]["text"] = text

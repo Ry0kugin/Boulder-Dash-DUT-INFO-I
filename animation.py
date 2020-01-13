@@ -127,3 +127,6 @@ def setEnabled(boolean):
     """
     global enabled
     enabled=boolean
+
+def clearAnimation():
+    animations.clear()

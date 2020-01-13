@@ -203,6 +203,6 @@ def saveScore(scores):
             fos.write(lvl+"#"+str(scores["s"][lvl][0])+"#"+scores["s"][lvl][1]+"\n")
         fos.write("<r>\n")
         for score in scores["r"]:
-            fos.write(score[0]+"#"+score[1]+"\n")
+            fos.write(str(score[0])+"#"+score[1]+"\n")
         
         
