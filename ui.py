@@ -153,7 +153,8 @@ def render(text=None):
                 if objects[ID]["tkObjects"]:
                     for t in objects[ID]["tkObjects"]:
                         efface(t)
-                drawObject(ID)
+                if not objects[ID]["hidden"] or not objects[ID]["isChild"]:
+                    drawObject(ID)
             l.clear()
         
         setToRenderObjects(buffer)
@@ -201,7 +202,7 @@ def newPrompt(message, buttonText, cancelable=True, checker=None, checkerArgumen
     layer = len(renderQueue)
     childs = ["prompt_1", "prompt_2", "prompt_3"]
     addText(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 1.6 / 4, ID=childs[0], text=message, isChild=True, layer=layer)
-    addTextField(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 2 / 4, ID=childs[1], outlineColor="white", isChild=True, layer=layer)
+    addTextField(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 2 / 4, ID=childs[1], outlineColor="white", isChild=True, layer=layer, maxChar=10)
     addButton(WIDTH_WINDOW / 2, HEIGHT_WINDOW * 2.5 / 4, ID=childs[2], outlineColor="white", text=buttonText, textSize=18, action=actionPrompt, arguments=[success, successArguments, True, anyway, anywayArguments], layer=layer)
     if cancelable:
         childs.append("prompt_4")

@@ -2,6 +2,7 @@ from upemtk import *
 from render import WIDTH_WINDOW, HEIGHT_WINDOW
 from random import *
 import ui
+import IO
 import render
 import timer
 from game import getFps, updateStats, updateTime
@@ -241,17 +242,18 @@ def moveRockford(data, direction):
     elif aimCell == "D" or aimCell == "X":
         setRockfordCell(data["map"], data["rockford"], aimCoord)
         data["fall"]["fallables"].remove({"pos": aimCoord, "falling": False})
-        changeRockfordPos(data, aimCoord, True)
         if aimCell =="D":
+            changeRockfordPos(data, aimCoord, True)
             timer.add("game", -10)
             data["score"] += 100
+            if data["diamonds"]["owned"]==int(data["map"][0][1]):
+                data["end"]["open"] = True
+                enddoor = "O"
+                setCell(data["map"], data["end"]["pos"], enddoor)
         else:
+            changeRockfordPos(data, aimCoord, False)
             timer.add("game", -1000)
             data["score"] += 10000
-        if data["diamonds"]["owned"]==int(data["map"][0][1]):
-            data["end"]["open"] = True
-            enddoor = "O"
-            setCell(data["map"], data["end"]["pos"], enddoor)
 
     elif aimCell == "O":
         setRockfordCell(data["map"], data["rockford"], aimCoord, aim=enddoor)
@@ -345,14 +347,22 @@ def status(data):
             data["time"]["remain"]=0
             updateStats(data["time"]["remain"], (data["diamonds"]["owned"], int(data["map"][0][1])), data["score"])
             ui.render(getFps())
+            
 
             
             endGame(True)
             if data["mode"] == "s":
+                updateScore(data["score"], "player", level=data["level"])
                 attente_clic_ou_touche()
+            else:
+                updateScore(data["score"], "player")
             return True
         else:
             endGame(False)
+            if data["mode"] == "s":
+                updateScore(data["score"], "player", level=data["level"])
+            else:
+                updateScore(data["score"], "player")
             attente_clic_ou_touche()
             return False
 
@@ -372,3 +382,19 @@ def quitter():
     quitte la partie
     """
     exit("Merci d'avoir joué à notre jeu.\nRioven Studios")
+
+
+def updateScore(score, player ,level=None):
+    scores = IO.loadScore()
+    if level:
+        if score > scores["s"][level][0]:
+            scores["s"][level] = (score, player)
+    else:
+        for i in range(10):
+            if score >= scores["r"][i][0]:
+                scores["r"].insert(i, (score, player))
+                break
+        scores["r"] = scores["r"][:10]
+    IO.saveScore(scores)
+
+

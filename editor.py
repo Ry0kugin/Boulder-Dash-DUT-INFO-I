@@ -11,7 +11,7 @@ def initEditorUI():
     
     # Buttons
     ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16, action=evenement.setGameEvent, arguments=["reset"], outlineColor="white", text=language.get("resetButton"), textColor="white", layer=1)
-    ui.addButton(RightXPos, render.HEIGHT_WINDOW, action=evenement.setGameEvent, arguments=["save"], anchor="sc",outlineColor="white", text="Sauvegarder", textSize=15, textColor="white", layer=1)
+    ui.addButton(RightXPos, render.HEIGHT_WINDOW, action=saveLevel, anchor="sc",outlineColor="white", text="Sauvegarder", textSize=15, textColor="white", layer=1, ID="saveButton")
     # Texts
     ui.addText(render.WIDTH_WINDOW*0.05, render.WIDTH_WINDOW*0.02, ID="timeLeftText", anchor="nw", textColor="green", text=language.get("timeText"), textFont="Monospace")
     # textFields
@@ -19,6 +19,7 @@ def initEditorUI():
     # Game canvas
     ui.addCanvas(0, render.HEIGHT_WINDOW/8, ID="editorCanvas", width=0, height=0, fill="green", anchor="nw")
     ui.addCanvas(RightXPos, render.HEIGHT_WINDOW/8, ID="blockCanvas", width=0, height=0, fill="red", anchor="n", cellSize=64, selected=[(0,0)])
+
 
 def editor(level=None):
     """
@@ -36,7 +37,27 @@ def editor(level=None):
         ]
     editorWidth = 20
     editorHeight = 12
-    render.update((IO.loadLevel(level=level)[1:] if level else [["." for x in range(editorWidth)] for y in range(editorHeight)]), "editorCanvas")
+    if level:
+        # squaresMap=[]
+        level=IO.loadLevel(level=level)
+        ui.setObject("timeLeftTextField", {"text": str(level[0][0])})
+        level=level[1:]
+        ydiff=editorHeight-len(level)
+        xdiff=editorWidth-len(level[0])
+        for y in range(len(level)):
+            # print(["." for x in range(xdiff)])
+            level[y].extend(["." for x in range(xdiff)])
+        level.extend([["." for y in range(editorWidth)] for y in range(ydiff)])
+            # squaresMap.append(level[y])
+            # for x in range(len(level)):
+            #     squaresMap[y].append(level[y][x])
+        #     while len(squaresMap[y])<editorWidth:
+        #         squaresMap[y].append(".")
+        # while len(squaresMap)<editorHeight:
+        #         squaresMap.append(["." for x in range(editorWidth)])
+    else:
+        level=[["." for x in range(editorWidth)] for y in range(editorHeight)]
+    render.update(level, "editorCanvas")
     render.update(blockMap, "blockCanvas")
     onPressed=False
     while not evenement.event["game"] == 'return':
@@ -80,8 +101,7 @@ def writeMultipleBlocks(canvas, squaresMap, block):
     """
     for p in ui.objects["editorCanvas"]["selected"]:
         squaresMap[p[1]][p[0]]=block
-    ui.setObject(canvas, {"selected":None})
-    return squaresMap
+    ui.setObject(canvas, {"selected":None, "squaresMap":squaresMap})
 
 def updateCursor(ev, canvas, block=None, onPressed=False):
     """
@@ -106,7 +126,8 @@ def updateCursor(ev, canvas, block=None, onPressed=False):
                 # print("inSquare")
                 if not onPressed:
                     if multiSelection:
-                        squaresMap=writeMultipleBlocks(canvas, squaresMap, block)
+                        writeMultipleBlocks(canvas, squaresMap, block)
+                        return
                     else:
                         ui.setObject(canvas, {"selected":[(x,y)]})
                 else:
@@ -126,11 +147,10 @@ def updateCursor(ev, canvas, block=None, onPressed=False):
             if block:
                 # print("notinSquare")
                 if multiSelection:
-                    squaresMap=writeMultipleBlocks(canvas, squaresMap, block)
-                    render.update(squaresMap, canvas)
+                    writeMultipleBlocks(canvas, squaresMap, block)
+                    return
                     # onPressed=False
                     # return onPressed
-                ui.setObject(canvas, {"selected":None})
             else:
                 ui.setObject(canvas, {"selected":[ui.objects["blockCanvas"]["selected"][0], None]})
         # return onPressed
@@ -138,19 +158,47 @@ def updateCursor(ev, canvas, block=None, onPressed=False):
 def exportEditorLevel():
     squaresMap=ui.objects["editorCanvas"]["squaresMap"]
     maximalX=0
-    maximalY=0
-    
-    for y in len(squaresMap):
+    maximalY=len(squaresMap)
+    diamondCount=0
+    rockfordCount=0
+    endCount=0
+    for y in range(len(squaresMap)):
         empty=True
-        for x in len(squaresMap[y]):
+        for x in range(len(squaresMap[y])):
             if squaresMap[y][x]!=".":
                 if x>maximalX:
                     maximalX=x
+                if squaresMap[y][x] == "D":
+                    diamondCount+=1
+                elif squaresMap[y][x] == "R":
+                    rockfordCount+=1
+                elif squaresMap[y][x] == "E":
+                    endCount+=1
                 empty=False
-        # if 
-        "".join(squaresMap[y])
+        if empty and y<maximalY:
+            maximalY=y
+    if rockfordCount!=1 or endCount<1:
+        return None
+    # print(maximalX, maximalY)
+    squaresMap=squaresMap[:maximalY]
+    for y in range(len(squaresMap)):
+        squaresMap[y]=squaresMap[y][:maximalX+1]
+    try:
+        timeLeft=int(ui.objects["timeLeftTextField"]["text"])
+    except:
+        return None
+    squaresMap.insert(0, [timeLeft, diamondCount])
+    return squaresMap
+
 
 def saveLevel():
-    # ui.newPrompt("Nom du niveau:", "Sauvegarder", success=lambda: IO.save(, ui.objects["prompt_2"]["text"], saveIn="level"), checker=IO.checkSaveName, anyway=lambda: timer.setFactor(1))
-    pass
-    
+    level=exportEditorLevel()
+    if level:
+        ui.setObject("saveButton", {"outlineColor":"white","textColor":"white"})
+        ui.newPrompt("Nom du niveau:", "Sauvegarder", success=lambda: IO.save(level, ui.objects["prompt_2"]["text"], saveIn="level"), checker=IO.checkSaveName, anyway=lambda: timer.setFactor(1))
+    else:
+        ui.setObject("saveButton", {"outlineColor":"red","textColor":"red"})
+        print("Editor warning: the level can't be exported")
+
+
+

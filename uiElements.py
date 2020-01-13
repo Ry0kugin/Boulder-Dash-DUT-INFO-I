@@ -32,8 +32,9 @@ POLYGONS = {
     "octo": [(0.3,0), (0.7,0), (1,0.3), (1,0.7), (0.7,1), (0.3,1), (0,0.7), (0,0.3)],
     "trapeze-up": [(0,1), (0.3,0), (0.7,0), (1,1)],
     "trapeze-down": [(0,0), (0.3,1), (0.7,1), (1,0)],
+    "separator-vertical": [(0,0.05),(0.5,0),(1,0.05),(1,0.95),(0.5,1),(0,0.95)],
     "right-arrow": [(0,0),(1,0.5),(0,1)],
-    "left-arrow": [(1,0),(0,0.5),(1,1)]
+    "left-arrow": [(1,0),(0,0.5),(1,1)],
 }
 
 def reset():
@@ -340,8 +341,6 @@ def drawButton(ID):
 def addPolygon(x, y, ID=None, points=None,width=150, height=50, anchor=None, outlineColor="black", fill="", stroke=1, hidden=False, layer=0, isChild=False):
 
     global objects
-    # if textSize is None and text:
-    #     textSize = int(width / len(text))
     ID = addObject(x, y, layer, width, height, anchor, ID, outlineColor, fill, stroke, hidden, isChild, otype="Polygon")
     objects[ID]["points"]=points
     # [(x,y),(x,y),...]
@@ -357,18 +356,20 @@ def drawPolygon(ID):
             objects[ID]["outlineColor"],
             objects[ID]["fill"],
             objects[ID]["stroke"]
-        ))
+        ),
+        )
 
 ######## textFields ########
 def addTextField(x, y, ID=None, width=150, height=30, anchor=None, text="",
                  outlineColor="black", textColor="black", textSize=18, fill="", textFont="Monospace", stroke=1,
-                 hidden=False, layer=0, isChild=False):
+                 hidden=False, layer=0, isChild=False, maxChar=8):
     global objects
     ID = addObject(x, y, layer, width, height, anchor, ID, outlineColor, fill, stroke, hidden, isChild, otype="textField")
     objects[ID]["text"] = text
     objects[ID]["textColor"] = textColor
     objects[ID]["textSize"] = textSize
     objects[ID]["textFont"] = textFont
+    objects[ID]["maxChar"] = maxChar
 
 
 def drawTextField(ID):
@@ -376,7 +377,6 @@ def drawTextField(ID):
     Dessine un champ de texte modifiable à partir de l'objet donné.
     :param string ID: ID de l'objet
     """
-    i=0
     # if objects[ID]["text"]:
     #     while longueur_texte(objects[ID]["text"][-i:])>objects[ID]["width"]:
     #         i+=1
@@ -393,7 +393,7 @@ def drawTextField(ID):
         texte(
             objects[ID]["ax"],
             (objects[ID]["ay"] + (objects[ID]["by"] - objects[ID]["ay"]) / 2),
-            objects[ID]["text"][-i:],
+            objects[ID]["text"][-objects[ID]["maxChar"]:],
             objects[ID]["textColor"],
             taille=objects[ID]["textSize"],
             ancrage="w",
@@ -403,12 +403,12 @@ def drawTextField(ID):
 
 
 ######## Texts ########
-def addText(x, y, ID=None, width=150, height=30, anchor=None, text="", textColor="black",
+def addText(x, y, ID=None, width=150, height=30, anchor=None, textAnchor=None, text="", textColor="black",
             textSize=18, textFont="Purisa", hidden=False, layer=0, isChild=False):
     global objects
     ID = addObject(x, y, layer, width, height, anchor, ID, hidden=hidden, isChild=isChild, otype="Text")
     objects[ID]["text"] = text
-    # objects[ID]["textAnchor"] = textAnchor
+    objects[ID]["textAnchor"] = textAnchor
     objects[ID]["textColor"] = textColor
     objects[ID]["textSize"] = textSize
     objects[ID]["textFont"] = textFont
@@ -431,7 +431,7 @@ def drawText(ID):
             objects[ID]["y"],
             objects[ID]["text"],
             objects[ID]["textColor"],
-            anchor,
+            objects[ID]["textAnchor"],
             objects[ID]["textFont"],
             objects[ID]["textSize"]
         ),

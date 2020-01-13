@@ -111,10 +111,10 @@ def save(data, fileName, saveIn="saves"):
             fos.write("-time-\n")
             fos.write(str(data["time"]["remain"]))
         else: 
-            fos.write(str(data["map"][0][0]) + "s " + str(data["map"][0][1]) + "d\n")
-            for i in range(1, len(data["map"])-1):
-                fos.write("".join(data["map"][i]) + "\n")
-            fos.write("".join(data["map"][-1]))
+            fos.write(str(data[0][0]) + "s " + str(data[0][1]) + "d\n")
+            for i in range(1, len(data)-1):
+                fos.write("".join(data[i]) + "\n")
+            fos.write("".join(data[-1]))
     return fileName
 
 
@@ -169,31 +169,40 @@ def getLevels(getfrom="level" ,directory=None):
     
 def loadScore():
     scores = {}
-    with open("score/score.txt", "r") as fis:
+    with open("score/score", "r") as fis:
         currentSection = None
-        for line in fis:
+        for line in fis.readlines():
             if line.strip() == "<s>":
                 currentSection = "s"
+                continue
             elif line.strip() == "<r>":
                 currentSection = "r"
+                continue
+
             if currentSection == "s":
                 if "s" not in scores:
-                    scores["s"] = []
-                lvl, score, player = line.strip().split("#")
-                scores["s"].append()
+                    scores["s"] = {}
+                if len(line.strip()) != 0:
+                    lvl, score, player = line.strip().split("#")
+                    scores["s"][lvl] = (int(score), player)
             else: 
-                pass
+                if "r" not in scores:
+                    scores["r"] = []
+                score, player = line.strip().split("#")
+                scores["r"].append((score, player))
+    print(scores)
+    return scores
             
         
     
 
 def saveScore(scores):
-    with open("score/score.txt" , "w") as fos:
-        fos.writelines("<s>")
+    with open("score/score" , "w") as fos:
+        fos.write("<s>\n")
         for lvl in scores["s"]:
-            fos.writelines(lvl+"#"+str(scores[lvl][0])+"#"+scores[lvl][1])
-        fos.writelines("<r>")
+            fos.write(lvl+"#"+str(scores["s"][lvl][0])+"#"+scores["s"][lvl][1]+"\n")
+        fos.write("<r>\n")
         for score in scores["r"]:
-            fos.writelines(str(score)+"#"+scores[lvl][0])
+            fos.write(score[0]+"#"+score[1]+"\n")
         
         
