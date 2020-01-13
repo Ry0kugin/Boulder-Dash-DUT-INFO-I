@@ -264,7 +264,6 @@ def play(level=None, mode="r"):
         win = logic.status(data)
         logic.updateGameStatus()
         if win and data["mode"] == "s":
-            attente_clic_ou_touche()
             break
         elif win:
             IO.loadLevel(data)
