@@ -72,12 +72,19 @@ def initSelectionLevel(level):
     # ui.addButton(render.WIDTH_WINDOW/2, 7*render.HEIGHT_WINDOW/8, width=render.WIDTH_WINDOW/4, height=render.HEIGHT_WINDOW/7, anchorx="c" ,anchory="c", text="Play", outlineColor="white", textColor="white", action=evenement.setGameEvent, arguments=["play"])
 
 
-def initScores():
-    ui.addText(render.WIDTH_WINDOW/20, render.HEIGHT_WINDOW/20, text="Levels", textColor="white", textSize=32, textAnchor="nw")
+def initScores(scores):
+    ui.addText(render.WIDTH_WINDOW/24, render.HEIGHT_WINDOW/20, text="Levels", textColor="white", textSize=32, textAnchor="nw")
+    ui.addButton(render.WIDTH_WINDOW/4, 2*render.HEIGHT_WINDOW / 14, width=100, height=30, fill="white", stroke=5, polygonal=POLYGONS["up-arrow"], action=evenement.setGameEvent, arguments=["up"])
+    ui.addButton(render.WIDTH_WINDOW/4, 13*render.HEIGHT_WINDOW / 14, width=100, height=30, fill="white", stroke=5, polygonal=POLYGONS["down-arrow"], action=evenement.setGameEvent, arguments=["down"])
+    levels = [key for key in scores["s"]]
+    for i in range(3):
+        ui.addText(render.WIDTH_WINDOW/20, render.HEIGHT_WINDOW / 3.3 + (render.HEIGHT_WINDOW/7) * 1.30*i, ID="ltext"+str(i+1), text= levels[i] + " - "+ str(scores["s"][levels[i]][0]) + "\n\t"+scores["s"][levels[i]][1], textColor="white", textSize=18, textAnchor="sw")   
+        ui.addPolygon(render.WIDTH_WINDOW/4, render.HEIGHT_WINDOW / 2.9 + (render.HEIGHT_WINDOW/7) * 1.30*i, width=render.WIDTH_WINDOW/2.4, height=render.HEIGHT_WINDOW/80, points=POLYGONS["separator-horizontal"], fill="white", ID='levelSeparator'+str(i))
+    ui.addText(render.WIDTH_WINDOW/20, render.HEIGHT_WINDOW / 3.3 + (render.HEIGHT_WINDOW/7) * 1.30*3, ID="ltext"+str(3+1), text= levels[3%len(levels)] + " - "+ str(scores["s"][levels[3%len(levels)]][0]) + "\n\t"+scores["s"][levels[3%len(levels)]][1], textColor="white", textSize=18, textAnchor="sw")   
+
     ui.addPolygon(render.WIDTH_WINDOW/2, render.HEIGHT_WINDOW/2, width=render.WIDTH_WINDOW/100, height=0, points=POLYGONS["separator-vertical"], fill="white", ID='separator')
     animation.animate("separator", [0.4], [{"height":render.HEIGHT_WINDOW/1.1}])
-    ui.addText(render.WIDTH_WINDOW/2 + render.WIDTH_WINDOW/20, render.HEIGHT_WINDOW/20, text="Unlimited Random", textColor="white", textSize=32, textAnchor="nw")
-    scores = IO.loadScore()
+    ui.addText(render.WIDTH_WINDOW/2 + render.WIDTH_WINDOW/24, render.HEIGHT_WINDOW/20, text="Unlimited Random", textColor="white", textSize=32, textAnchor="nw")
     for i in range(10):
         ui.addText(render.WIDTH_WINDOW/2 + render.WIDTH_WINDOW/24, render.HEIGHT_WINDOW/5.5+ (render.HEIGHT_WINDOW/16) * 1.3*i, ID="urtext"+str(i+1), text=str(i+1)+")  "+scores["r"][i][0]+" - "+scores["r"][i][1], textColor="white", textSize=18, textAnchor="nw")
 

@@ -385,7 +385,7 @@ def quitter():
 def updateScore(score, player ,level=None):
     scores = IO.loadScore()
     if level:
-        if score > int(scores["s"][level][0]):
+        if level not in scores["s"] or score > int(scores["s"][level][0]):
             scores["s"][level] = (score, player)
     else:
         for i in range(10):

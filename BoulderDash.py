@@ -100,11 +100,20 @@ def choicePlaystyleMenu():
         ui.render(game.getFps())
         mise_a_jour()
 
+
+
 def scoresMenu():
+    scores = IO.loadScore()
+    levels = [key for key in scores["s"]]
+    game.initScores(scores)
     while not evenement.event["game"] == 'return':   
         evenement.compute()
         ui.logic(evenement.event["tk"])
-        
+
+        if evenement.event["game"] == "up":
+            pass
+        elif evenement.event["game"] == "down":
+            pass
 
         game.updateTime()
         animation.update()
@@ -153,7 +162,7 @@ if __name__ == '__main__':
             editor.editor()
             backInBlack(game.initMenuUI)
         elif evenement.event["game"] == 'score':
-            goInBlack(game.initScores)
+            goInBlack()
             scoresMenu()
             backInBlack(game.initMenuUI)
             

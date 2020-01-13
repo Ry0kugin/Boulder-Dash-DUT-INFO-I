@@ -162,6 +162,7 @@ def exportEditorLevel():
     diamondCount=0
     rockfordCount=0
     endCount=0
+    timeLeft= 0
     for y in range(len(squaresMap)):
         empty=True
         for x in range(len(squaresMap[y])):
@@ -184,7 +185,8 @@ def exportEditorLevel():
     for y in range(len(squaresMap)):
         squaresMap[y]=squaresMap[y][:maximalX+1]
     try:
-        timeLeft=int(ui.objects["timeLeftTextField"]["text"])
+        # timeLeft=int(ui.objects["timeLeftTextField"]["text"])
+        timeLeft = 150
     except:
         return None
     squaresMap.insert(0, [timeLeft, diamondCount])
