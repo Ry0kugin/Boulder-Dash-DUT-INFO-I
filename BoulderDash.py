@@ -105,15 +105,20 @@ def choicePlaystyleMenu():
 def scoresMenu():
     scores = IO.loadScore()
     levels = [key for key in scores["s"]]
+    selected = 0
     game.initScores(scores)
     while not evenement.event["game"] == 'return':   
         evenement.compute()
         ui.logic(evenement.event["tk"])
 
         if evenement.event["game"] == "up":
-            pass
+            selected += 1
+            for i in range(4):
+                ui.setObject("ltext"+str(i+1), {"text": levels[(selected+i)%len(levels)] + " - "+ str(scores["s"][levels[(selected+i)%len(levels)]][0]) + "\n\t"+scores["s"][levels[(selected+i)%len(levels)]][1]})
         elif evenement.event["game"] == "down":
-            pass
+            selected -= 1 
+            for i in range(4):
+                ui.setObject("ltext"+str(i+1), {"text": levels[(selected+i)%len(levels)] + " - "+ str(scores["s"][levels[(selected+i)%len(levels)]][0]) + "\n\t"+scores["s"][levels[(selected+i)%len(levels)]][1]})
 
         game.updateTime()
         animation.update()

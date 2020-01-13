@@ -17,7 +17,8 @@ dictionnary = {
         "englishButton": "English",
         "resetButton": "Réinitialiser",
         "debugButton": "Déboguer",
-        "saveButton": "Sauvegarder"
+        "saveButton": "Sauvegarder",
+        "editorTimeText": "Temps maximal:"
     },
     "en": {
         "playButton":"Play",
@@ -36,7 +37,8 @@ dictionnary = {
         "englishButton": "English",
         "resetButton": "Reset",
         "debugButton": "Debug",
-        "saveButton": "Save"
+        "saveButton": "Save",
+        "editorTimeText": "Maximum time:"
     }
 }
 

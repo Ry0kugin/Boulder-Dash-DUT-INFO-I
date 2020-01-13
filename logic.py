@@ -350,24 +350,26 @@ def status(data):
             
 
             
-            endGame(True)
             if data["mode"] == "s":
+                endGame(True)
                 updateScore(data["score"], "player", level=data["level"])
                 attente_clic_ou_touche()
+                ui.remObject("endText")
+                ui.render(getFps())
             return True
         else:
-            endGame(False)
             if data["mode"] == "s":
+                endGame(False)
                 updateScore(data["score"], "player", level=data["level"])
             else:
                 updateScore(data["score"], "player")
             attente_clic_ou_touche()
+            ui.remObject("endText")
+            ui.render(getFps())
             return False
 
 def endGame(win):
-    ui.addText(WIDTH_WINDOW / 4, HEIGHT_WINDOW / 2 - 24, text=("VOUS AVEZ GAGNE :)" if win else "VOUS AVEZ PERDU :("), textColor=("green" if win else"red"), ID="endText")
-    ui.render(getFps())
-    ui.remObject("endText")
+    ui.addText(WIDTH_WINDOW / 2, HEIGHT_WINDOW / 2, textSize=48 ,text=("VOUS AVEZ GAGNE :)" if win else "VOUS AVEZ PERDU :("), textColor=("green" if win else"red"), ID="endText", layer=2)
     ui.render(getFps())
 
 def updateGameStatus():

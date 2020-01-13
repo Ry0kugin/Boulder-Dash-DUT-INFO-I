@@ -13,9 +13,9 @@ def initEditorUI():
     ui.addButton(RightXPos, render.HEIGHT_WINDOW / 16, action=evenement.setGameEvent, arguments=["reset"], outlineColor="white", text=language.get("resetButton"), textColor="white", layer=1)
     ui.addButton(RightXPos, render.HEIGHT_WINDOW, action=saveLevel, anchor="sc",outlineColor="white", text="Sauvegarder", textSize=15, textColor="white", layer=1, ID="saveButton")
     # Texts
-    ui.addText(render.WIDTH_WINDOW*0.05, render.WIDTH_WINDOW*0.02, ID="timeLeftText", anchor="nw", textColor="green", text=language.get("timeText"), textFont="Monospace")
+    ui.addText(render.WIDTH_WINDOW*0.15, render.WIDTH_WINDOW*0.035, ID="timeLeftText", anchor="nw", textColor="green", text=language.get("editorTimeText"), textFont="Monospace")
     # textFields
-    ui.addTextField(ui.objects["timeLeftText"]["bx"], 0, ID="timeLeftTextField", anchor="nw", outlineColor="white")
+    ui.addTextField(render.WIDTH_WINDOW*0.35, render.WIDTH_WINDOW*0.035, ID="timeLeftTextField", outlineColor="white", textColor="white")
     # Game canvas
     ui.addCanvas(0, render.HEIGHT_WINDOW/8, ID="editorCanvas", width=0, height=0, fill="green", anchor="nw")
     ui.addCanvas(RightXPos, render.HEIGHT_WINDOW/8, ID="blockCanvas", width=0, height=0, fill="red", anchor="n", cellSize=64, selected=[(0,0)])
@@ -45,16 +45,8 @@ def editor(level=None):
         ydiff=editorHeight-len(level)
         xdiff=editorWidth-len(level[0])
         for y in range(len(level)):
-            # print(["." for x in range(xdiff)])
             level[y].extend(["." for x in range(xdiff)])
         level.extend([["." for y in range(editorWidth)] for y in range(ydiff)])
-            # squaresMap.append(level[y])
-            # for x in range(len(level)):
-            #     squaresMap[y].append(level[y][x])
-        #     while len(squaresMap[y])<editorWidth:
-        #         squaresMap[y].append(".")
-        # while len(squaresMap)<editorHeight:
-        #         squaresMap.append(["." for x in range(editorWidth)])
     else:
         level=[["." for x in range(editorWidth)] for y in range(editorHeight)]
     render.update(level, "editorCanvas")
@@ -185,8 +177,7 @@ def exportEditorLevel():
     for y in range(len(squaresMap)):
         squaresMap[y]=squaresMap[y][:maximalX+1]
     try:
-        # timeLeft=int(ui.objects["timeLeftTextField"]["text"])
-        timeLeft = 150
+        timeLeft=int(ui.objects["timeLeftTextField"]["text"])
     except:
         return None
     squaresMap.insert(0, [timeLeft, diamondCount])
