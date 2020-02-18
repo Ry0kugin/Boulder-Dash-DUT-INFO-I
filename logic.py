@@ -5,7 +5,7 @@ import ui
 import IO
 import render
 import timer
-from game import getFps, updateStats, updateTime
+from game import getFps, updateStats, updateTime, getPlayer
 
 import time
 
@@ -351,17 +351,17 @@ def status(data):
 
             
             if data["mode"] == "s":
-                updateScore(data["score"], "player", level=data["level"])
+                updateScore(data["score"], getPlayer(), level=data["level"])
                 endGame(True)
                 ui.remObject("endText")
                 ui.render(getFps())
             return True
         else:
             if data["mode"] == "s":
-                updateScore(data["score"], "player", level=data["level"])
+                updateScore(data["score"], getPlayer(), level=data["level"])
                 endGame(False)
             else:
-                updateScore(data["score"], "player")
+                updateScore(data["score"], getPlayer())
                 endGame(False)
             ui.remObject("endText")
             ui.render(getFps())

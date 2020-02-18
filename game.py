@@ -15,6 +15,7 @@ from uiElements import POLYGONS
 
 data = {}
 fps = 0
+playerName = "Player"
 
 def initPlayMenu():
     """
@@ -37,6 +38,7 @@ def initMenuUI():
     # ui.addButton(render.WIDTH_WINDOW - 85, render.HEIGHT_WINDOW - 10, polygonal=POLYGONS["octo"], text=language.get("settingsButton"), textSize=18, textColor="white", outlineColor="white", anchor="sc")
     ui.addButton(render.WIDTH_WINDOW*0.05, render.HEIGHT_WINDOW*0.05, polygonal=POLYGONS["trapeze-up"], width=render.WIDTH_WINDOW*0.10  , text="FR", action=setLanguage, arguments=["fr", initMenuUI], outlineColor="white", textColor="white", ID="frButton")
     ui.addButton(render.WIDTH_WINDOW*0.05, render.HEIGHT_WINDOW*0.15, polygonal=POLYGONS["trapeze-down"], width=render.WIDTH_WINDOW*0.10 , text="EN", action=setLanguage, arguments=["en", initMenuUI], outlineColor="white", textColor="white", ID="enButton")
+    ui.addTextField(render.WIDTH_WINDOW*0.90, render.HEIGHT_WINDOW/26, text=playerName, ID="tfPlayer",outlineColor="white", textColor="white" )
     # ui.addButton(render.WIDTH_WINDOW*0.1, render.HEIGHT_WINDOW*0.15, text=language.get("englishButton"), action=ui.setBackground, arguments=["green"], outlineColor="white", textColor="white")
     animation.animate("playButton", [0.5, 0.3], [{"y":render.HEIGHT_WINDOW *0.8/3}, {"width":render.WIDTH_WINDOW / 3, "height":int(render.HEIGHT_WINDOW / 3)}])
     animation.animate("scoreButton", [0.5], [{"x":render.WIDTH_WINDOW / 4}])
@@ -209,6 +211,7 @@ def play(level=None, mode="r"):
     initData()
     data["level"] = level
     data["mode"] = mode
+    # data["origin"] = data["map"][1::]
     if level and mode=="s":
         IO.loadLevel(data, level)
     elif level and mode=="l":
@@ -365,3 +368,6 @@ def updateTime():
     delta = timer.update()
     computeFps(delta)
     return delta
+
+def getPlayer():
+    return playerName
